@@ -1,0 +1,239 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  height: 100%;
+}
+
+body {
+  font-family: system-ui, -apple-system, sans-serif;
+  background-color: #ffffff;
+  overflow-x: hidden;
+  min-height: 100%;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-text-size-adjust: 100%;
+}
+
+/* Smooth momentum scrolling on iOS */
+.overflow-y-auto, .overflow-y-scroll {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ── Modal animations ── */
+@keyframes backdropShow {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes backdropHide {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+@keyframes modalShow {
+  0%   { opacity: 0; transform: scale(0.7) translateY(20px); }
+  65%  { transform: scale(1.04) translateY(-4px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+@keyframes modalHide {
+  0%   { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(0.8) translateY(16px); }
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.modal-backdrop-enter { animation: backdropShow 0.22s ease forwards; }
+.modal-backdrop-exit  { animation: backdropHide 0.22s ease forwards; }
+.modal-box-enter      { animation: modalShow 0.38s cubic-bezier(0.34,1.46,0.64,1) forwards; }
+.modal-box-exit       { animation: modalHide 0.22s ease forwards; }
+.spin                 { animation: spin 0.8s linear infinite; }
+
+/* ── Hero page animations ── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+@keyframes sparkleRotate {
+  0%,100% { transform: rotate(0deg)  scale(1);   }
+  50%     { transform: rotate(22deg) scale(1.35); }
+}
+@keyframes floatBob {
+  0%,100% { transform: translateY(0px);  }
+  50%     { transform: translateY(-12px); }
+}
+@keyframes glowPulse {
+  0%,100% { text-shadow: 0 0 24px rgba(255,255,255,0.25); }
+  50%     { text-shadow: 0 0 56px rgba(255,255,255,0.55), 0 0 100px rgba(255,255,255,0.18); }
+}
+
+.fu-1 { opacity: 0; animation: fadeUp 0.62s ease both 0.10s; }
+.fu-2 { opacity: 0; animation: fadeUp 0.62s ease both 0.28s; }
+.fu-3 { opacity: 0; animation: fadeUp 0.62s ease both 0.46s; }
+.fu-4 { opacity: 0; animation: fadeUp 0.62s ease both 0.65s; }
+.fu-5 { opacity: 0; animation: fadeUp 0.62s ease both 0.84s; }
+.sparkle-spin { animation: sparkleRotate 2.6s ease-in-out infinite; }
+.float-bob    { animation: floatBob 3.2s ease-in-out infinite; }
+.glow-text    { animation: glowPulse 3s ease-in-out infinite; }
+
+/* ── Course cards ── */
+@keyframes cardSlideUp {
+  from { opacity: 0; transform: translateY(60px) scale(0.9); }
+  to   { opacity: 1; transform: translateY(0)    scale(1);   }
+}
+@keyframes footerSlideUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+@keyframes heroFadeOut {
+  from { opacity: 1; transform: scale(1);    }
+  to   { opacity: 0; transform: scale(0.92); }
+}
+@keyframes cardHover {
+  0%,100% { transform: translateY(0px); }
+  50%     { transform: translateY(-6px); }
+}
+@keyframes shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position:  200% center; }
+}
+
+.hero-fade-out  { animation: heroFadeOut 0.35s ease forwards; }
+.card-1 { opacity: 0; animation: cardSlideUp 0.55s cubic-bezier(0.34,1.46,0.64,1) both 0.05s; }
+.card-2 { opacity: 0; animation: cardSlideUp 0.55s cubic-bezier(0.34,1.46,0.64,1) both 0.18s; }
+.card-3 { opacity: 0; animation: cardSlideUp 0.55s cubic-bezier(0.34,1.46,0.64,1) both 0.31s; }
+.footer-anim { opacity: 0; animation: footerSlideUp 0.5s ease both 0.55s; }
+.lcard-1 { opacity: 0; animation: cardSlideUp 0.52s cubic-bezier(0.34,1.46,0.64,1) both 0.08s; }
+.lcard-2 { opacity: 0; animation: cardSlideUp 0.52s cubic-bezier(0.34,1.46,0.64,1) both 0.18s; }
+.lcard-3 { opacity: 0; animation: cardSlideUp 0.52s cubic-bezier(0.34,1.46,0.64,1) both 0.28s; }
+.lcard-4 { opacity: 0; animation: cardSlideUp 0.52s cubic-bezier(0.34,1.46,0.64,1) both 0.38s; }
+.lcard-5 { opacity: 0; animation: cardSlideUp 0.52s cubic-bezier(0.34,1.46,0.64,1) both 0.48s; }
+.lcard-6 { opacity: 0; animation: cardSlideUp 0.52s cubic-bezier(0.34,1.46,0.64,1) both 0.58s; }
+
+.course-card {
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.28s cubic-bezier(0.34,1.3,0.64,1), box-shadow 0.28s ease;
+}
+.course-card:hover {
+  transform: translateY(-6px) scale(1.016);
+  box-shadow: 0 22px 44px rgba(0,0,0,0.24), 0 0 0 1.5px rgba(255,255,255,0.26);
+}
+.course-card:active {
+  transform: translateY(-1px) scale(0.988);
+}
+.card-shimmer::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(105deg, transparent 38%, rgba(255,255,255,0.16) 50%, transparent 62%);
+  background-size: 200% 100%;
+  animation: shimmer 3.2s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* ── Aurora background effect ── */
+@keyframes auroraFloat1 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  35%       { transform: translate(3%, -5%) scale(1.07); }
+  70%       { transform: translate(-2%, 3%) scale(0.96); }
+}
+@keyframes auroraFloat2 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  45%       { transform: translate(-5%, 6%) scale(1.09); }
+}
+@keyframes auroraFloat3 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50%       { transform: translate(4%, -2%) scale(0.93); }
+}
+
+.aurora-wrap {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+.aurora-orb {
+  position: absolute;
+  border-radius: 50%;
+  will-change: transform;
+}
+.aurora-orb-1 {
+  width: min(520px, 70vw);
+  height: min(520px, 70vw);
+  top: -18%;
+  right: -12%;
+  background: radial-gradient(circle, rgba(255,200,170,0.13) 0%, rgba(220,60,50,0.06) 50%, transparent 70%);
+  filter: blur(36px);
+  animation: auroraFloat1 18s ease-in-out infinite;
+}
+.aurora-orb-2 {
+  width: min(460px, 62vw);
+  height: min(460px, 62vw);
+  bottom: -22%;
+  left: -8%;
+  background: radial-gradient(circle, rgba(175,20,20,0.11) 0%, transparent 65%);
+  filter: blur(44px);
+  animation: auroraFloat2 24s ease-in-out infinite;
+}
+.aurora-orb-3 {
+  width: min(280px, 42vw);
+  height: min(280px, 42vw);
+  top: 38%;
+  left: 22%;
+  background: radial-gradient(circle, rgba(255,120,80,0.07) 0%, transparent 60%);
+  filter: blur(30px);
+  animation: auroraFloat3 14s ease-in-out infinite;
+}
+.aurora-dots {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle, rgba(255,255,255,0.055) 1px, transparent 1px);
+  background-size: 28px 28px;
+  pointer-events: none;
+}
+
+/* ── Navbar menu dropdown animation ── */
+@keyframes navMenuEnter {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+.nav-menu-enter {
+  animation: navMenuEnter 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  transform-origin: top right;
+}
+
+/* ── IELTS side-panel content animation ── */
+@keyframes panelContentIn {
+  from { opacity: 0; transform: translateX(14px); }
+  to   { opacity: 1; transform: translateX(0);    }
+}
+.panel-content-in {
+  animation: panelContentIn 300ms cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+/* ── Speaking Practice popup ── */
+@keyframes popupShow {
+  0%   { opacity: 0; transform: scale(0.80) translateY(12px); }
+  65%  { transform: scale(1.03) translateY(-3px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+@keyframes popupHide {
+  from { opacity: 1; transform: scale(1);    }
+  to   { opacity: 0; transform: scale(0.86) translateY(8px); }
+}
+.popup-enter { animation: popupShow 0.34s cubic-bezier(0.34,1.3,0.64,1) forwards; }
+.popup-exit  { animation: popupHide 0.20s ease forwards; }
