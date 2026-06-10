@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { useNavigate } from 'react-router-dom'
 import en from './locales/en'
 import uz from './locales/uz'
 import ru from './locales/ru'
@@ -670,7 +671,15 @@ function IELTSModal({ onClose, onNavigate }) {
   const content = activeSection ? IELTS_CONTENT[activeSection] : null
   const activeIcon = activeSection ? IELTS_SECTIONS.find(s => s.id === activeSection)?.icon : null
 
-  const rightPanelStyle = isMobile
+  const rightPanelStyle = isMobile && activeSection
+    ? {
+        flex: 1,
+        overflow: 'hidden',
+        opacity: panelVisible ? 1 : 0,
+        transform: panelVisible ? 'translateX(0)' : 'translateX(12px)',
+        transition: 'opacity 300ms ease 80ms, transform 280ms cubic-bezier(0.4,0,0.2,1) 60ms',
+      }
+    : isMobile
     ? {
         overflow: 'hidden',
         maxHeight: panelVisible ? '440px' : '0px',
@@ -711,7 +720,7 @@ function IELTSModal({ onClose, onNavigate }) {
           <div
             style={{
               display: 'flex',
-              flexDirection: isMobile ? 'column' : 'row',
+              flexDirection: isMobile && !activeSection ? 'column' : 'row',
               alignItems: 'stretch',
               maxHeight: '88vh',
               overflowY: 'auto',
@@ -722,49 +731,66 @@ function IELTSModal({ onClose, onNavigate }) {
             <div
               style={{
                 background: 'linear-gradient(160deg, #1e3a8a 0%, #1d4ed8 55%, #2563eb 100%)',
-                width: isMobile ? '100%' : '420px',
+                width: isMobile && activeSection ? '72px' : isMobile ? '100%' : '420px',
                 flexShrink: 0,
                 display: 'flex',
                 flexDirection: 'column',
               }}
             >
               {/* Header */}
-              <div className="relative px-6 pt-6 pb-5" style={{ borderBottom: '1px solid rgba(255,255,255,0.14)' }}>
-                <button
-                  onClick={close}
-                  aria-label="Yopish"
-                  className="absolute top-5 right-5 w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-150 focus:outline-none active:scale-90"
-                  style={{ background: 'rgba(255,255,255,0.18)' }}
-                  onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.3)' }}
-                  onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.18)' }}
-                >
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                    <path d="M18 6L6 18M6 6l12 12" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
-                  </svg>
-                </button>
-
-                <div className="w-12 h-12 rounded-2xl flex items-center justify-center mb-3"
-                  style={{ background: 'rgba(255,255,255,0.18)', border: '1.5px solid rgba(255,255,255,0.28)' }}>
-                  <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
-                    <circle cx="12" cy="10" r="8" stroke="white" strokeWidth="2"/>
-                    <path d="M8 10l3 3 5-5" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
-                    <path d="M7 18h10M12 18v3" stroke="white" strokeWidth="2" strokeLinecap="round" opacity="0.7"/>
-                  </svg>
+              {isMobile && activeSection ? (
+                <div className="flex items-center justify-center py-3 px-2" style={{ borderBottom: '1px solid rgba(255,255,255,0.14)' }}>
+                  <button
+                    onClick={close}
+                    aria-label="Yopish"
+                    className="w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-150 focus:outline-none active:scale-90"
+                    style={{ background: 'rgba(255,255,255,0.18)' }}
+                    onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.3)' }}
+                    onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.18)' }}
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                      <path d="M18 6L6 18M6 6l12 12" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
+                    </svg>
+                  </button>
                 </div>
+              ) : (
+                <div className="relative px-6 pt-6 pb-5" style={{ borderBottom: '1px solid rgba(255,255,255,0.14)' }}>
+                  <button
+                    onClick={close}
+                    aria-label="Yopish"
+                    className="absolute top-5 right-5 w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-150 focus:outline-none active:scale-90"
+                    style={{ background: 'rgba(255,255,255,0.18)' }}
+                    onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.3)' }}
+                    onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.18)' }}
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                      <path d="M18 6L6 18M6 6l12 12" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
+                    </svg>
+                  </button>
 
-                <h2 className="text-[20px] font-extrabold text-white leading-tight">IELTS</h2>
-                <p className="text-white/60 text-[13px] font-medium mt-0.5">Bo'limni tanlang</p>
-              </div>
+                  <div className="w-12 h-12 rounded-2xl flex items-center justify-center mb-3"
+                    style={{ background: 'rgba(255,255,255,0.18)', border: '1.5px solid rgba(255,255,255,0.28)' }}>
+                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+                      <circle cx="12" cy="10" r="8" stroke="white" strokeWidth="2"/>
+                      <path d="M8 10l3 3 5-5" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
+                      <path d="M7 18h10M12 18v3" stroke="white" strokeWidth="2" strokeLinecap="round" opacity="0.7"/>
+                    </svg>
+                  </div>
+
+                  <h2 className="text-[20px] font-extrabold text-white leading-tight">IELTS</h2>
+                  <p className="text-white/60 text-[13px] font-medium mt-0.5">Bo'limni tanlang</p>
+                </div>
+              )}
 
               {/* Section list */}
-              <div className="px-4 py-4 flex flex-col gap-2 flex-1">
+              <div className={`${isMobile && activeSection ? 'px-2' : 'px-4'} py-4 flex flex-col gap-2 flex-1`}>
                 {IELTS_SECTIONS.map((section) => {
                   const isActive = activeSection === section.id
                   return (
                     <button
                       key={section.id}
                       onClick={() => handleSectionClick(section.id)}
-                      className="w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl text-left focus:outline-none active:scale-[0.98]"
+                      className={`w-full flex items-center focus:outline-none active:scale-[0.98] ${isMobile && activeSection ? 'justify-center p-2 rounded-xl' : 'gap-3.5 px-4 py-3.5 rounded-2xl text-left'}`}
                       style={{
                         background: isActive ? 'rgba(255,255,255,0.24)' : 'rgba(255,255,255,0.1)',
                         border: `1.5px solid ${isActive ? 'rgba(255,255,255,0.48)' : 'rgba(255,255,255,0.14)'}`,
@@ -796,22 +822,26 @@ function IELTSModal({ onClose, onNavigate }) {
                         {section.icon}
                       </div>
 
-                      <div className="flex-1 min-w-0">
-                        <span className="block text-[13.5px] font-bold text-white leading-tight">{section.title}</span>
-                        <span className="block text-[11px] font-medium text-white/50 mt-0.5 truncate">{section.desc}</span>
-                      </div>
+                      {!(isMobile && activeSection) && (
+                        <>
+                          <div className="flex-1 min-w-0">
+                            <span className="block text-[13.5px] font-bold text-white leading-tight">{section.title}</span>
+                            <span className="block text-[11px] font-medium text-white/50 mt-0.5 truncate">{section.desc}</span>
+                          </div>
 
-                      {isActive ? (
-                        <div className="flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center"
-                          style={{ background: 'rgba(255,255,255,0.28)' }}>
-                          <svg width="10" height="10" viewBox="0 0 24 24" fill="none">
-                            <path d="M20 6L9 17l-5-5" stroke="white" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round"/>
-                          </svg>
-                        </div>
-                      ) : (
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="flex-shrink-0 opacity-35">
-                          <path d="M9 18l6-6-6-6" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
-                        </svg>
+                          {isActive ? (
+                            <div className="flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center"
+                              style={{ background: 'rgba(255,255,255,0.28)' }}>
+                              <svg width="10" height="10" viewBox="0 0 24 24" fill="none">
+                                <path d="M20 6L9 17l-5-5" stroke="white" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round"/>
+                              </svg>
+                            </div>
+                          ) : (
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="flex-shrink-0 opacity-35">
+                              <path d="M9 18l6-6-6-6" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
+                            </svg>
+                          )}
+                        </>
                       )}
                     </button>
                   )
@@ -819,11 +849,13 @@ function IELTSModal({ onClose, onNavigate }) {
               </div>
 
               {/* Footer */}
-              <div className="px-6 pb-5 pt-2">
-                <p className="text-center text-white/28 text-[10.5px] font-medium">
-                  Batafsil ma'lumot uchun ustozga murojaat qiling
-                </p>
-              </div>
+              {!(isMobile && activeSection) && (
+                <div className="px-6 pb-5 pt-2">
+                  <p className="text-center text-white/28 text-[10.5px] font-medium">
+                    Batafsil ma'lumot uchun ustozga murojaat qiling
+                  </p>
+                </div>
+              )}
             </div>
 
             {/* ─────────── RIGHT PANEL ─────────── */}
@@ -837,9 +869,9 @@ function IELTSModal({ onClose, onNavigate }) {
                     display: 'flex',
                     flexDirection: 'column',
                     width: isMobile ? '100%' : '320px',
-                    minHeight: isMobile ? 'auto' : '100%',
-                    borderLeft: isMobile ? 'none' : '1px solid rgba(0,0,0,0.07)',
-                    borderTop: isMobile ? `2px solid ${content.borderColor}` : 'none',
+                    minHeight: isMobile && !activeSection ? 'auto' : '100%',
+                    borderLeft: isMobile && !activeSection ? 'none' : '1px solid rgba(0,0,0,0.07)',
+                    borderTop: isMobile && !activeSection ? `2px solid ${content.borderColor}` : 'none',
                   }}
                 >
                   {/* Panel header */}
@@ -1202,16 +1234,15 @@ function Footer() {
   )
 }
 
-export default function HomePage({ user, lang, setLang, dark, setDark, onLogout, onNavigate, initialView = 'hero' }) {
+export default function HomePage({ user, lang, setLang, dark, setDark, onLogout }) {
   const t = langs[lang]?.home || langs['en'].home
+  const navigate = useNavigate()
   const [showModal, setShowModal] = useState(false)
-  const [showCourseModal, setShowCourseModal] = useState(false)
-  const [showIELTSModal, setShowIELTSModal] = useState(false)
-  const [view, setView] = useState(initialView) // 'hero' | 'fading' | 'courses'
+  const [fading, setFading] = useState(false)
 
   const handleStart = () => {
-    setView('fading')
-    setTimeout(() => setView('courses'), 350)
+    setFading(true)
+    setTimeout(() => navigate('/courses'), 340)
   }
 
   return (
@@ -1228,94 +1259,43 @@ export default function HomePage({ user, lang, setLang, dark, setDark, onLogout,
       </div>
 
       {/* ── HERO ── */}
-      {(view === 'hero' || view === 'fading') && (
-        <div className={`relative z-10 flex-1 flex flex-col items-center justify-center px-5 sm:px-8 text-center gap-0 pt-20 ${view === 'fading' ? 'hero-fade-out' : ''}`}>
-          <div className="fu-1">
-            <div className="float-bob w-20 h-20 sm:w-28 sm:h-28 bg-white/20 rounded-3xl flex items-center justify-center border-2 border-white/40 mb-5 sm:mb-8 shadow-2xl shadow-black/20">
-              <span className="text-3xl sm:text-5xl font-extrabold text-white">
-                {user?.firstName?.[0]?.toUpperCase() || '?'}
-              </span>
-            </div>
-          </div>
-
-          <h1 className="fu-2 text-[2.2rem] sm:text-5xl md:text-6xl font-extrabold text-white leading-tight tracking-tight drop-shadow-lg">
-            {t.greeting},
-          </h1>
-          <h2 className="fu-3 text-[2.2rem] sm:text-5xl md:text-6xl font-extrabold text-white mt-1 sm:mt-2 mb-5 sm:mb-8 drop-shadow-lg">
-            {user?.firstName || ''}!
-          </h2>
-
-          <div className="fu-4 bg-white/15 backdrop-blur-sm border border-white/30 rounded-3xl px-5 sm:px-8 py-4 sm:py-5 shadow-2xl w-full max-w-[min(100%,22rem)] sm:max-w-sm">
-            <div className="flex items-center justify-center gap-3 sm:gap-4 mb-2 sm:mb-3">
-              <div className="sparkle-spin" style={{ animationDelay: '0.3s' }}><SparkleIcon size={12} /></div>
-              <div className="sparkle-spin"><SparkleIcon size={22} /></div>
-              <div className="sparkle-spin" style={{ animationDelay: '1.1s' }}><SparkleIcon size={12} /></div>
-            </div>
-            <p className="text-white font-semibold text-sm sm:text-lg leading-snug">{t.welcome}</p>
-          </div>
-
-          <button
-            onClick={handleStart}
-            className="fu-5 mt-5 sm:mt-7 px-8 sm:px-12 py-3 sm:py-4 bg-white dark:bg-gray-100 text-red-600 font-bold text-sm sm:text-lg rounded-2xl shadow-2xl hover:shadow-xl hover:bg-red-50 active:scale-[0.97] transition-all duration-200"
-          >
-            {t.startBtn}
-          </button>
-
-          <p className="text-center text-white/30 text-xs pb-6 mt-7 sm:mt-10">Teacher Tolib © 2026</p>
-        </div>
-      )}
-
-      {/* ── COURSES ── */}
-      {view === 'courses' && (
-        <div className="relative z-10 flex-1 flex flex-col overflow-y-auto">
-          {/* Header */}
-          <div className="px-5 pt-20 pb-2 mx-auto w-full max-w-[520px] sm:max-w-[520px]">
-            <button
-              onClick={() => setView('hero')}
-              className="flex items-center gap-2 text-white/70 hover:text-white transition-colors mb-3 active:scale-[0.97]"
-            >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                <path d="M15 18l-6-6 6-6" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-              <span className="text-sm font-medium">Orqaga</span>
-            </button>
-            <h2 className="text-white font-extrabold text-xl sm:text-2xl">Kursni tanlang</h2>
-            <p className="text-white/60 text-sm mt-1">O'zingizga mos kursni boshlang</p>
-          </div>
-
-          {/* Cards */}
-          <div className="flex flex-col gap-3 mt-2 mx-auto w-[92%] sm:w-auto sm:max-w-[520px]">
-            {COURSES.map((course, idx) => (
-              <CourseCard
-                key={course.key}
-                course={course}
-                idx={idx}
-                onClick={
-                  course.key === 'zero' ? () => setShowCourseModal(true) :
-                  course.key === 'ielts' ? () => setShowIELTSModal(true) :
-                  undefined
-                }
-              />
-            ))}
-          </div>
-
-          {/* Footer */}
-          <div className="mt-6">
-            <Footer />
+      <div className={`relative z-10 flex-1 flex flex-col items-center justify-center px-5 sm:px-8 text-center gap-0 pt-20 ${fading ? 'hero-fade-out' : ''}`}>
+        <div className="fu-1">
+          <div className="float-bob w-20 h-20 sm:w-28 sm:h-28 bg-white/20 rounded-3xl flex items-center justify-center border-2 border-white/40 mb-5 sm:mb-8 shadow-2xl shadow-black/20">
+            <span className="text-3xl sm:text-5xl font-extrabold text-white">
+              {user?.firstName?.[0]?.toUpperCase() || '?'}
+            </span>
           </div>
         </div>
-      )}
+
+        <h1 className="fu-2 text-[2.2rem] sm:text-5xl md:text-6xl font-extrabold text-white leading-tight tracking-tight drop-shadow-lg">
+          {t.greeting},
+        </h1>
+        <h2 className="fu-3 text-[2.2rem] sm:text-5xl md:text-6xl font-extrabold text-white mt-1 sm:mt-2 mb-5 sm:mb-8 drop-shadow-lg">
+          {user?.firstName || ''}!
+        </h2>
+
+        <div className="fu-4 bg-white/15 backdrop-blur-sm border border-white/30 rounded-3xl px-5 sm:px-8 py-4 sm:py-5 shadow-2xl w-full max-w-[min(100%,22rem)] sm:max-w-sm">
+          <div className="flex items-center justify-center gap-3 sm:gap-4 mb-2 sm:mb-3">
+            <div className="sparkle-spin" style={{ animationDelay: '0.3s' }}><SparkleIcon size={12} /></div>
+            <div className="sparkle-spin"><SparkleIcon size={22} /></div>
+            <div className="sparkle-spin" style={{ animationDelay: '1.1s' }}><SparkleIcon size={12} /></div>
+          </div>
+          <p className="text-white font-semibold text-sm sm:text-lg leading-snug">{t.welcome}</p>
+        </div>
+
+        <button
+          onClick={handleStart}
+          className="fu-5 mt-5 sm:mt-7 px-8 sm:px-12 py-3 sm:py-4 bg-white dark:bg-gray-100 text-red-600 font-bold text-sm sm:text-lg rounded-2xl shadow-2xl hover:shadow-xl hover:bg-red-50 active:scale-[0.97] transition-all duration-200"
+        >
+          {t.startBtn}
+        </button>
+
+        <p className="text-center text-white/30 text-xs pb-6 mt-7 sm:mt-10">Teacher Tolib © 2026</p>
+      </div>
 
       {showModal && (
         <LogoutModal t={t} onConfirm={onLogout} onCancel={() => setShowModal(false)} />
-      )}
-
-      {showCourseModal && (
-        <EnglishCourseModal onClose={() => setShowCourseModal(false)} onNavigate={onNavigate} />
-      )}
-
-      {showIELTSModal && (
-        <IELTSModal onClose={() => setShowIELTSModal(false)} onNavigate={onNavigate} />
       )}
     </div>
   )
