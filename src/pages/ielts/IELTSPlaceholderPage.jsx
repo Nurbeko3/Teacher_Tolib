@@ -1,12 +1,12 @@
 import { useNavigate } from 'react-router-dom'
 
-export default function IELTSPlaceholderPage({ title, desc, accentColor = '#2563eb', backPath, icon }) {
+export default function IELTSPlaceholderPage({ title, desc, accentColor = '#2563eb', icon }) {
   const navigate = useNavigate()
 
   return (
     <div className="px-4 pt-6 pb-6 max-w-xl mx-auto">
       <button
-        onClick={() => navigate(backPath)}
+        onClick={() => navigate(-1)}
         className="flex items-center gap-2 mb-6 focus:outline-none active:scale-[0.97] transition-transform"
         style={{ color: 'rgba(255,255,255,0.7)' }}
       >

@@ -146,6 +146,27 @@ export default function IELTSLayout({ dark, setDark, onLogout }) {
           </div>
         </aside>
 
+        {/* ── Mobile top back bar ── */}
+        <div
+          className="sm:hidden fixed top-16 left-0 right-0 z-40 flex items-center px-4 py-2"
+          style={{
+            background: 'linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 100%)',
+            borderBottom: '1px solid rgba(255,255,255,0.14)',
+          }}
+        >
+          <button
+            onClick={() => navigate('/courses')}
+            className="flex items-center gap-1.5 text-white/70 hover:text-white transition-colors focus:outline-none text-[12px] font-semibold"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <path d="M15 18l-6-6 6-6" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"/>
+            </svg>
+            Kurslar
+          </button>
+          <span className="mx-auto font-extrabold text-white text-[15px] tracking-wide">IELTS</span>
+          <div className="w-[52px]" />
+        </div>
+
         {/* ── Mobile bottom tab bar ── */}
         <nav
           className="sm:hidden fixed bottom-0 left-0 right-0 z-40 flex"
@@ -171,7 +192,7 @@ export default function IELTSLayout({ dark, setDark, onLogout }) {
         </nav>
 
         {/* ── Main content ── */}
-        <main className="flex-1 overflow-y-auto pb-20 sm:pb-0">
+        <main className="flex-1 overflow-y-auto pb-20 sm:pb-0 pt-10 sm:pt-0">
           <Outlet />
         </main>
       </div>

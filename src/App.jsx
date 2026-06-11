@@ -5,6 +5,9 @@ import HomePage from './HomePage'
 import CoursesPage from './pages/courses/CoursesPage'
 import EnglishFromZeroPage from './pages/english-from-zero/EnglishFromZeroPage'
 import MultilevelPage from './pages/multilevel/MultilevelPage'
+import AboutTeacherPage from './pages/AboutTeacherPage'
+import ResultsPage from './pages/ResultsPage'
+import DonatePage from './pages/DonatePage'
 
 // Grammar / Vocab pages (standalone full-screen)
 import GrammarLevelsPage from './pages/GrammarLevelsPage'
@@ -38,7 +41,7 @@ function GrammarLevelsRoute({ navProps }) {
   return (
     <GrammarLevelsPage
       {...navProps}
-      onBack={() => navigate('/english-from-zero')}
+      onBack={() => navigate(-1)}
       onNavigate={() => {}}
     />
   )
@@ -49,7 +52,7 @@ function TopicGrammarRoute({ navProps }) {
   return (
     <TopicGrammarPage
       {...navProps}
-      onBack={() => navigate('/english-from-zero')}
+      onBack={() => navigate(-1)}
       onNavigate={(id, params) => {
         if (id === 'unit-test') navigate('/english-from-zero/unit-test', { state: params })
       }}
@@ -65,7 +68,7 @@ function UnitTestRoute({ navProps }) {
       {...navProps}
       level={state?.level}
       unit={state?.unit}
-      onBack={() => navigate('/english-from-zero/topic-grammar')}
+      onBack={() => navigate(-1)}
     />
   )
 }
@@ -75,7 +78,7 @@ function VocabTestRoute({ navProps }) {
   return (
     <VocabTestPage
       {...navProps}
-      onBack={() => navigate('/english-from-zero')}
+      onBack={() => navigate(-1)}
       onNavigate={(id, params) => {
         if (id === 'vocab-topic') navigate('/english-from-zero/vocab-topic', { state: params })
       }}
@@ -92,19 +95,17 @@ function VocabTopicRoute({ navProps }) {
       topic={state?.topic}
       label={state?.label}
       emoji={state?.emoji}
-      onBack={() => navigate('/english-from-zero/vocab-test')}
+      onBack={() => navigate(-1)}
     />
   )
 }
 
 function LevelTestPlaceholder({ navProps }) {
-  const navigate = useNavigate()
   return (
     <IELTSPlaceholderPage
       title="Daraja testi"
       desc="O'z ingliz tili darajangizni aniqlang. Natijaga qarab mos kursga yo'naltirilasiz."
       accentColor="#16a34a"
-      backPath="/english-from-zero"
       icon={
         <svg width="36" height="36" viewBox="0 0 24 24" fill="none">
           <circle cx="12" cy="12" r="10" stroke="white" strokeWidth="2"/>
@@ -172,6 +173,11 @@ function AppRoutes() {
       <Route path="/"
         element={<HomePage user={user} {...pageProps} />}
       />
+
+      {/* ── Standalone nav pages ── */}
+      <Route path="/about-teacher" element={<AboutTeacherPage dark={dark} />} />
+      <Route path="/results"       element={<ResultsPage dark={dark} />} />
+      <Route path="/donate"        element={<DonatePage dark={dark} />} />
 
       {/* ── Course selection ── */}
       <Route path="/courses"

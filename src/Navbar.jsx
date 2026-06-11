@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 /* ── Course labels shown in header left side ── */
 const COURSE_LABELS = [
@@ -68,6 +69,7 @@ export default function Navbar({ dark, setDark, onLogout }) {
   const [scrolled, setScrolled]   = useState(false)
   const menuRef = useRef(null)
   const btnRef  = useRef(null)
+  const navigate = useNavigate()
 
   /* Scroll detection */
   useEffect(() => {
@@ -95,9 +97,17 @@ export default function Navbar({ dark, setDark, onLogout }) {
     return () => document.removeEventListener('keydown', handler)
   }, [menuOpen])
 
+  const NAV_ROUTES = {
+    about:   '/about-teacher',
+    courses: '/courses',
+    results: '/results',
+    donate:  '/donate',
+  }
+
   const handleNavItem = (id) => {
     setMenuOpen(false)
-    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
+    const route = NAV_ROUTES[id]
+    if (route) navigate(route)
   }
 
   /* ── Adaptive color helpers ── */
@@ -129,8 +139,12 @@ export default function Navbar({ dark, setDark, onLogout }) {
     >
       <div className="flex items-center justify-between px-4 py-3">
 
-        {/* ── Left: Logo icon + 3 course labels ── */}
-        <div className="flex items-center gap-2 sm:gap-2.5 select-none min-w-0">
+        {/* ── Left: Logo (clickable → home) ── */}
+        <button
+          onClick={() => navigate('/')}
+          className="flex items-center gap-2 sm:gap-2.5 select-none min-w-0 focus:outline-none active:scale-[0.97] transition-transform"
+          aria-label="Bosh sahifa"
+        >
           {/* Icon */}
           <div
             className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center shadow-md transition-all duration-300 flex-shrink-0"
@@ -151,25 +165,24 @@ export default function Navbar({ dark, setDark, onLogout }) {
           {/* 3 course labels stacked */}
           <div className="flex flex-col gap-[3px] min-w-0">
             {COURSE_LABELS.map((item, idx) => (
-              <button
+              <span
                 key={item.label}
-                onClick={() => handleNavItem(item.label === 'Ingliz tili 0 dan' ? 'courses' : item.label.toLowerCase())}
-                className={`flex items-center gap-1.5 group transition-transform duration-150 hover:scale-[1.04] active:scale-[0.97] focus:outline-none ${idx === 2 ? 'hidden xs:flex' : ''}`}
+                className={`flex items-center gap-1.5 ${idx === 2 ? 'hidden xs:flex' : ''}`}
               >
                 <span
-                  className="w-[5px] h-[5px] sm:w-[6px] sm:h-[6px] rounded-full flex-shrink-0 transition-all duration-300 group-hover:scale-125"
+                  className="w-[5px] h-[5px] sm:w-[6px] sm:h-[6px] rounded-full flex-shrink-0"
                   style={{ background: item.dot }}
                 />
                 <span
-                  className="text-[10px] sm:text-[11px] font-bold leading-none tracking-tight transition-colors duration-300 whitespace-nowrap"
+                  className="text-[10px] sm:text-[11px] font-bold leading-none tracking-tight whitespace-nowrap transition-colors duration-300"
                   style={{ color: labelColor(item) }}
                 >
                   {item.label}
                 </span>
-              </button>
+              </span>
             ))}
           </div>
-        </div>
+        </button>
 
         {/* ── Right: Hamburger ── */}
         <div ref={menuRef} className="relative">

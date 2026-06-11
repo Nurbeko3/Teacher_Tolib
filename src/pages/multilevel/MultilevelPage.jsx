@@ -30,7 +30,7 @@ export default function MultilevelPage({ lang, setLang, dark, setDark, onLogout 
         {/* Header */}
         <div className="px-5 pt-20 pb-4 mx-auto w-full max-w-[520px]">
           <button
-            onClick={() => navigate('/courses')}
+            onClick={() => navigate(-1)}
             className="flex items-center gap-2 text-white/70 hover:text-white transition-colors mb-4 active:scale-[0.97]"
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none">

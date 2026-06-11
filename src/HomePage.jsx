@@ -4,6 +4,7 @@ import en from './locales/en'
 import uz from './locales/uz'
 import ru from './locales/ru'
 import Navbar from './Navbar'
+import FooterComp from './components/Footer'
 
 const langs = { en, uz, ru }
 
@@ -1234,6 +1235,344 @@ function Footer() {
   )
 }
 
+/* ── Section label ── */
+function SectionLabel({ children }) {
+  return (
+    <div className="flex items-center gap-2.5 mb-5">
+      <div className="w-[3px] h-5 rounded-full" style={{ background: 'rgba(255,255,255,0.55)' }} />
+      <span className="text-white/65 text-[11px] font-black uppercase tracking-[0.18em]">{children}</span>
+    </div>
+  )
+}
+
+/* ── About section ── */
+function AboutSection() {
+  return (
+    <section id="about" className="relative z-10 px-5 py-12">
+      <div className="mx-auto w-full max-w-[520px]">
+        <SectionLabel>Ustoz haqida</SectionLabel>
+        <div className="rounded-3xl overflow-hidden" style={{ background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.18)' }}>
+          <div className="px-6 pt-7 pb-5 flex items-center gap-4" style={{ borderBottom: '1px solid rgba(255,255,255,0.12)' }}>
+            <div className="w-16 h-16 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-xl" style={{ background: 'linear-gradient(135deg,rgba(255,255,255,0.28) 0%,rgba(255,255,255,0.1) 100%)', border: '2px solid rgba(255,255,255,0.38)' }}>
+              <span className="text-2xl font-black text-white select-none">T</span>
+            </div>
+            <div>
+              <h2 className="text-white font-extrabold text-[18px] leading-tight">Teacher Tolib</h2>
+              <p className="text-white/60 text-[13px] mt-0.5 font-medium">Ingliz tili muallimi · IELTS Coach</p>
+              <div className="flex items-center gap-1.5 mt-2">
+                <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: '#4ade80', boxShadow: '0 0 6px #4ade80' }} />
+                <span className="text-[11px] font-semibold" style={{ color: '#86efac' }}>Online dars beradi</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-3" style={{ borderBottom: '1px solid rgba(255,255,255,0.12)' }}>
+            {[
+              { num: '5+',    label: 'Yil tajriba'  },
+              { num: '1200+', label: "O'quvchilar"   },
+              { num: '98%',   label: 'Muvaffaqiyat'  },
+            ].map((s, i) => (
+              <div key={s.label} className="py-4 text-center" style={{ borderRight: i < 2 ? '1px solid rgba(255,255,255,0.12)' : 'none' }}>
+                <span className="block text-white font-black text-[22px] leading-none">{s.num}</span>
+                <span className="block text-white/50 text-[10.5px] font-medium mt-1.5">{s.label}</span>
+              </div>
+            ))}
+          </div>
+
+          <div className="px-6 pt-5 pb-4">
+            <p className="text-white/75 text-[13px] leading-[1.75]">
+              Ingliz tilini professional darajada o'qitaman. IELTS va umumiy ingliz tili kurslarini
+              muvaffaqiyatli olib boraman. 5 yildan ortiq tajribam bilan 1200 dan ziyod o'quvchiga
+              ingliz tilini o'rgatdim va ularni maqsadlariga yetkazishga yordam berdim.
+            </p>
+          </div>
+
+          <div className="px-5 pb-5 flex gap-2.5">
+            <a href="https://t.me/teacher_tolib" target="_blank" rel="noopener noreferrer"
+              className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-2xl transition-all duration-200 active:scale-[0.97]"
+              style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.16)' }}
+              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(34,158,217,0.28)' }}
+              onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.1)' }}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="white">
+                <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
+              </svg>
+              <span className="text-white/80 text-xs font-semibold">Telegram</span>
+            </a>
+            <a href="https://instagram.com/teacher_tolib" target="_blank" rel="noopener noreferrer"
+              className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-2xl transition-all duration-200 active:scale-[0.97]"
+              style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.16)' }}
+              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(225,48,108,0.28)' }}
+              onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.1)' }}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="white">
+                <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/>
+              </svg>
+              <span className="text-white/80 text-xs font-semibold">Instagram</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+/* ── Courses section ── */
+const SECTION_COURSES = [
+  {
+    key: 'zero',
+    path: '/english-from-zero',
+    gradient: 'linear-gradient(135deg, #16a34a 0%, #4ade80 100%)',
+    shadow: 'rgba(22,163,74,0.4)',
+    badge: 'A1 → B2',
+    icon: <EnglishFromZeroIcon />,
+    title: 'Ingliz tili 0 dan',
+    desc: "Noldan boshlab ingliz tilini o'rganing. Grammatika va so'zlashuv.",
+    tag: "Boshlang'ich",
+  },
+  {
+    key: 'ielts',
+    path: '/ielts',
+    gradient: 'linear-gradient(135deg, #1d4ed8 0%, #60a5fa 100%)',
+    shadow: 'rgba(29,78,216,0.4)',
+    badge: 'Band 6–8',
+    icon: <IELTSIcon />,
+    title: 'IELTS',
+    desc: "Xalqaro IELTS imtihoniga tayyorgarlik. 4 ko'nikma.",
+    tag: 'Sertifikat',
+  },
+  {
+    key: 'multi',
+    path: '/multilevel',
+    gradient: 'linear-gradient(135deg, #7c3aed 0%, #c084fc 100%)',
+    shadow: 'rgba(124,58,237,0.4)',
+    badge: 'A1 – C2',
+    icon: <MultilevelIcon />,
+    title: 'Multilevel',
+    desc: "Barcha darajalar uchun. O'z darajangizda davom eting.",
+    tag: 'Barcha darajalar',
+  },
+]
+
+function CoursesSection() {
+  const navigate = useNavigate()
+  return (
+    <section id="courses" className="relative z-10 px-5 py-12">
+      <div className="mx-auto w-full max-w-[520px]">
+        <SectionLabel>Kurslarimiz</SectionLabel>
+        <p className="text-white/60 text-[13px] font-medium mb-5 -mt-2">O'zingizga mos kursni tanlang</p>
+        <div className="flex flex-col gap-3">
+          {SECTION_COURSES.map((course) => (
+            <div
+              key={course.key}
+              className="course-card rounded-3xl p-5 flex flex-col gap-3 cursor-pointer active:scale-[0.98] transition-transform duration-150"
+              onClick={() => navigate(course.path)}
+              role="button"
+              tabIndex={0}
+              onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') navigate(course.path) }}
+              style={{ background: course.gradient, boxShadow: `0 12px 32px ${course.shadow}`, minHeight: 160 }}
+            >
+              <div className="flex items-start justify-between">
+                {course.icon}
+                <span className="text-[11px] font-bold px-2.5 py-1 rounded-full text-white" style={{ background: 'rgba(255,255,255,0.22)' }}>
+                  {course.badge}
+                </span>
+              </div>
+              <div className="flex-1">
+                <h3 className="text-white font-extrabold text-lg leading-tight">{course.title}</h3>
+                <p className="text-white/85 text-[13px] mt-1 leading-relaxed">{course.desc}</p>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-bold px-2.5 py-1 rounded-full text-white" style={{ background: 'rgba(255,255,255,0.22)' }}>
+                  {course.tag}
+                </span>
+                <div className="w-8 h-8 bg-white/20 rounded-xl flex items-center justify-center">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                    <path d="M9 18l6-6-6-6" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+/* ── Results section ── */
+const IELTS_SCORES = [
+  { name: 'Jasur T.',   score: '7.5', module: 'Academic' },
+  { name: 'Nilufar X.', score: '7.0', module: 'General'  },
+  { name: 'Bobur A.',   score: '6.5', module: 'Academic' },
+  { name: 'Zulfiya K.', score: '8.0', module: 'Academic' },
+  { name: 'Sherzod M.', score: '6.0', module: 'General'  },
+]
+
+function ResultsSection() {
+  return (
+    <section id="results" className="relative z-10 px-5 py-12">
+      <div className="mx-auto w-full max-w-[520px]">
+        <SectionLabel>Natijalar</SectionLabel>
+        <p className="text-white/60 text-[13px] font-medium mb-5 -mt-2">O'quvchilarimizning yutuqlari</p>
+
+        <div className="grid grid-cols-3 gap-3 mb-4">
+          {[
+            {
+              num: '300+', label: 'IELTS sertifikat',
+              icon: (
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <circle cx="12" cy="10" r="8" stroke="white" strokeWidth="2"/>
+                  <path d="M8 10l3 3 5-5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M7 18h10M12 18v3" stroke="white" strokeWidth="1.8" strokeLinecap="round" opacity="0.7"/>
+                </svg>
+              ),
+            },
+            {
+              num: '6.8', label: "O'rtacha ball",
+              icon: (
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <path d="M18 20V10M12 20V4M6 20v-6" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              ),
+            },
+            {
+              num: '98%', label: 'Muvaffaqiyat',
+              icon: (
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <path d="M22 11.08V12a10 10 0 11-5.93-9.14" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M22 4L12 14.01l-3-3" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              ),
+            },
+          ].map(stat => (
+            <div key={stat.label} className="rounded-2xl px-2 py-4 text-center" style={{ background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)', border: '1px solid rgba(255,255,255,0.16)' }}>
+              <div className="flex justify-center mb-2">{stat.icon}</div>
+              <span className="block text-white font-black text-[20px] leading-none">{stat.num}</span>
+              <span className="block text-white/50 text-[10px] font-medium mt-1.5 leading-tight">{stat.label}</span>
+            </div>
+          ))}
+        </div>
+
+        <div className="rounded-3xl overflow-hidden" style={{ background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)', border: '1px solid rgba(255,255,255,0.16)' }}>
+          <div className="px-5 pt-5 pb-3" style={{ borderBottom: '1px solid rgba(255,255,255,0.12)' }}>
+            <h3 className="text-white font-bold text-[14px]">So'nggi IELTS natijalari</h3>
+            <p className="text-white/50 text-[11px] mt-0.5">Talabalarimizning real natijalari</p>
+          </div>
+          <div className="px-4 py-3 flex flex-col gap-2">
+            {IELTS_SCORES.map(s => (
+              <div key={s.name} className="flex items-center gap-3 px-3 py-2.5 rounded-2xl" style={{ background: 'rgba(255,255,255,0.07)' }}>
+                <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(255,255,255,0.15)' }}>
+                  <span className="text-white font-bold text-[12px]">{s.name[0]}</span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <span className="block text-white font-semibold text-[13px] truncate">{s.name}</span>
+                  <span className="block text-white/50 text-[11px]">{s.module}</span>
+                </div>
+                <div className="px-2.5 py-1 rounded-xl flex-shrink-0" style={{ background: 'rgba(74,222,128,0.18)', border: '1px solid rgba(74,222,128,0.32)' }}>
+                  <span className="font-black text-[13px]" style={{ color: '#86efac' }}>Band {s.score}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="pb-2" />
+        </div>
+      </div>
+    </section>
+  )
+}
+
+/* ── Donate section ── */
+function DonateSection() {
+  const [copied, setCopied] = useState(false)
+
+  const copyCard = () => {
+    navigator.clipboard?.writeText('8600123456789012').catch(() => {})
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2200)
+  }
+
+  return (
+    <section id="donate" className="relative z-10 px-5 pt-12 pb-4">
+      <div className="mx-auto w-full max-w-[520px]">
+        <SectionLabel>Donat</SectionLabel>
+        <p className="text-white/60 text-[13px] font-medium mb-5 -mt-2">Ustozni qo'llab-quvvatlang</p>
+
+        <div className="rounded-3xl px-5 py-5 mb-3 flex items-start gap-4" style={{ background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)', border: '1px solid rgba(255,255,255,0.18)' }}>
+          <div className="w-11 h-11 rounded-2xl flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(255,255,255,0.18)' }}>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+              <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </div>
+          <div className="flex-1">
+            <h3 className="text-white font-extrabold text-[15px] leading-tight">Yordamingiz muhim</h3>
+            <p className="text-white/65 text-[12.5px] mt-1.5 leading-relaxed">
+              Sizning yordamingiz yangi darslar, materiallar va platformani rivojlantirishga sarf qilinadi.
+            </p>
+          </div>
+        </div>
+
+        {/* Bank card visual */}
+        <div className="rounded-3xl p-5 mb-3 relative overflow-hidden select-none" style={{ background: 'linear-gradient(135deg, #b91c1c 0%, #dc2626 55%, #ef4444 100%)', boxShadow: '0 20px 48px rgba(185,28,28,0.55)' }}>
+          <div className="absolute -top-6 -right-6 w-40 h-40 rounded-full opacity-[0.08]" style={{ border: '28px solid white' }} />
+          <div className="absolute top-8 -right-2 w-24 h-24 rounded-full opacity-[0.07]" style={{ border: '20px solid white' }} />
+
+          <div className="w-9 h-[27px] rounded-lg mb-5 relative z-10" style={{ background: 'linear-gradient(135deg, #fde68a 0%, #f59e0b 100%)', boxShadow: '0 2px 8px rgba(245,158,11,0.5)' }} />
+
+          <div className="relative z-10 mb-4">
+            <p className="text-white/45 text-[9.5px] font-semibold uppercase tracking-[0.2em] mb-1">Karta raqami</p>
+            <p className="text-white font-black text-[19px] tracking-[0.2em] leading-none">8600 1234 5678 9012</p>
+          </div>
+
+          <div className="flex items-end justify-between relative z-10">
+            <div>
+              <p className="text-white/45 text-[9px] uppercase tracking-[0.15em]">Karta egasi</p>
+              <p className="text-white font-bold text-[13px] mt-0.5 tracking-wide">TOLIB O.</p>
+            </div>
+            <div className="text-right">
+              <p className="text-white/45 text-[9px] uppercase tracking-[0.15em]">Muddati</p>
+              <p className="text-white font-bold text-[13px] mt-0.5">12/27</p>
+            </div>
+          </div>
+        </div>
+
+        <button
+          onClick={copyCard}
+          className="w-full py-4 rounded-2xl flex items-center justify-center gap-2.5 transition-all duration-200 active:scale-[0.97] font-bold text-[14px]"
+          style={{
+            background: copied ? 'rgba(74,222,128,0.22)' : 'rgba(255,255,255,0.18)',
+            border: `1.5px solid ${copied ? 'rgba(74,222,128,0.45)' : 'rgba(255,255,255,0.28)'}`,
+            color: 'white',
+          }}
+          onMouseEnter={e => { if (!copied) e.currentTarget.style.background = 'rgba(255,255,255,0.26)' }}
+          onMouseLeave={e => { if (!copied) e.currentTarget.style.background = copied ? 'rgba(74,222,128,0.22)' : 'rgba(255,255,255,0.18)' }}
+        >
+          {copied ? (
+            <>
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none">
+                <path d="M20 6L9 17l-5-5" stroke="#4ade80" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              <span style={{ color: '#86efac' }}>Nusxalandi!</span>
+            </>
+          ) : (
+            <>
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none">
+                <rect x="9" y="9" width="13" height="13" rx="2" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              Karta raqamini nusxalash
+            </>
+          )}
+        </button>
+
+        <p className="text-center text-white/35 text-[11px] mt-3 mb-2">
+          Har qanday miqdordagi yordam qabul qilinadi · Rahmat!
+        </p>
+      </div>
+    </section>
+  )
+}
+
 export default function HomePage({ user, lang, setLang, dark, setDark, onLogout }) {
   const t = langs[lang]?.home || langs['en'].home
   const navigate = useNavigate()
@@ -1246,7 +1585,7 @@ export default function HomePage({ user, lang, setLang, dark, setDark, onLogout 
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-red-800 via-red-600 to-red-500 dark:from-gray-950 dark:via-red-950 dark:to-gray-900 flex flex-col relative overflow-hidden">
+    <div className="bg-gradient-to-br from-red-800 via-red-600 to-red-500 dark:from-gray-950 dark:via-red-950 dark:to-gray-900 flex flex-col relative overflow-x-hidden">
 
       <Navbar lang={lang} setLang={setLang} dark={dark} setDark={setDark} onLogout={() => setShowModal(true)} />
 
@@ -1259,7 +1598,7 @@ export default function HomePage({ user, lang, setLang, dark, setDark, onLogout 
       </div>
 
       {/* ── HERO ── */}
-      <div className={`relative z-10 flex-1 flex flex-col items-center justify-center px-5 sm:px-8 text-center gap-0 pt-20 ${fading ? 'hero-fade-out' : ''}`}>
+      <div className={`relative z-10 min-h-screen flex flex-col items-center justify-center px-5 sm:px-8 text-center gap-0 pt-20 ${fading ? 'hero-fade-out' : ''}`}>
         <div className="fu-1">
           <div className="float-bob w-20 h-20 sm:w-28 sm:h-28 bg-white/20 rounded-3xl flex items-center justify-center border-2 border-white/40 mb-5 sm:mb-8 shadow-2xl shadow-black/20">
             <span className="text-3xl sm:text-5xl font-extrabold text-white">
@@ -1291,8 +1630,14 @@ export default function HomePage({ user, lang, setLang, dark, setDark, onLogout 
           {t.startBtn}
         </button>
 
-        <p className="text-center text-white/30 text-xs pb-6 mt-7 sm:mt-10">Teacher Tolib © 2026</p>
       </div>
+
+      {/* ── Sections ── */}
+      <AboutSection />
+      <CoursesSection />
+      <ResultsSection />
+      <DonateSection />
+      <FooterComp />
 
       {showModal && (
         <LogoutModal t={t} onConfirm={onLogout} onCancel={() => setShowModal(false)} />
