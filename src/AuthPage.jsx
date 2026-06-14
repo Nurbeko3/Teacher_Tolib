@@ -101,11 +101,22 @@ export default function AuthPage({ onSuccess, lang, setLang, dark, setDark }) {
   const handleLoginSubmit = () => {
     const digits = loginPhone.replace(/\D/g, '')
     if (digits.length < 12) { setLoginError(t.invalidPhone); return }
+
+    // Super admin check
+    if (digits === '998991231111') {
+      setLoginError('')
+      setLoading(true)
+      setTimeout(() => {
+        onSuccess({ phone: loginPhone, role: 'SUPER_ADMIN', firstName: 'Admin', lastName: '' })
+      }, 1000)
+      return
+    }
+
     const user = findUser(loginPhone)
     if (!user) { setLoginError(t.notRegistered || 'Phone not registered.'); return }
     setLoginError('')
     setLoading(true)
-    setTimeout(() => { onSuccess({ ...user }) }, 1500)
+    setTimeout(() => { onSuccess({ ...user, role: 'USER' }) }, 1500)
   }
 
   const handleRegSubmit = () => {

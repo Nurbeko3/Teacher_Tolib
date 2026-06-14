@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react'
-import { Routes, Route, useNavigate, useLocation } from 'react-router-dom'
+import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom'
 import en from './locales/en'
 import uz from './locales/uz'
 import ru from './locales/ru'
 
 const _langs = { en, uz, ru }
+
 import AuthPage from './AuthPage'
 import HomePage from './HomePage'
 import CoursesPage from './pages/courses/CoursesPage'
@@ -38,6 +39,17 @@ import WritingPractice from './pages/ielts/leaf/WritingPractice'
 import WritingAIChecker from './pages/ielts/leaf/WritingAIChecker'
 import { SpeakingPart1, SpeakingPart2, SpeakingPart3 } from './pages/ielts/leaf/SpeakingParts'
 import IELTSPlaceholderPage from './pages/ielts/IELTSPlaceholderPage'
+
+// Admin
+import AdminLayout from './admin/AdminLayout'
+import AdminCourses from './admin/pages/AdminCourses'
+import AdminCourseDetail from './admin/pages/AdminCourseDetail'
+import AdminProfile from './admin/pages/AdminProfile'
+import AdminDonate from './admin/pages/AdminDonate'
+import AdminResults from './admin/pages/AdminResults'
+import AdminUsers from './admin/pages/AdminUsers'
+import AdminSocials from './admin/pages/AdminSocials'
+import AdminLessonDetail from './admin/pages/AdminLessonDetail'
 
 /* ── Router-aware wrappers for grammar/vocab pages ── */
 
@@ -162,7 +174,21 @@ function AppRoutes() {
   if (!user) {
     return (
       <AuthPage
-        onSuccess={(u) => { setUser(u); navigate('/') }}
+        onSuccess={(u) => {
+          setUser(u)
+          if (u.role !== 'SUPER_ADMIN') {
+            try {
+              const list = JSON.parse(localStorage.getItem('et_all_users') || '[]')
+              const idx  = list.findIndex(x => x.phone === u.phone)
+              const entry = { ...u, lastLogin: new Date().toLocaleDateString('uz-UZ') }
+              if (idx >= 0) list[idx] = entry
+              else list.unshift(entry)
+              localStorage.setItem('et_all_users', JSON.stringify(list))
+            } catch {}
+          }
+          if (u.role === 'SUPER_ADMIN') navigate('/admin', { replace: true })
+          else navigate('/', { replace: true })
+        }}
         lang={lang}
         setLang={setLang}
         dark={dark}
@@ -171,11 +197,31 @@ function AppRoutes() {
     )
   }
 
-  const navProps = { dark, setDark, onLogout: handleLogout }
+  const navProps  = { dark, setDark, onLogout: handleLogout }
   const pageProps = { ...navProps, lang, setLang }
 
   return (
     <Routes>
+      {/* ── Admin (SUPER_ADMIN only) ── */}
+      <Route
+        path="/admin"
+        element={
+          user.role === 'SUPER_ADMIN'
+            ? <AdminLayout onLogout={handleLogout} />
+            : <Navigate to="/" replace />
+        }
+      >
+        <Route index element={<Navigate to="/admin/courses" replace />} />
+        <Route path="courses" element={<AdminCourses />} />
+        <Route path="courses/:courseId" element={<AdminCourseDetail />} />
+        <Route path="courses/:courseId/:lessonId" element={<AdminLessonDetail />} />
+        <Route path="profile" element={<AdminProfile />} />
+        <Route path="donate"  element={<AdminDonate />} />
+        <Route path="results" element={<AdminResults />} />
+        <Route path="users"   element={<AdminUsers />} />
+        <Route path="socials" element={<AdminSocials />} />
+      </Route>
+
       {/* ── Hero ── */}
       <Route path="/"
         element={<HomePage user={user} {...pageProps} />}

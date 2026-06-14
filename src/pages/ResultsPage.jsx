@@ -5,6 +5,7 @@ import ru from '../locales/ru'
 
 const langs = { en, uz, ru }
 
+/* ── Fallback static data ── */
 const STUDENTS = [
   {
     name: "Ezoza Khamrakulova",
@@ -38,6 +39,18 @@ const STUDENTS = [
   },
 ]
 
+const getAdminResults = () => {
+  try {
+    const raw = localStorage.getItem('et_admin_results')
+    if (!raw) return null
+    const arr = JSON.parse(raw)
+    return Array.isArray(arr) && arr.length > 0 ? arr : null
+  } catch { return null }
+}
+
+/* ── Normalize score to number ── */
+const num = (v) => parseFloat(v) || 0
+
 /* ── IELTS certificate visual placeholder ── */
 function CertPlaceholder({ name, dark }) {
   const initials = name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase()
@@ -49,7 +62,7 @@ function CertPlaceholder({ name, dark }) {
         <span className="font-black text-[13px] tracking-widest" style={{ color: '#dc2626' }}>IELTS</span>
         <div className="w-8 h-10 rounded flex items-center justify-center flex-shrink-0"
           style={{ background: dark ? '#374151' : '#e5e7eb', border: `1px solid ${border}` }}>
-          <span className="text-[9px] font-bold" style={{ color: dark ? '#9ca3af' : '#9ca3af' }}>{initials}</span>
+          <span className="text-[9px] font-bold" style={{ color: '#9ca3af' }}>{initials}</span>
         </div>
       </div>
       <div className="px-3 py-2 flex flex-col gap-1.5">
@@ -87,6 +100,12 @@ function StudentCard({ student, dark }) {
   const commentBorder = dark ? 'rgba(253,230,138,0.2)' : '#fde68a'
   const commentText = dark ? '#9ca3af' : '#6b7280'
 
+  const overall  = num(student.overall)
+  const listening = num(student.listening)
+  const reading  = num(student.reading)
+  const writing  = num(student.writing)
+  const speaking = num(student.speaking)
+
   return (
     <div className="rounded-3xl overflow-hidden w-full"
       style={{ background: cardBg, border: `1.5px solid ${cardBorder}`, boxShadow: '0 4px 20px rgba(220,38,38,0.1)' }}>
@@ -95,9 +114,18 @@ function StudentCard({ student, dark }) {
       </div>
 
       <div className="px-3 pt-3 pb-3.5">
-        <p className="font-extrabold text-[14px] leading-tight mb-1.5" style={{ color: '#dc2626' }}>
-          {student.name}
-        </p>
+
+        {/* Name + optional photo */}
+        <div className="flex items-center gap-2 mb-1.5">
+          {student.image && (
+            <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0 border-2" style={{ borderColor: '#fecaca' }}>
+              <img src={student.image} alt={student.name} className="w-full h-full object-cover" />
+            </div>
+          )}
+          <p className="font-extrabold text-[14px] leading-tight flex-1 min-w-0" style={{ color: '#dc2626' }}>
+            {student.name}
+          </p>
+        </div>
 
         <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full mb-3"
           style={{ background: 'rgba(220,38,38,0.1)', border: '1px solid rgba(220,38,38,0.25)' }}>
@@ -111,30 +139,30 @@ function StudentCard({ student, dark }) {
         <div className="rounded-2xl py-3 text-center mb-3"
           style={{ background: 'linear-gradient(135deg, #b91c1c 0%, #dc2626 100%)', boxShadow: '0 4px 14px rgba(185,28,28,0.4)' }}>
           <p className="text-white/70 text-[9px] font-black uppercase tracking-[0.18em] mb-0.5">Overall Band Score</p>
-          <p className="text-white font-black text-[34px] leading-none">{student.overall.toFixed(1)}</p>
+          <p className="text-white font-black text-[34px] leading-none">{overall.toFixed(1)}</p>
         </div>
 
         <div className="grid grid-cols-2 gap-1 mb-3">
-          <SubScore label="Listening" value={student.listening} dark={dark} icon={
+          <SubScore label="Listening" value={listening || '—'} dark={dark} icon={
             <svg width="16" height="16" viewBox="0 0 24 24" fill="#dc2626">
               <path d="M3 18v-6a9 9 0 0118 0v6"/>
               <path d="M21 19a2 2 0 01-2 2h-1a2 2 0 01-2-2v-3a2 2 0 012-2h3v5z"/>
               <path d="M3 19a2 2 0 002 2h1a2 2 0 002-2v-3a2 2 0 00-2-2H3v5z"/>
             </svg>
           }/>
-          <SubScore label="Reading" value={student.reading} dark={dark} icon={
+          <SubScore label="Reading" value={reading || '—'} dark={dark} icon={
             <svg width="16" height="16" viewBox="0 0 24 24" fill="#dc2626">
               <path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/>
               <path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/>
             </svg>
           }/>
-          <SubScore label="Writing" value={student.writing} dark={dark} icon={
+          <SubScore label="Writing" value={writing || '—'} dark={dark} icon={
             <svg width="16" height="16" viewBox="0 0 24 24" fill="#dc2626">
               <path d="M12 20h9" stroke="#dc2626" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
               <path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/>
             </svg>
           }/>
-          <SubScore label="Speaking" value={student.speaking} dark={dark} icon={
+          <SubScore label="Speaking" value={speaking || '—'} dark={dark} icon={
             <svg width="16" height="16" viewBox="0 0 24 24" fill="#dc2626">
               <path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/>
               <path d="M19 10v2a7 7 0 01-14 0v-2" fill="none" stroke="#dc2626" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -144,15 +172,17 @@ function StudentCard({ student, dark }) {
           }/>
         </div>
 
-        <div className="rounded-2xl px-3 py-2.5" style={{ background: commentBg, border: `1px solid ${commentBorder}` }}>
-          <div className="flex items-center gap-1.5 mb-1">
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none">
-              <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" stroke="#d97706" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-            <span className="text-[9.5px] font-black uppercase tracking-wider" style={{ color: '#d97706' }}>Teacher's Comments</span>
+        {student.comment && (
+          <div className="rounded-2xl px-3 py-2.5" style={{ background: commentBg, border: `1px solid ${commentBorder}` }}>
+            <div className="flex items-center gap-1.5 mb-1">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none">
+                <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" stroke="#d97706" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              <span className="text-[9.5px] font-black uppercase tracking-wider" style={{ color: '#d97706' }}>Teacher's Comments</span>
+            </div>
+            <p className="text-[11px] leading-relaxed line-clamp-3" style={{ color: commentText }}>{student.comment}</p>
           </div>
-          <p className="text-[11px] leading-relaxed line-clamp-3" style={{ color: commentText }}>{student.comment}</p>
-        </div>
+        )}
       </div>
     </div>
   )
@@ -163,6 +193,9 @@ export default function ResultsPage({ dark = false, lang = 'uz' }) {
   const subText = dark ? '#9ca3af' : '#6b7280'
   const cardBg = dark ? '#1f2937' : 'white'
   const cardBorder = dark ? 'rgba(55,65,81,0.6)' : '#fecaca'
+
+  const adminResults = getAdminResults()
+  const students = adminResults ?? STUDENTS
 
   const STATS = [
     { num: '300+', label: t.stats.certificates },
@@ -207,8 +240,8 @@ export default function ResultsPage({ dark = false, lang = 'uz' }) {
           className="flex lg:grid lg:grid-cols-4 gap-4 px-4 pb-2 overflow-x-auto lg:overflow-x-visible"
           style={{ scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch', scrollSnapType: 'x mandatory' }}
         >
-          {STUDENTS.map(s => (
-            <div key={s.name} className="flex-shrink-0 lg:flex-shrink w-[252px] lg:w-auto" style={{ scrollSnapAlign: 'start' }}>
+          {students.map((s, i) => (
+            <div key={s.id ?? s.name ?? i} className="flex-shrink-0 lg:flex-shrink w-[252px] lg:w-auto" style={{ scrollSnapAlign: 'start' }}>
               <StudentCard student={s} dark={dark} />
             </div>
           ))}
