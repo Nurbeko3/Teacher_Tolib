@@ -1,10 +1,16 @@
 import { useNavigate } from 'react-router-dom'
+import BackButton from './BackButton'
 
-export default function PageLayout({ children, dark }) {
+export default function PageLayout({ children, dark, backPath, lang = 'uz' }) {
   const navigate = useNavigate()
 
+  const handleBack = () => {
+    if (backPath) navigate(backPath)
+    else navigate(-1)
+  }
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-red-800 via-red-600 to-red-500 dark:from-gray-950 dark:via-red-950 dark:to-gray-900 flex flex-col relative overflow-hidden">
+    <div className="min-h-screen flex flex-col relative overflow-hidden" style={{ background: dark ? '#111827' : 'white' }}>
 
       {/* Aurora background */}
       <div className="aurora-wrap" aria-hidden="true">
@@ -18,40 +24,30 @@ export default function PageLayout({ children, dark }) {
       <header
         className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 py-3"
         style={{
-          background: dark ? 'rgba(17,24,39,0.88)' : 'rgba(0,0,0,0.28)',
+          background: dark ? 'rgba(17,24,39,0.95)' : 'rgba(255,255,255,0.95)',
           backdropFilter: 'blur(14px)',
           WebkitBackdropFilter: 'blur(14px)',
-          borderBottom: '1px solid rgba(255,255,255,0.12)',
+          borderBottom: dark ? '1px solid rgba(55,65,81,0.5)' : '1px solid rgba(220,38,38,0.15)',
         }}
       >
         {/* Back button */}
-        <button
-          onClick={() => navigate(-1)}
-          className="flex items-center gap-2 text-white/80 hover:text-white transition-colors focus:outline-none active:scale-[0.96]"
-          aria-label="Orqaga"
-        >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-            <path d="M15 18l-6-6 6-6" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-          <span className="text-sm font-semibold">Orqaga</span>
-        </button>
+        <BackButton onClick={handleBack} lang={lang} />
 
         {/* Logo — navigates to home */}
         <button
           onClick={() => navigate('/')}
           className="flex items-center gap-2 focus:outline-none active:scale-[0.96] transition-transform group"
-          aria-label="Bosh sahifa"
         >
           <div
             className="w-8 h-8 rounded-xl flex items-center justify-center transition-all duration-200"
-            style={{ background: 'rgba(255,255,255,0.2)', border: '1px solid rgba(255,255,255,0.35)' }}
+            style={{ background: 'rgba(220,38,38,0.1)', border: '1px solid rgba(220,38,38,0.3)' }}
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-              <path d="M22 10v6M2 10l10-5 10 5-10 5-10-5z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M6 12v5c0 1.657 2.686 3 6 3s6-1.343 6-3v-5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M22 10v6M2 10l10-5 10 5-10 5-10-5z" stroke="#dc2626" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M6 12v5c0 1.657 2.686 3 6 3s6-1.343 6-3v-5" stroke="#dc2626" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
           </div>
-          <span className="text-white font-bold text-[13px] group-hover:opacity-80 transition-opacity">Teacher Tolib</span>
+          <span className="font-bold text-[13px] group-hover:opacity-80 transition-opacity" style={{ color: '#dc2626' }}>Teacher Tolib</span>
         </button>
       </header>
 

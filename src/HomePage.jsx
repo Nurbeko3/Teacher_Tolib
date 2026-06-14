@@ -302,10 +302,10 @@ const IELTS_CONTENT = {
   listening: {
     title: 'Listening',
     subtitle: "Tinglash ko'nikmasi",
-    accentColor: '#2563eb',
-    panelBg: '#eff6ff',
-    borderColor: '#bfdbfe',
-    hoverBg: '#dbeafe',
+    accentColor: '#dc2626',
+    panelBg: '#fff1f2',
+    borderColor: '#fecaca',
+    hoverBg: '#ffe4e6',
     items: [
       {
         id: 'listening-practice-tests',
@@ -346,10 +346,10 @@ const IELTS_CONTENT = {
   reading: {
     title: 'Reading',
     subtitle: "O'qish ko'nikmasi",
-    accentColor: '#7c3aed',
-    panelBg: '#f5f3ff',
-    borderColor: '#ddd6fe',
-    hoverBg: '#ede9fe',
+    accentColor: '#dc2626',
+    panelBg: '#fff1f2',
+    borderColor: '#fecaca',
+    hoverBg: '#ffe4e6',
     items: [
       {
         id: 'reading-passages',
@@ -388,10 +388,10 @@ const IELTS_CONTENT = {
   writing: {
     title: 'Writing',
     subtitle: "Yozish ko'nikmasi",
-    accentColor: '#059669',
-    panelBg: '#f0fdf4',
-    borderColor: '#bbf7d0',
-    hoverBg: '#dcfce7',
+    accentColor: '#dc2626',
+    panelBg: '#fff1f2',
+    borderColor: '#fecaca',
+    hoverBg: '#ffe4e6',
     items: [
       {
         id: 'writing-practice',
@@ -433,7 +433,7 @@ const IELTS_CONTENT = {
     subtitle: "Gapirish ko'nikmasi",
     accentColor: '#dc2626',
     panelBg: '#fff1f2',
-    borderColor: '#fecdd3',
+    borderColor: '#fecaca',
     hoverBg: '#ffe4e6',
     items: [
       {
@@ -731,7 +731,7 @@ function IELTSModal({ onClose, onNavigate }) {
             {/* ─────────── LEFT PANEL ─────────── */}
             <div
               style={{
-                background: 'linear-gradient(160deg, #1e3a8a 0%, #1d4ed8 55%, #2563eb 100%)',
+                background: 'linear-gradient(160deg, #7f1d1d 0%, #b91c1c 55%, #dc2626 100%)',
                 width: isMobile && activeSection ? '72px' : isMobile ? '100%' : '420px',
                 flexShrink: 0,
                 display: 'flex',
@@ -1013,42 +1013,42 @@ function MultilevelIcon() {
 const COURSES = [
   {
     key: 'zero',
-    gradient: 'linear-gradient(135deg, #16a34a 0%, #4ade80 100%)',
-    shadow: 'rgba(22,163,74,0.4)',
+    gradient: 'linear-gradient(135deg, #b91c1c 0%, #ef4444 100%)',
+    shadow: 'rgba(185,28,28,0.4)',
     badge: 'A1 → B2',
     badgeBg: 'rgba(255,255,255,0.22)',
     icon: <EnglishFromZeroIcon />,
     title: 'Ingliz tili 0 dan',
     desc: 'Noldan boshlab ingliz tilini o\'rganing. Alifbo, so\'zlashuv va grammatika.',
     tag: 'Boshlang\'ich',
-    tagColor: '#bbf7d0',
-    tagText: '#15803d',
+    tagColor: '#fecaca',
+    tagText: '#b91c1c',
   },
   {
     key: 'ielts',
-    gradient: 'linear-gradient(135deg, #1d4ed8 0%, #60a5fa 100%)',
-    shadow: 'rgba(29,78,216,0.4)',
+    gradient: 'linear-gradient(135deg, #991b1b 0%, #dc2626 100%)',
+    shadow: 'rgba(153,27,27,0.4)',
     badge: 'Band 6–8',
     badgeBg: 'rgba(255,255,255,0.22)',
     icon: <IELTSIcon />,
     title: 'IELTS',
     desc: "Xalqaro IELTS imtihoniga tayyorgarlik. Listening, Reading, Writing, Speaking.",
     tag: 'Sertifikat',
-    tagColor: '#bfdbfe',
-    tagText: '#1e40af',
+    tagColor: '#fecaca',
+    tagText: '#991b1b',
   },
   {
     key: 'multi',
-    gradient: 'linear-gradient(135deg, #7c3aed 0%, #c084fc 100%)',
-    shadow: 'rgba(124,58,237,0.4)',
+    gradient: 'linear-gradient(135deg, #7f1d1d 0%, #b91c1c 100%)',
+    shadow: 'rgba(127,29,29,0.4)',
     badge: 'A1 – C2',
     badgeBg: 'rgba(255,255,255,0.22)',
     icon: <MultilevelIcon />,
     title: 'Multilevel',
     desc: "Barcha darajalar uchun. O'z darajangizda davom eting va yuqoriga ko'taring.",
     tag: 'Barcha darajalar',
-    tagColor: '#e9d5ff',
-    tagText: '#6b21a8',
+    tagColor: '#fecaca',
+    tagText: '#7f1d1d',
   },
 ]
 
@@ -1107,25 +1107,25 @@ function Footer() {
     <div className="footer-anim w-full px-5 pb-10 pt-2">
       <div
         className="rounded-3xl overflow-hidden"
-        style={{ background: 'rgba(255,255,255,0.09)', backdropFilter: 'blur(14px)', border: '1px solid rgba(255,255,255,0.16)' }}
+        style={{ background: '#fff1f2', border: '1px solid #fecaca' }}
       >
 
         {/* ── Contact section ── */}
-        <div className="px-5 pt-6 pb-5" style={{ borderBottom: '1px solid rgba(255,255,255,0.12)' }}>
+        <div className="px-5 pt-6 pb-5" style={{ borderBottom: '1px solid #fecaca' }}>
 
           {/* Header row */}
           <div className="flex items-center gap-3 mb-1.5">
             <div
               className="w-10 h-10 rounded-2xl flex items-center justify-center flex-shrink-0"
-              style={{ background: 'rgba(255,255,255,0.15)' }}
+              style={{ background: 'rgba(220,38,38,0.1)' }}
             >
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.95 12 19.79 19.79 0 01.88 3.38 2 2 0 012.88 1h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L7.09 8.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.95 12 19.79 19.79 0 01.88 3.38 2 2 0 012.88 1h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L7.09 8.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z" stroke="#dc2626" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </div>
             <div>
-              <h3 className="text-white font-bold text-[15px] leading-tight">Biz bilan bog'lanish</h3>
-              <p className="text-white/50 text-xs mt-0.5 leading-tight">Savollaringiz bo'lsa aloqaga chiqing</p>
+              <h3 className="text-gray-900 font-bold text-[15px] leading-tight">Biz bilan bog'lanish</h3>
+              <p className="text-gray-400 text-xs mt-0.5 leading-tight">Savollaringiz bo'lsa aloqaga chiqing</p>
             </div>
           </div>
 
@@ -1133,28 +1133,28 @@ function Footer() {
           <a
             href="tel:+998901234567"
             className="mt-4 flex items-center gap-3 rounded-2xl px-4 py-3 transition-all duration-200 active:scale-[0.98] group"
-            style={{ background: 'rgba(255,255,255,0.1)' }}
-            onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.18)' }}
-            onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.1)' }}
+            style={{ background: '#fff1f2', border: '1px solid #fecaca' }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = '#ffe4e6' }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = '#fff1f2' }}
           >
             <div
               className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0"
-              style={{ background: 'rgba(255,255,255,0.15)' }}
+              style={{ background: 'rgba(220,38,38,0.1)' }}
             >
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="white">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="#dc2626">
                 <path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1L6.6 10.8z"/>
               </svg>
             </div>
-            <span className="text-white font-semibold text-sm tracking-wide">+998 90 123 45 67</span>
-            <svg className="ml-auto opacity-40 group-hover:opacity-70 transition-opacity" width="16" height="16" viewBox="0 0 24 24" fill="none">
-              <path d="M9 18l6-6-6-6" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
+            <span className="text-gray-900 font-semibold text-sm tracking-wide">+998 90 123 45 67</span>
+            <svg className="ml-auto opacity-30 group-hover:opacity-60 transition-opacity" width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <path d="M9 18l6-6-6-6" stroke="#9ca3af" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
           </a>
         </div>
 
         {/* ── Social Media ── */}
         <div className="px-5 pt-5 pb-4">
-          <p className="text-white/35 text-[10px] font-bold uppercase tracking-[0.14em] mb-3.5">
+          <p className="text-[10px] font-bold uppercase tracking-[0.14em] mb-3.5" style={{ color: '#9ca3af' }}>
             Ijtimoiy tarmoqlar
           </p>
 
@@ -1165,14 +1165,14 @@ function Footer() {
               target="_blank"
               rel="noopener noreferrer"
               className="flex-1 flex items-center gap-2.5 px-3.5 py-2.5 rounded-2xl transition-all duration-200 active:scale-[0.97]"
-              style={{ background: 'rgba(255,255,255,0.1)' }}
-              onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(34,158,217,0.25)' }}
-              onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.1)' }}
+              style={{ background: '#fff1f2', border: '1px solid #fecaca' }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = '#ffe4e6' }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = '#fff1f2' }}
             >
-              <svg width="19" height="19" viewBox="0 0 24 24" fill="white" style={{ flexShrink: 0 }}>
+              <svg width="19" height="19" viewBox="0 0 24 24" fill="#dc2626" style={{ flexShrink: 0 }}>
                 <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
               </svg>
-              <span className="text-white/85 text-xs font-semibold">Telegram</span>
+              <span className="text-gray-700 text-xs font-semibold">Telegram</span>
             </a>
 
             <a
@@ -1180,14 +1180,14 @@ function Footer() {
               target="_blank"
               rel="noopener noreferrer"
               className="flex-1 flex items-center gap-2.5 px-3.5 py-2.5 rounded-2xl transition-all duration-200 active:scale-[0.97]"
-              style={{ background: 'rgba(255,255,255,0.1)' }}
-              onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(225,48,108,0.25)' }}
-              onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.1)' }}
+              style={{ background: '#fff1f2', border: '1px solid #fecaca' }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = '#ffe4e6' }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = '#fff1f2' }}
             >
-              <svg width="19" height="19" viewBox="0 0 24 24" fill="white" style={{ flexShrink: 0 }}>
+              <svg width="19" height="19" viewBox="0 0 24 24" fill="#dc2626" style={{ flexShrink: 0 }}>
                 <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/>
               </svg>
-              <span className="text-white/85 text-xs font-semibold">Instagram</span>
+              <span className="text-gray-700 text-xs font-semibold">Instagram</span>
             </a>
           </div>
 
@@ -1198,14 +1198,14 @@ function Footer() {
               target="_blank"
               rel="noopener noreferrer"
               className="flex-1 flex items-center gap-2.5 px-3.5 py-2.5 rounded-2xl transition-all duration-200 active:scale-[0.97]"
-              style={{ background: 'rgba(255,255,255,0.1)' }}
-              onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255,0,0,0.22)' }}
-              onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.1)' }}
+              style={{ background: '#fff1f2', border: '1px solid #fecaca' }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = '#ffe4e6' }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = '#fff1f2' }}
             >
-              <svg width="19" height="19" viewBox="0 0 24 24" fill="white" style={{ flexShrink: 0 }}>
+              <svg width="19" height="19" viewBox="0 0 24 24" fill="#dc2626" style={{ flexShrink: 0 }}>
                 <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
               </svg>
-              <span className="text-white/85 text-xs font-semibold">YouTube</span>
+              <span className="text-gray-700 text-xs font-semibold">YouTube</span>
             </a>
 
             <a
@@ -1213,21 +1213,21 @@ function Footer() {
               target="_blank"
               rel="noopener noreferrer"
               className="flex-1 flex items-center gap-2.5 px-3.5 py-2.5 rounded-2xl transition-all duration-200 active:scale-[0.97]"
-              style={{ background: 'rgba(255,255,255,0.1)' }}
-              onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.2)' }}
-              onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.1)' }}
+              style={{ background: '#fff1f2', border: '1px solid #fecaca' }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = '#ffe4e6' }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = '#fff1f2' }}
             >
-              <svg width="19" height="19" viewBox="0 0 24 24" fill="white" style={{ flexShrink: 0 }}>
+              <svg width="19" height="19" viewBox="0 0 24 24" fill="#dc2626" style={{ flexShrink: 0 }}>
                 <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.18 8.18 0 0 0 4.78 1.52V6.78a4.85 4.85 0 0 1-1.01-.09z"/>
               </svg>
-              <span className="text-white/85 text-xs font-semibold">TikTok</span>
+              <span className="text-gray-700 text-xs font-semibold">TikTok</span>
             </a>
           </div>
         </div>
 
         {/* ── Copyright ── */}
-        <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)' }} className="px-5 py-3.5">
-          <p className="text-center text-white/25 text-xs tracking-wide">Teacher Tolib © 2026</p>
+        <div style={{ borderTop: '1px solid #fecaca' }} className="px-5 py-3.5">
+          <p className="text-center text-gray-400 text-xs tracking-wide">Teacher Tolib © 2026</p>
         </div>
 
       </div>
@@ -1239,8 +1239,8 @@ function Footer() {
 function SectionLabel({ children }) {
   return (
     <div className="flex items-center gap-2.5 mb-5">
-      <div className="w-[3px] h-5 rounded-full" style={{ background: 'rgba(255,255,255,0.55)' }} />
-      <span className="text-white/65 text-[11px] font-black uppercase tracking-[0.18em]">{children}</span>
+      <div className="w-[3px] h-5 rounded-full" style={{ background: '#dc2626' }} />
+      <span className="text-gray-500 text-[11px] font-black uppercase tracking-[0.18em]">{children}</span>
     </div>
   )
 }
@@ -1251,36 +1251,36 @@ function AboutSection() {
     <section id="about" className="relative z-10 px-5 py-12">
       <div className="mx-auto w-full max-w-[520px]">
         <SectionLabel>Ustoz haqida</SectionLabel>
-        <div className="rounded-3xl overflow-hidden" style={{ background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.18)' }}>
-          <div className="px-6 pt-7 pb-5 flex items-center gap-4" style={{ borderBottom: '1px solid rgba(255,255,255,0.12)' }}>
-            <div className="w-16 h-16 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-xl" style={{ background: 'linear-gradient(135deg,rgba(255,255,255,0.28) 0%,rgba(255,255,255,0.1) 100%)', border: '2px solid rgba(255,255,255,0.38)' }}>
+        <div className="rounded-3xl overflow-hidden" style={{ background: 'white', border: '1px solid #fecaca', boxShadow: '0 2px 12px rgba(220,38,38,0.08)' }}>
+          <div className="px-6 pt-7 pb-5 flex items-center gap-4" style={{ borderBottom: '1px solid #fecaca' }}>
+            <div className="w-16 h-16 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-xl" style={{ background: 'linear-gradient(135deg, #b91c1c 0%, #dc2626 100%)', border: '2px solid #fca5a5' }}>
               <span className="text-2xl font-black text-white select-none">T</span>
             </div>
             <div>
-              <h2 className="text-white font-extrabold text-[18px] leading-tight">Teacher Tolib</h2>
-              <p className="text-white/60 text-[13px] mt-0.5 font-medium">Ingliz tili muallimi · IELTS Coach</p>
+              <h2 className="text-gray-900 font-extrabold text-[18px] leading-tight">Teacher Tolib</h2>
+              <p className="text-gray-500 text-[13px] mt-0.5 font-medium">Ingliz tili muallimi · IELTS Coach</p>
               <div className="flex items-center gap-1.5 mt-2">
                 <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: '#4ade80', boxShadow: '0 0 6px #4ade80' }} />
-                <span className="text-[11px] font-semibold" style={{ color: '#86efac' }}>Online dars beradi</span>
+                <span className="text-[11px] font-semibold" style={{ color: '#16a34a' }}>Online dars beradi</span>
               </div>
             </div>
           </div>
 
-          <div className="grid grid-cols-3" style={{ borderBottom: '1px solid rgba(255,255,255,0.12)' }}>
+          <div className="grid grid-cols-3" style={{ borderBottom: '1px solid #fecaca' }}>
             {[
               { num: '5+',    label: 'Yil tajriba'  },
               { num: '1200+', label: "O'quvchilar"   },
               { num: '98%',   label: 'Muvaffaqiyat'  },
             ].map((s, i) => (
-              <div key={s.label} className="py-4 text-center" style={{ borderRight: i < 2 ? '1px solid rgba(255,255,255,0.12)' : 'none' }}>
-                <span className="block text-white font-black text-[22px] leading-none">{s.num}</span>
-                <span className="block text-white/50 text-[10.5px] font-medium mt-1.5">{s.label}</span>
+              <div key={s.label} className="py-4 text-center" style={{ borderRight: i < 2 ? '1px solid #fecaca' : 'none' }}>
+                <span className="block text-gray-900 font-black text-[22px] leading-none">{s.num}</span>
+                <span className="block text-gray-400 text-[10.5px] font-medium mt-1.5">{s.label}</span>
               </div>
             ))}
           </div>
 
           <div className="px-6 pt-5 pb-4">
-            <p className="text-white/75 text-[13px] leading-[1.75]">
+            <p className="text-gray-600 text-[13px] leading-[1.75]">
               Ingliz tilini professional darajada o'qitaman. IELTS va umumiy ingliz tili kurslarini
               muvaffaqiyatli olib boraman. 5 yildan ortiq tajribam bilan 1200 dan ziyod o'quvchiga
               ingliz tilini o'rgatdim va ularni maqsadlariga yetkazishga yordam berdim.
@@ -1290,25 +1290,25 @@ function AboutSection() {
           <div className="px-5 pb-5 flex gap-2.5">
             <a href="https://t.me/teacher_tolib" target="_blank" rel="noopener noreferrer"
               className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-2xl transition-all duration-200 active:scale-[0.97]"
-              style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.16)' }}
-              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(34,158,217,0.28)' }}
-              onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.1)' }}
+              style={{ background: '#fff1f2', border: '1px solid #fecaca' }}
+              onMouseEnter={e => { e.currentTarget.style.background = '#ffe4e6' }}
+              onMouseLeave={e => { e.currentTarget.style.background = '#fff1f2' }}
             >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="white">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="#dc2626">
                 <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
               </svg>
-              <span className="text-white/80 text-xs font-semibold">Telegram</span>
+              <span className="text-gray-700 text-xs font-semibold">Telegram</span>
             </a>
             <a href="https://instagram.com/teacher_tolib" target="_blank" rel="noopener noreferrer"
               className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-2xl transition-all duration-200 active:scale-[0.97]"
-              style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.16)' }}
-              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(225,48,108,0.28)' }}
-              onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.1)' }}
+              style={{ background: '#fff1f2', border: '1px solid #fecaca' }}
+              onMouseEnter={e => { e.currentTarget.style.background = '#ffe4e6' }}
+              onMouseLeave={e => { e.currentTarget.style.background = '#fff1f2' }}
             >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="white">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="#dc2626">
                 <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/>
               </svg>
-              <span className="text-white/80 text-xs font-semibold">Instagram</span>
+              <span className="text-gray-700 text-xs font-semibold">Instagram</span>
             </a>
           </div>
         </div>
@@ -1322,8 +1322,8 @@ const SECTION_COURSES = [
   {
     key: 'zero',
     path: '/english-from-zero',
-    gradient: 'linear-gradient(135deg, #16a34a 0%, #4ade80 100%)',
-    shadow: 'rgba(22,163,74,0.4)',
+    gradient: 'linear-gradient(135deg, #b91c1c 0%, #ef4444 100%)',
+    shadow: 'rgba(185,28,28,0.4)',
     badge: 'A1 → B2',
     icon: <EnglishFromZeroIcon />,
     title: 'Ingliz tili 0 dan',
@@ -1333,8 +1333,8 @@ const SECTION_COURSES = [
   {
     key: 'ielts',
     path: '/ielts',
-    gradient: 'linear-gradient(135deg, #1d4ed8 0%, #60a5fa 100%)',
-    shadow: 'rgba(29,78,216,0.4)',
+    gradient: 'linear-gradient(135deg, #991b1b 0%, #dc2626 100%)',
+    shadow: 'rgba(153,27,27,0.4)',
     badge: 'Band 6–8',
     icon: <IELTSIcon />,
     title: 'IELTS',
@@ -1344,8 +1344,8 @@ const SECTION_COURSES = [
   {
     key: 'multi',
     path: '/multilevel',
-    gradient: 'linear-gradient(135deg, #7c3aed 0%, #c084fc 100%)',
-    shadow: 'rgba(124,58,237,0.4)',
+    gradient: 'linear-gradient(135deg, #7f1d1d 0%, #b91c1c 100%)',
+    shadow: 'rgba(127,29,29,0.4)',
     badge: 'A1 – C2',
     icon: <MultilevelIcon />,
     title: 'Multilevel',
@@ -1360,7 +1360,7 @@ function CoursesSection() {
     <section id="courses" className="relative z-10 px-5 py-12">
       <div className="mx-auto w-full max-w-[520px]">
         <SectionLabel>Kurslarimiz</SectionLabel>
-        <p className="text-white/60 text-[13px] font-medium mb-5 -mt-2">O'zingizga mos kursni tanlang</p>
+        <p className="text-gray-500 text-[13px] font-medium mb-5 -mt-2">O'zingizga mos kursni tanlang</p>
         <div className="flex flex-col gap-3">
           {SECTION_COURSES.map((course) => (
             <div
@@ -1414,7 +1414,7 @@ function ResultsSection() {
     <section id="results" className="relative z-10 px-5 py-12">
       <div className="mx-auto w-full max-w-[520px]">
         <SectionLabel>Natijalar</SectionLabel>
-        <p className="text-white/60 text-[13px] font-medium mb-5 -mt-2">O'quvchilarimizning yutuqlari</p>
+        <p className="text-gray-500 text-[13px] font-medium mb-5 -mt-2">O'quvchilarimizning yutuqlari</p>
 
         <div className="grid grid-cols-3 gap-3 mb-4">
           {[
@@ -1422,9 +1422,9 @@ function ResultsSection() {
               num: '300+', label: 'IELTS sertifikat',
               icon: (
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                  <circle cx="12" cy="10" r="8" stroke="white" strokeWidth="2"/>
-                  <path d="M8 10l3 3 5-5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M7 18h10M12 18v3" stroke="white" strokeWidth="1.8" strokeLinecap="round" opacity="0.7"/>
+                  <circle cx="12" cy="10" r="8" stroke="#dc2626" strokeWidth="2"/>
+                  <path d="M8 10l3 3 5-5" stroke="#dc2626" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M7 18h10M12 18v3" stroke="#dc2626" strokeWidth="1.8" strokeLinecap="round" opacity="0.7"/>
                 </svg>
               ),
             },
@@ -1432,7 +1432,7 @@ function ResultsSection() {
               num: '6.8', label: "O'rtacha ball",
               icon: (
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                  <path d="M18 20V10M12 20V4M6 20v-6" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M18 20V10M12 20V4M6 20v-6" stroke="#dc2626" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
               ),
             },
@@ -1440,37 +1440,37 @@ function ResultsSection() {
               num: '98%', label: 'Muvaffaqiyat',
               icon: (
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                  <path d="M22 11.08V12a10 10 0 11-5.93-9.14" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M22 4L12 14.01l-3-3" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M22 11.08V12a10 10 0 11-5.93-9.14" stroke="#dc2626" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M22 4L12 14.01l-3-3" stroke="#dc2626" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
               ),
             },
           ].map(stat => (
-            <div key={stat.label} className="rounded-2xl px-2 py-4 text-center" style={{ background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)', border: '1px solid rgba(255,255,255,0.16)' }}>
+            <div key={stat.label} className="rounded-2xl px-2 py-4 text-center" style={{ background: 'white', border: '1px solid #fecaca', boxShadow: '0 1px 6px rgba(220,38,38,0.07)' }}>
               <div className="flex justify-center mb-2">{stat.icon}</div>
-              <span className="block text-white font-black text-[20px] leading-none">{stat.num}</span>
-              <span className="block text-white/50 text-[10px] font-medium mt-1.5 leading-tight">{stat.label}</span>
+              <span className="block text-gray-900 font-black text-[20px] leading-none">{stat.num}</span>
+              <span className="block text-gray-400 text-[10px] font-medium mt-1.5 leading-tight">{stat.label}</span>
             </div>
           ))}
         </div>
 
-        <div className="rounded-3xl overflow-hidden" style={{ background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)', border: '1px solid rgba(255,255,255,0.16)' }}>
-          <div className="px-5 pt-5 pb-3" style={{ borderBottom: '1px solid rgba(255,255,255,0.12)' }}>
-            <h3 className="text-white font-bold text-[14px]">So'nggi IELTS natijalari</h3>
-            <p className="text-white/50 text-[11px] mt-0.5">Talabalarimizning real natijalari</p>
+        <div className="rounded-3xl overflow-hidden" style={{ background: 'white', border: '1px solid #fecaca', boxShadow: '0 2px 12px rgba(220,38,38,0.08)' }}>
+          <div className="px-5 pt-5 pb-3" style={{ borderBottom: '1px solid #fecaca' }}>
+            <h3 className="text-gray-900 font-bold text-[14px]">So'nggi IELTS natijalari</h3>
+            <p className="text-gray-400 text-[11px] mt-0.5">Talabalarimizning real natijalari</p>
           </div>
           <div className="px-4 py-3 flex flex-col gap-2">
             {IELTS_SCORES.map(s => (
-              <div key={s.name} className="flex items-center gap-3 px-3 py-2.5 rounded-2xl" style={{ background: 'rgba(255,255,255,0.07)' }}>
-                <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(255,255,255,0.15)' }}>
-                  <span className="text-white font-bold text-[12px]">{s.name[0]}</span>
+              <div key={s.name} className="flex items-center gap-3 px-3 py-2.5 rounded-2xl" style={{ background: '#fef2f2' }}>
+                <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(220,38,38,0.12)' }}>
+                  <span className="text-red-700 font-bold text-[12px]">{s.name[0]}</span>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <span className="block text-white font-semibold text-[13px] truncate">{s.name}</span>
-                  <span className="block text-white/50 text-[11px]">{s.module}</span>
+                  <span className="block text-gray-900 font-semibold text-[13px] truncate">{s.name}</span>
+                  <span className="block text-gray-400 text-[11px]">{s.module}</span>
                 </div>
-                <div className="px-2.5 py-1 rounded-xl flex-shrink-0" style={{ background: 'rgba(74,222,128,0.18)', border: '1px solid rgba(74,222,128,0.32)' }}>
-                  <span className="font-black text-[13px]" style={{ color: '#86efac' }}>Band {s.score}</span>
+                <div className="px-2.5 py-1 rounded-xl flex-shrink-0" style={{ background: 'rgba(220,38,38,0.10)', border: '1px solid rgba(220,38,38,0.22)' }}>
+                  <span className="font-black text-[13px]" style={{ color: '#dc2626' }}>Band {s.score}</span>
                 </div>
               </div>
             ))}
@@ -1496,17 +1496,17 @@ function DonateSection() {
     <section id="donate" className="relative z-10 px-5 pt-12 pb-4">
       <div className="mx-auto w-full max-w-[520px]">
         <SectionLabel>Donat</SectionLabel>
-        <p className="text-white/60 text-[13px] font-medium mb-5 -mt-2">Ustozni qo'llab-quvvatlang</p>
+        <p className="text-gray-500 text-[13px] font-medium mb-5 -mt-2">Ustozni qo'llab-quvvatlang</p>
 
-        <div className="rounded-3xl px-5 py-5 mb-3 flex items-start gap-4" style={{ background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)', border: '1px solid rgba(255,255,255,0.18)' }}>
-          <div className="w-11 h-11 rounded-2xl flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(255,255,255,0.18)' }}>
+        <div className="rounded-3xl px-5 py-5 mb-3 flex items-start gap-4" style={{ background: '#fff1f2', border: '1px solid #fecaca', boxShadow: '0 2px 10px rgba(220,38,38,0.07)' }}>
+          <div className="w-11 h-11 rounded-2xl flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(220,38,38,0.12)' }}>
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-              <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" stroke="#dc2626" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
           </div>
           <div className="flex-1">
-            <h3 className="text-white font-extrabold text-[15px] leading-tight">Yordamingiz muhim</h3>
-            <p className="text-white/65 text-[12.5px] mt-1.5 leading-relaxed">
+            <h3 className="text-gray-900 font-extrabold text-[15px] leading-tight">Yordamingiz muhim</h3>
+            <p className="text-gray-600 text-[12.5px] mt-1.5 leading-relaxed">
               Sizning yordamingiz yangi darslar, materiallar va platformani rivojlantirishga sarf qilinadi.
             </p>
           </div>
@@ -1540,32 +1540,32 @@ function DonateSection() {
           onClick={copyCard}
           className="w-full py-4 rounded-2xl flex items-center justify-center gap-2.5 transition-all duration-200 active:scale-[0.97] font-bold text-[14px]"
           style={{
-            background: copied ? 'rgba(74,222,128,0.22)' : 'rgba(255,255,255,0.18)',
-            border: `1.5px solid ${copied ? 'rgba(74,222,128,0.45)' : 'rgba(255,255,255,0.28)'}`,
-            color: 'white',
+            background: copied ? 'rgba(74,222,128,0.12)' : '#fff1f2',
+            border: `1.5px solid ${copied ? 'rgba(74,222,128,0.4)' : '#fecaca'}`,
+            color: copied ? '#16a34a' : '#dc2626',
           }}
-          onMouseEnter={e => { if (!copied) e.currentTarget.style.background = 'rgba(255,255,255,0.26)' }}
-          onMouseLeave={e => { if (!copied) e.currentTarget.style.background = copied ? 'rgba(74,222,128,0.22)' : 'rgba(255,255,255,0.18)' }}
+          onMouseEnter={e => { if (!copied) e.currentTarget.style.background = '#ffe4e6' }}
+          onMouseLeave={e => { if (!copied) e.currentTarget.style.background = '#fff1f2' }}
         >
           {copied ? (
             <>
               <svg width="17" height="17" viewBox="0 0 24 24" fill="none">
                 <path d="M20 6L9 17l-5-5" stroke="#4ade80" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
-              <span style={{ color: '#86efac' }}>Nusxalandi!</span>
+              <span style={{ color: '#16a34a' }}>Nusxalandi!</span>
             </>
           ) : (
             <>
               <svg width="17" height="17" viewBox="0 0 24 24" fill="none">
-                <rect x="9" y="9" width="13" height="13" rx="2" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <rect x="9" y="9" width="13" height="13" rx="2" stroke="#dc2626" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" stroke="#dc2626" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
               Karta raqamini nusxalash
             </>
           )}
         </button>
 
-        <p className="text-center text-white/35 text-[11px] mt-3 mb-2">
+        <p className="text-center text-gray-400 text-[11px] mt-3 mb-2">
           Har qanday miqdordagi yordam qabul qilinadi · Rahmat!
         </p>
       </div>
@@ -1585,7 +1585,7 @@ export default function HomePage({ user, lang, setLang, dark, setDark, onLogout 
   }
 
   return (
-    <div className="bg-gradient-to-br from-red-800 via-red-600 to-red-500 dark:from-gray-950 dark:via-red-950 dark:to-gray-900 flex flex-col relative overflow-x-hidden">
+    <div className="bg-white dark:bg-gray-900 flex flex-col relative overflow-x-hidden">
 
       <Navbar lang={lang} setLang={setLang} dark={dark} setDark={setDark} onLogout={() => setShowModal(true)} />
 
@@ -1598,7 +1598,10 @@ export default function HomePage({ user, lang, setLang, dark, setDark, onLogout 
       </div>
 
       {/* ── HERO ── */}
-      <div className={`relative z-10 min-h-screen flex flex-col items-center justify-center px-5 sm:px-8 text-center gap-0 pt-20 ${fading ? 'hero-fade-out' : ''}`}>
+      <div
+        className={`relative z-10 min-h-screen flex flex-col items-center justify-center px-5 sm:px-8 text-center gap-0 pt-20 ${fading ? 'hero-fade-out' : ''}`}
+        style={{ background: 'linear-gradient(135deg, #7f1d1d 0%, #b91c1c 40%, #dc2626 70%, #ef4444 100%)' }}
+      >
         <div className="fu-1">
           <div className="float-bob w-20 h-20 sm:w-28 sm:h-28 bg-white/20 rounded-3xl flex items-center justify-center border-2 border-white/40 mb-5 sm:mb-8 shadow-2xl shadow-black/20">
             <span className="text-3xl sm:text-5xl font-extrabold text-white">
@@ -1620,7 +1623,23 @@ export default function HomePage({ user, lang, setLang, dark, setDark, onLogout 
             <div className="sparkle-spin"><SparkleIcon size={22} /></div>
             <div className="sparkle-spin" style={{ animationDelay: '1.1s' }}><SparkleIcon size={12} /></div>
           </div>
-          <p className="text-white font-semibold text-sm sm:text-lg leading-snug">{t.welcome}</p>
+          <p className="text-white font-semibold text-sm sm:text-base leading-snug text-center">
+            {t.welcome}
+            <span
+              className="block mt-1 font-black text-xl sm:text-2xl tracking-tight teacher-tolib-shine"
+              style={{
+                background: 'linear-gradient(90deg, #ffffff 0%, #fecaca 40%, #ffffff 70%, #fecaca 100%)',
+                backgroundSize: '200% auto',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+                animation: 'teacherShine 2.4s linear infinite, teacherPop 0.6s cubic-bezier(0.22,1,0.36,1) both',
+                filter: 'drop-shadow(0 0 12px rgba(255,255,255,0.5))',
+              }}
+            >
+              Teacher Tolib
+            </span>
+          </p>
         </div>
 
         <button
@@ -1631,13 +1650,6 @@ export default function HomePage({ user, lang, setLang, dark, setDark, onLogout 
         </button>
 
       </div>
-
-      {/* ── Sections ── */}
-      <AboutSection />
-      <CoursesSection />
-      <ResultsSection />
-      <DonateSection />
-      <FooterComp />
 
       {showModal && (
         <LogoutModal t={t} onConfirm={onLogout} onCancel={() => setShowModal(false)} />

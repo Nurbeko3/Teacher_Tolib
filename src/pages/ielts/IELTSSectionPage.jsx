@@ -1,21 +1,14 @@
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useOutletContext } from 'react-router-dom'
+import BackButton from '../../components/BackButton'
 
 export default function IELTSSectionPage({ title, subtitle, accentColor, panelBg, borderColor, hoverBg, items, backPath }) {
   const navigate = useNavigate()
+  const ctx = useOutletContext() || {}
+  const lang = ctx.lang || 'uz'
 
   return (
     <div className="px-4 pt-6 pb-6 max-w-xl mx-auto">
-      {/* Header */}
-      <button
-        onClick={() => navigate(backPath || '/ielts')}
-        className="flex items-center gap-2 mb-5 focus:outline-none active:scale-[0.97] transition-transform"
-        style={{ color: 'rgba(255,255,255,0.7)' }}
-      >
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-          <path d="M15 18l-6-6 6-6" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
-        </svg>
-        <span className="text-sm font-medium">Orqaga</span>
-      </button>
+      <BackButton onClick={() => navigate(backPath || '/ielts')} className="mb-5" lang={lang} />
 
       <div className="flex items-center gap-3 mb-6">
         <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
@@ -26,12 +19,11 @@ export default function IELTSSectionPage({ title, subtitle, accentColor, panelBg
           </svg>
         </div>
         <div>
-          <h1 className="text-white font-extrabold text-xl leading-tight">{title}</h1>
+          <h1 className="font-extrabold text-xl leading-tight" style={{ color: '#dc2626' }}>{title}</h1>
           <p className="text-sm font-semibold mt-0.5" style={{ color: `${accentColor}cc` }}>{subtitle}</p>
         </div>
       </div>
 
-      {/* Items */}
       <div
         className="rounded-2xl overflow-hidden"
         style={{ background: panelBg, border: `1.5px solid ${borderColor}` }}
@@ -41,9 +33,7 @@ export default function IELTSSectionPage({ title, subtitle, accentColor, panelBg
             key={item.id}
             onClick={() => navigate(item.path)}
             className="w-full flex items-center gap-3.5 px-4 py-4 text-left focus:outline-none active:scale-[0.98] transition-all duration-150 group"
-            style={{
-              borderBottom: idx < items.length - 1 ? `1px solid ${borderColor}` : 'none',
-            }}
+            style={{ borderBottom: idx < items.length - 1 ? `1px solid ${borderColor}` : 'none' }}
             onMouseEnter={(e) => { e.currentTarget.style.background = hoverBg }}
             onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent' }}
           >
@@ -52,7 +42,7 @@ export default function IELTSSectionPage({ title, subtitle, accentColor, panelBg
               {item.icon(accentColor)}
             </div>
             <div className="flex-1 min-w-0">
-              <span className="block text-[14px] font-bold leading-tight" style={{ color: '#0f172a' }}>{item.label}</span>
+              <span className="block text-[14px] font-bold leading-tight" style={{ color: '#dc2626' }}>{item.label}</span>
               <span className="block text-[11.5px] font-medium mt-0.5" style={{ color: '#94a3b8' }}>{item.desc}</span>
             </div>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none"

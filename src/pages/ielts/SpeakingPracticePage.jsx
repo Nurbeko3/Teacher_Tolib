@@ -1,58 +1,68 @@
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useOutletContext } from 'react-router-dom'
+import en from '../../locales/en'
+import uz from '../../locales/uz'
+import ru from '../../locales/ru'
 
-const PARTS = [
-  {
-    id: 'part-1',
-    path: '/ielts/speaking/practice/part-1',
-    label: 'Part 1',
-    desc: 'Shaxsiy mavzular haqida suhbat',
-    icon: (
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-        <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-        <circle cx="12" cy="7" r="4" stroke="white" strokeWidth="2"/>
-      </svg>
-    ),
-  },
-  {
-    id: 'part-2',
-    path: '/ielts/speaking/practice/part-2',
-    label: 'Part 2',
-    desc: "Uzun nutq – cue card bo'yicha",
-    icon: (
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-        <rect x="3" y="5" width="18" height="14" rx="2" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-        <path d="M3 10h18" stroke="white" strokeWidth="2" strokeLinecap="round"/>
-        <path d="M8 14h4" stroke="white" strokeWidth="2" strokeLinecap="round"/>
-      </svg>
-    ),
-  },
-  {
-    id: 'part-3',
-    path: '/ielts/speaking/practice/part-3',
-    label: 'Part 3',
-    desc: 'Abstrakt mavzular muhokamasi',
-    icon: (
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-        <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-      </svg>
-    ),
-  },
-]
+const langs = { en, uz, ru }
 
 export default function SpeakingPracticePage() {
   const navigate = useNavigate()
+  const ctx = useOutletContext() || {}
+  const lang = ctx.lang || 'uz'
+  const t = (langs[lang] || langs.uz).ielts.speaking
+
+  const PARTS = [
+    {
+      id: 'part-1',
+      path: '/ielts/speaking/practice/part-1',
+      label: t.parts.part1.label,
+      desc: t.parts.part1.desc,
+      icon: (
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+          <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          <circle cx="12" cy="7" r="4" stroke="white" strokeWidth="2"/>
+        </svg>
+      ),
+    },
+    {
+      id: 'part-2',
+      path: '/ielts/speaking/practice/part-2',
+      label: t.parts.part2.label,
+      desc: t.parts.part2.desc,
+      icon: (
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+          <rect x="3" y="5" width="18" height="14" rx="2" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          <path d="M3 10h18" stroke="white" strokeWidth="2" strokeLinecap="round"/>
+          <path d="M8 14h4" stroke="white" strokeWidth="2" strokeLinecap="round"/>
+        </svg>
+      ),
+    },
+    {
+      id: 'part-3',
+      path: '/ielts/speaking/practice/part-3',
+      label: t.parts.part3.label,
+      desc: t.parts.part3.desc,
+      icon: (
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+          <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      ),
+    },
+  ]
 
   return (
     <div className="px-4 pt-6 pb-6 max-w-xl mx-auto">
       <button
         onClick={() => navigate('/ielts/speaking')}
-        className="flex items-center gap-2 mb-5 focus:outline-none active:scale-[0.97] transition-transform"
+        className="flex items-center gap-1 mb-5 focus:outline-none active:scale-[0.97] transition-transform"
         style={{ color: 'rgba(255,255,255,0.7)' }}
       >
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
           <path d="M15 18l-6-6 6-6" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
         </svg>
-        <span className="text-sm font-medium">Orqaga</span>
+        <span className="text-sm font-medium" style={{ color: '#dc2626' }}>
+          {(langs[lang] || langs.uz).common.back}
+        </span>
       </button>
 
       <div className="flex items-center gap-3 mb-6">
@@ -65,8 +75,8 @@ export default function SpeakingPracticePage() {
           </svg>
         </div>
         <div>
-          <h1 className="text-white font-extrabold text-xl leading-tight">Speaking Practice</h1>
-          <p className="text-sm font-semibold mt-0.5" style={{ color: '#dc2626cc' }}>Bo'limni tanlang</p>
+          <h1 className="font-extrabold text-xl leading-tight" style={{ color: '#0f172a' }}>Speaking Practice</h1>
+          <p className="text-sm font-semibold mt-0.5" style={{ color: '#dc2626cc' }}>{t.subtitle}</p>
         </div>
       </div>
 

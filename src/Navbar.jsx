@@ -1,32 +1,24 @@
 import { useState, useRef, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
+import en from './locales/en'
+import uz from './locales/uz'
+import ru from './locales/ru'
+
+const langs = { en, uz, ru }
 
 /* ── Course labels shown in header left side ── */
 const COURSE_LABELS = [
-  {
-    label: 'Ingliz tili 0 dan',
-    dot:   '#60a5fa',        // blue-400 — visible on gradient
-    light: '#1e40af',        // blue-800 — on white header
-    dark:  '#93c5fd',        // blue-300 — on dark header
-  },
-  {
-    label: 'IELTS',
-    dot:   '#fbbf24',        // amber-400
-    light: '#92400e',        // amber-800
-    dark:  '#fde68a',        // amber-200
-  },
-  {
-    label: 'Multilevel',
-    dot:   '#34d399',        // emerald-400
-    light: '#065f46',        // emerald-900
-    dark:  '#6ee7b7',        // emerald-300
-  },
+  { key: 'zero', dot: '#f87171', light: '#b91c1c', dark: '#fca5a5' },
+  { key: 'ielts', dot: '#f87171', light: '#b91c1c', dark: '#fca5a5' },
+  { key: 'multi', dot: '#f87171', light: '#b91c1c', dark: '#fca5a5' },
 ]
 
-const NAV_ITEMS = [
+const COURSE_LABEL_KEYS = ['zero', 'ielts', 'multi']
+
+const NAV_ITEMS_BASE = [
   {
     id: 'about',
-    label: 'Ustoz haqida',
+    labelKey: 'about',
     icon: (
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
         <circle cx="12" cy="8" r="4" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
@@ -36,7 +28,7 @@ const NAV_ITEMS = [
   },
   {
     id: 'courses',
-    label: 'Kurslarimiz',
+    labelKey: 'courses',
     icon: (
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
         <path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -46,7 +38,7 @@ const NAV_ITEMS = [
   },
   {
     id: 'results',
-    label: 'Natijalar',
+    labelKey: 'results',
     icon: (
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
         <path d="M18 20V10M12 20V4M6 20v-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -55,7 +47,7 @@ const NAV_ITEMS = [
   },
   {
     id: 'donate',
-    label: 'Donat',
+    labelKey: 'donate',
     icon: (
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
         <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -64,12 +56,14 @@ const NAV_ITEMS = [
   },
 ]
 
-export default function Navbar({ dark, setDark, onLogout }) {
+export default function Navbar({ dark, setDark, onLogout, lang = 'uz', setLang }) {
+  const t = (langs[lang] || langs.uz).nav
   const [menuOpen, setMenuOpen]   = useState(false)
   const [scrolled, setScrolled]   = useState(false)
   const menuRef = useRef(null)
   const btnRef  = useRef(null)
   const navigate = useNavigate()
+  const location = useLocation()
 
   /* Scroll detection */
   useEffect(() => {
@@ -110,29 +104,36 @@ export default function Navbar({ dark, setDark, onLogout }) {
     if (route) navigate(route)
   }
 
-  /* ── Adaptive color helpers ── */
-  const iconStroke   = scrolled ? (dark ? 'white'     : '#dc2626')  : 'white'
-  const iconBg       = scrolled ? (dark ? 'rgba(220,38,38,0.2)' : 'rgba(220,38,38,0.08)') : 'rgba(255,255,255,0.18)'
-  const iconBorder   = scrolled ? (dark ? 'rgba(220,38,38,0.3)' : 'rgba(220,38,38,0.15)') : 'rgba(255,255,255,0.3)'
-  const barColor     = scrolled ? (dark ? 'white'     : '#374151')  : 'white'
-  const btnBg        = scrolled ? (dark ? 'rgba(55,65,81,0.7)'  : 'rgba(243,244,246,0.85)') : 'rgba(255,255,255,0.18)'
-  const btnBorder    = scrolled ? (dark ? 'rgba(75,85,99,0.6)'  : 'rgba(209,213,219,0.7)')  : 'rgba(255,255,255,0.3)'
-  const btnHover     = scrolled ? (dark ? 'rgba(75,85,99,0.8)'  : 'rgba(229,231,235,0.95)') : 'rgba(255,255,255,0.28)'
+  /* ── Adaptive color helpers ──
+     onRedBg = true only on homepage before scrolling (red hero behind navbar)
+     everywhere else (other pages OR homepage scrolled) → bg is white/dark → red icons
+  ── */
+  const isHome   = location.pathname === '/'
+  const onRedBg  = isHome && !scrolled   // red hero visible → white icons
+  const showBg   = scrolled || !isHome   // show frosted glass header bg
+
+  const iconStroke = onRedBg ? 'white'     : (dark ? 'white'     : '#dc2626')
+  const iconBg     = onRedBg ? 'rgba(255,255,255,0.2)'         : (dark ? 'rgba(220,38,38,0.2)' : 'rgba(220,38,38,0.08)')
+  const iconBorder = onRedBg ? 'rgba(255,255,255,0.35)'        : (dark ? 'rgba(220,38,38,0.3)' : 'rgba(220,38,38,0.15)')
+  const barColor   = onRedBg ? 'white'     : (dark ? 'white'     : '#dc2626')
+  const btnBg      = onRedBg ? 'rgba(255,255,255,0.18)'        : (dark ? 'rgba(55,65,81,0.7)'  : 'rgba(243,244,246,0.85)')
+  const btnBorder  = onRedBg ? 'rgba(255,255,255,0.3)'         : (dark ? 'rgba(75,85,99,0.6)'  : 'rgba(209,213,219,0.7)')
+  const btnHover   = onRedBg ? 'rgba(255,255,255,0.28)'        : (dark ? 'rgba(75,85,99,0.8)'  : 'rgba(229,231,235,0.95)')
 
   const labelColor = (item) =>
-    scrolled ? (dark ? item.dark : item.light) : 'rgba(255,255,255,0.92)'
+    onRedBg ? 'rgba(255,255,255,0.92)' : (dark ? item.dark : item.light)
 
   return (
     <header
       className="fixed top-0 left-0 right-0 z-50 transition-all duration-300"
       style={
-        scrolled
+        showBg
           ? {
               background: dark ? 'rgba(17,24,39,0.92)' : 'rgba(255,255,255,0.92)',
               backdropFilter: 'blur(18px)',
               WebkitBackdropFilter: 'blur(18px)',
               boxShadow: '0 1px 12px rgba(0,0,0,0.08)',
-              borderBottom: dark ? '1px solid rgba(55,65,81,0.5)' : '1px solid rgba(0,0,0,0.06)',
+              borderBottom: dark ? '1px solid rgba(55,65,81,0.5)' : '1px solid rgba(220,38,38,0.12)',
             }
           : undefined
       }
@@ -164,23 +165,27 @@ export default function Navbar({ dark, setDark, onLogout }) {
 
           {/* 3 course labels stacked */}
           <div className="flex flex-col gap-[3px] min-w-0">
-            {COURSE_LABELS.map((item, idx) => (
-              <span
-                key={item.label}
-                className={`flex items-center gap-1.5 ${idx === 2 ? 'hidden xs:flex' : ''}`}
-              >
+            {COURSE_LABELS.map((item, idx) => {
+              const tCourses = (langs[lang] || langs.uz).courses
+              const label = tCourses[item.key]?.title || item.key
+              return (
                 <span
-                  className="w-[5px] h-[5px] sm:w-[6px] sm:h-[6px] rounded-full flex-shrink-0"
-                  style={{ background: item.dot }}
-                />
-                <span
-                  className="text-[10px] sm:text-[11px] font-bold leading-none tracking-tight whitespace-nowrap transition-colors duration-300"
-                  style={{ color: labelColor(item) }}
+                  key={item.key}
+                  className={`flex items-center gap-1.5 ${idx === 2 ? 'hidden xs:flex' : ''}`}
                 >
-                  {item.label}
+                  <span
+                    className="w-[5px] h-[5px] sm:w-[6px] sm:h-[6px] rounded-full flex-shrink-0"
+                    style={{ background: onRedBg ? 'rgba(255,255,255,0.7)' : item.dot }}
+                  />
+                  <span
+                    className="text-[10px] sm:text-[11px] font-bold leading-none tracking-tight whitespace-nowrap transition-colors duration-300"
+                    style={{ color: labelColor(item) }}
+                  >
+                    {label}
+                  </span>
                 </span>
-              </span>
-            ))}
+              )
+            })}
           </div>
         </button>
 
@@ -247,33 +252,55 @@ export default function Navbar({ dark, setDark, onLogout }) {
             <div
               role="menu"
               aria-label="Asosiy menyu"
-              className="absolute top-14 right-0 w-60 rounded-2xl shadow-2xl overflow-hidden border border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800 nav-menu-enter"
+              className="absolute top-14 right-0 w-60 rounded-2xl shadow-2xl overflow-hidden border border-red-100 dark:border-gray-700 bg-white dark:bg-gray-800 nav-menu-enter"
             >
               {/* Navigation items */}
               <nav className="py-1.5">
-                {NAV_ITEMS.map((item) => (
+                {NAV_ITEMS_BASE.map((item) => (
                   <button
                     key={item.id}
                     role="menuitem"
                     onClick={() => handleNavItem(item.id)}
-                    className="w-full flex items-center gap-3 px-4 py-3 text-left text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700/60 active:bg-gray-100 dark:active:bg-gray-700 transition-colors duration-150 focus:outline-none focus:bg-gray-50 dark:focus:bg-gray-700/60"
+                    className="w-full flex items-center gap-3 px-4 py-3 text-left text-gray-700 dark:text-gray-200 hover:bg-red-50 dark:hover:bg-gray-700/60 active:bg-red-100 dark:active:bg-gray-700 transition-colors duration-150 focus:outline-none focus:bg-red-50 dark:focus:bg-gray-700/60"
                   >
-                    <span className="text-gray-400 dark:text-gray-500 flex-shrink-0">{item.icon}</span>
-                    <span className="text-sm font-medium">{item.label}</span>
+                    <span className="text-red-400 dark:text-gray-500 flex-shrink-0">{item.icon}</span>
+                    <span className="text-sm font-medium">{t[item.labelKey]}</span>
                   </button>
                 ))}
               </nav>
 
-              <div className="mx-4 border-t border-gray-100 dark:border-gray-700" />
+              <div className="mx-4 border-t border-red-100 dark:border-gray-700" />
+
+              {/* Language switcher */}
+              {setLang && (
+                <div className="px-4 py-3 flex items-center gap-2">
+                  {['uz', 'en', 'ru'].map((l) => (
+                    <button
+                      key={l}
+                      onClick={() => { setLang(l); setMenuOpen(false) }}
+                      className="flex-1 py-1.5 rounded-xl text-xs font-bold uppercase tracking-wide transition-all duration-150 focus:outline-none active:scale-95"
+                      style={{
+                        background: lang === l ? '#dc2626' : 'transparent',
+                        color: lang === l ? 'white' : '#9ca3af',
+                        border: lang === l ? '1.5px solid #dc2626' : '1.5px solid #e5e7eb',
+                      }}
+                    >
+                      {l}
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              <div className="mx-4 border-t border-red-100 dark:border-gray-700" />
 
               <div className="py-1.5">
                 {/* Dark Mode */}
                 <button
                   role="menuitem"
                   onClick={() => setDark((d) => !d)}
-                  className="w-full flex items-center gap-3 px-4 py-3 text-left text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700/60 active:bg-gray-100 transition-colors duration-150 focus:outline-none focus:bg-gray-50 dark:focus:bg-gray-700/60"
+                  className="w-full flex items-center gap-3 px-4 py-3 text-left text-gray-700 dark:text-gray-200 hover:bg-red-50 dark:hover:bg-gray-700/60 active:bg-red-100 transition-colors duration-150 focus:outline-none focus:bg-red-50 dark:focus:bg-gray-700/60"
                 >
-                  <span className="text-gray-400 dark:text-gray-500 flex-shrink-0">
+                  <span className="text-red-400 dark:text-gray-500 flex-shrink-0">
                     {dark ? (
                       <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
                         <circle cx="12" cy="12" r="5" stroke="currentColor" strokeWidth="2"/>
@@ -285,7 +312,7 @@ export default function Navbar({ dark, setDark, onLogout }) {
                       </svg>
                     )}
                   </span>
-                  <span className="text-sm font-medium">{dark ? 'Kunduzgi rejim' : 'Tungi rejim'}</span>
+                  <span className="text-sm font-medium">{dark ? t.lightMode : t.darkMode}</span>
                   <div
                     className="ml-auto w-9 h-5 rounded-full flex items-center px-0.5 flex-shrink-0 transition-colors duration-300"
                     style={{ background: dark ? '#ef4444' : '#d1d5db' }}
@@ -315,7 +342,7 @@ export default function Navbar({ dark, setDark, onLogout }) {
                       <path d="M21 12H9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
                   </span>
-                  <span className="text-sm font-medium">Chiqish</span>
+                  <span className="text-sm font-medium">{t.logout}</span>
                 </button>
               </div>
             </div>

@@ -1,11 +1,21 @@
+import { useOutletContext } from 'react-router-dom'
 import IELTSPlaceholderPage from '../IELTSPlaceholderPage'
+import en from '../../../locales/en'
+import uz from '../../../locales/uz'
+import ru from '../../../locales/ru'
+
+const langs = { en, uz, ru }
 
 export default function ListeningPodcasts() {
+  const ctx = useOutletContext() || {}
+  const lang = ctx.lang || 'uz'
+  const t = (langs[lang] || langs.uz).ielts
+
   return (
     <IELTSPlaceholderPage
       title="Podcasts"
-      desc="Audio materiallar va podkastlar bilan tinglash ko'nikmasini oshiring."
-      accentColor="#2563eb"
+      desc={t.sectionDescs?.listening?.podcasts}
+      accentColor="#dc2626"
       backPath="/ielts/listening"
       icon={
         <svg width="36" height="36" viewBox="0 0 24 24" fill="none">

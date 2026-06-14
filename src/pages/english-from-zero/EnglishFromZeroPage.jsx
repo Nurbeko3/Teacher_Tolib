@@ -1,15 +1,20 @@
 import { useNavigate } from 'react-router-dom'
 import Navbar from '../../Navbar'
 import Footer from '../../components/Footer'
+import BackButton from '../../components/BackButton'
+import en from '../../locales/en'
+import uz from '../../locales/uz'
+import ru from '../../locales/ru'
 
-const SECTIONS = [
+const langs = { en, uz, ru }
+
+const SECTION_KEYS = [
   {
     id: 'grammar-levels',
+    key: 'grammar',
     path: '/english-from-zero/grammar-levels',
-    title: 'Grammatika A1 dan C2 gacha',
-    desc: "Boshlang'ichdan yuqori darajagacha",
-    gradient: 'linear-gradient(135deg, #166534 0%, #22c55e 100%)',
-    shadow: 'rgba(22,101,52,0.4)',
+    gradient: 'linear-gradient(135deg, #b91c1c 0%, #ef4444 100%)',
+    shadow: 'rgba(185,28,28,0.4)',
     icon: (
       <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
         <path d="M4 19.5A2.5 2.5 0 016.5 17H20" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -20,11 +25,10 @@ const SECTIONS = [
   },
   {
     id: 'topic-grammar',
+    key: 'grammarTest',
     path: '/english-from-zero/topic-grammar',
-    title: "Mavzulashtirilgan grammatika testi",
-    desc: "Mavzu bo'yicha bilimingizni sinab ko'ring",
-    gradient: 'linear-gradient(135deg, #065f46 0%, #34d399 100%)',
-    shadow: 'rgba(6,95,70,0.4)',
+    gradient: 'linear-gradient(135deg, #991b1b 0%, #dc2626 100%)',
+    shadow: 'rgba(153,27,27,0.4)',
     icon: (
       <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
         <path d="M9 11l3 3L22 4" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -34,11 +38,10 @@ const SECTIONS = [
   },
   {
     id: 'vocab-test',
+    key: 'vocabulary',
     path: '/english-from-zero/vocab-test',
-    title: "Lug'at testi",
-    desc: "So'z boyligingizni oshiring",
-    gradient: 'linear-gradient(135deg, #14532d 0%, #4ade80 100%)',
-    shadow: 'rgba(20,83,45,0.4)',
+    gradient: 'linear-gradient(135deg, #7f1d1d 0%, #b91c1c 100%)',
+    shadow: 'rgba(127,29,29,0.4)',
     icon: (
       <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
         <path d="M12 20h9" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -48,11 +51,10 @@ const SECTIONS = [
   },
   {
     id: 'level-test',
+    key: 'level',
     path: '/english-from-zero/level-test',
-    title: 'Daraja testi',
-    desc: "O'z darajangizni aniqlang",
-    gradient: 'linear-gradient(135deg, #15803d 0%, #86efac 100%)',
-    shadow: 'rgba(21,128,61,0.4)',
+    gradient: 'linear-gradient(135deg, #9f1239 0%, #f43f5e 100%)',
+    shadow: 'rgba(159,18,57,0.4)',
     icon: (
       <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
         <circle cx="12" cy="12" r="10" stroke="white" strokeWidth="2"/>
@@ -63,11 +65,13 @@ const SECTIONS = [
   },
 ]
 
-export default function EnglishFromZeroPage({ lang, setLang, dark, setDark, onLogout }) {
+export default function EnglishFromZeroPage({ lang = 'uz', setLang, dark, setDark, onLogout }) {
   const navigate = useNavigate()
+  const t = (langs[lang] || langs.uz)
+  const tEfz = t.englishFromZero
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-800 via-green-600 to-green-500 dark:from-gray-950 dark:via-green-950 dark:to-gray-900 flex flex-col relative overflow-hidden">
+    <div className="min-h-screen flex flex-col relative overflow-hidden" style={{ background: dark ? '#111827' : 'white' }}>
       <Navbar lang={lang} setLang={setLang} dark={dark} setDark={setDark} onLogout={onLogout} />
 
       {/* Aurora */}
@@ -81,60 +85,55 @@ export default function EnglishFromZeroPage({ lang, setLang, dark, setDark, onLo
       <div className="relative z-10 flex-1 flex flex-col overflow-y-auto">
         {/* Header */}
         <div className="px-5 pt-20 pb-4 mx-auto w-full max-w-[520px]">
-          <button
-            onClick={() => navigate(-1)}
-            className="flex items-center gap-2 text-white/70 hover:text-white transition-colors mb-4 active:scale-[0.97]"
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-              <path d="M15 18l-6-6 6-6" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-            <span className="text-sm font-medium">Orqaga</span>
-          </button>
+          <BackButton className="mb-4" lang={lang} />
 
           <div className="flex items-center gap-4 mb-2">
             <div className="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0"
-              style={{ background: 'rgba(255,255,255,0.18)', border: '1.5px solid rgba(255,255,255,0.3)' }}>
+              style={{ background: 'rgba(220,38,38,0.1)', border: '1.5px solid rgba(220,38,38,0.25)' }}>
               <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-                <path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                <path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z" stroke="#dc2626" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z" stroke="#dc2626" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </div>
             <div>
-              <h1 className="text-white font-extrabold text-xl sm:text-2xl leading-tight">Ingliz tili 0 dan</h1>
-              <p className="text-white/60 text-sm mt-0.5">Bo'limni tanlang va boshlang</p>
+              <h1 className="font-extrabold text-xl sm:text-2xl leading-tight" style={{ color: '#dc2626' }}>{tEfz.title}</h1>
+              <p className="text-sm mt-0.5" style={{ color: dark ? '#9ca3af' : '#6b7280' }}>{tEfz.subtitle2}</p>
             </div>
           </div>
         </div>
 
         {/* Section cards */}
         <div className="flex flex-col gap-3 mx-auto w-[92%] sm:w-auto sm:max-w-[520px]">
-          {SECTIONS.map((section, idx) => (
-            <div
-              key={section.id}
-              onClick={() => navigate(section.path)}
-              role="button"
-              tabIndex={0}
-              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') navigate(section.path) }}
-              className={`efz-card-${idx + 1} rounded-3xl p-5 flex items-center gap-4 cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:scale-[1.012] active:scale-[0.988]`}
-              style={{ background: section.gradient, boxShadow: `0 10px 28px ${section.shadow}` }}
-            >
-              <div className="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0"
-                style={{ background: 'rgba(255,255,255,0.18)', border: '1.5px solid rgba(255,255,255,0.3)' }}>
-                {section.icon}
+          {SECTION_KEYS.map((section, idx) => {
+            const sec = tEfz.sections[section.key] || {}
+            return (
+              <div
+                key={section.id}
+                onClick={() => navigate(section.path)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') navigate(section.path) }}
+                className={`efz-card-${idx + 1} rounded-3xl p-5 flex items-center gap-4 cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:scale-[1.012] active:scale-[0.988]`}
+                style={{ background: section.gradient, boxShadow: `0 10px 28px ${section.shadow}` }}
+              >
+                <div className="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0"
+                  style={{ background: 'rgba(255,255,255,0.18)', border: '1.5px solid rgba(255,255,255,0.3)' }}>
+                  {section.icon}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-white font-extrabold text-[15px] leading-tight">{sec.title}</h3>
+                  <p className="text-white/70 text-[12.5px] font-medium mt-0.5">{sec.desc}</p>
+                </div>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="flex-shrink-0 opacity-60">
+                  <path d="M9 18l6-6-6-6" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
+                </svg>
               </div>
-              <div className="flex-1 min-w-0">
-                <h3 className="text-white font-extrabold text-[15px] leading-tight">{section.title}</h3>
-                <p className="text-white/70 text-[12.5px] font-medium mt-0.5">{section.desc}</p>
-              </div>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="flex-shrink-0 opacity-60">
-                <path d="M9 18l6-6-6-6" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
-              </svg>
-            </div>
-          ))}
+            )
+          })}
         </div>
 
         <div className="mt-6">
-          <Footer />
+          <Footer dark={dark} lang={lang} />
         </div>
       </div>
     </div>

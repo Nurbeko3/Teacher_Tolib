@@ -1,11 +1,21 @@
+import { useOutletContext } from 'react-router-dom'
 import IELTSPlaceholderPage from '../IELTSPlaceholderPage'
+import en from '../../../locales/en'
+import uz from '../../../locales/uz'
+import ru from '../../../locales/ru'
+
+const langs = { en, uz, ru }
 
 export default function WritingAIChecker() {
+  const ctx = useOutletContext() || {}
+  const lang = ctx.lang || 'uz'
+  const t = (langs[lang] || langs.uz).ielts
+
   return (
     <IELTSPlaceholderPage
       title="AI Checker"
-      desc="Sun'iy intellekt yordamida yozganingizni tekshiring va band bahosini oling."
-      accentColor="#059669"
+      desc={t.sectionDescs?.writing?.aiChecker}
+      accentColor="#dc2626"
       backPath="/ielts/writing"
       icon={
         <svg width="36" height="36" viewBox="0 0 24 24" fill="none">

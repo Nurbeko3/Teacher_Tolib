@@ -1,21 +1,27 @@
-import { useNavigate } from 'react-router-dom'
 import Navbar from '../../Navbar'
 import Footer from '../../components/Footer'
+import BackButton from '../../components/BackButton'
+import en from '../../locales/en'
+import uz from '../../locales/uz'
+import ru from '../../locales/ru'
 
-const LEVELS = [
-  { code: 'A1', label: 'Beginner',           desc: "Mutlaqo noldan boshlash",              color: '#34d399', bg: 'rgba(52,211,153,0.15)',  border: 'rgba(52,211,153,0.3)'  },
-  { code: 'A2', label: 'Elementary',         desc: "Asosiy kundalik so'zlashuv",            color: '#67e8f9', bg: 'rgba(103,232,249,0.15)', border: 'rgba(103,232,249,0.3)' },
-  { code: 'B1', label: 'Intermediate',       desc: "Erkin so'zlasha boshlash",              color: '#c084fc', bg: 'rgba(192,132,252,0.15)', border: 'rgba(192,132,252,0.3)' },
-  { code: 'B2', label: 'Upper Intermediate', desc: "Murakkab mavzular, IELTS 5.5–6.5",     color: '#60a5fa', bg: 'rgba(96,165,250,0.15)',  border: 'rgba(96,165,250,0.3)'  },
-  { code: 'C1', label: 'Advanced',           desc: "Professional va akademik daraja",       color: '#fbbf24', bg: 'rgba(251,191,36,0.15)',  border: 'rgba(251,191,36,0.3)'  },
-  { code: 'C2', label: 'Proficient',         desc: "Ona tili darajasiga yaqin",             color: '#fb7185', bg: 'rgba(251,113,133,0.15)', border: 'rgba(251,113,133,0.3)' },
+const langs = { en, uz, ru }
+
+const LEVEL_STYLES = [
+  { code: 'A1', label: 'Beginner',           color: '#ef4444', bg: 'rgba(239,68,68,0.08)',    border: 'rgba(239,68,68,0.22)'  },
+  { code: 'A2', label: 'Elementary',         color: '#dc2626', bg: 'rgba(220,38,38,0.08)',    border: 'rgba(220,38,38,0.22)'  },
+  { code: 'B1', label: 'Intermediate',       color: '#b91c1c', bg: 'rgba(185,28,28,0.08)',    border: 'rgba(185,28,28,0.22)'  },
+  { code: 'B2', label: 'Upper Intermediate', color: '#991b1b', bg: 'rgba(153,27,27,0.08)',    border: 'rgba(153,27,27,0.22)'  },
+  { code: 'C1', label: 'Advanced',           color: '#7f1d1d', bg: 'rgba(127,29,29,0.08)',    border: 'rgba(127,29,29,0.22)'  },
+  { code: 'C2', label: 'Proficient',         color: '#f87171', bg: 'rgba(248,113,113,0.08)',  border: 'rgba(248,113,113,0.22)' },
 ]
 
-export default function MultilevelPage({ lang, setLang, dark, setDark, onLogout }) {
-  const navigate = useNavigate()
+export default function MultilevelPage({ lang = 'uz', setLang, dark, setDark, onLogout }) {
+  const t = (langs[lang] || langs.uz).multilevel
+  const subText = dark ? '#9ca3af' : '#6b7280'
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-purple-700 to-purple-500 dark:from-gray-950 dark:via-purple-950 dark:to-gray-900 flex flex-col relative overflow-hidden">
+    <div className="min-h-screen flex flex-col relative overflow-hidden" style={{ background: dark ? '#111827' : 'white' }}>
       <Navbar lang={lang} setLang={setLang} dark={dark} setDark={setDark} onLogout={onLogout} />
 
       {/* Aurora */}
@@ -29,53 +35,43 @@ export default function MultilevelPage({ lang, setLang, dark, setDark, onLogout 
       <div className="relative z-10 flex-1 flex flex-col overflow-y-auto">
         {/* Header */}
         <div className="px-5 pt-20 pb-4 mx-auto w-full max-w-[520px]">
-          <button
-            onClick={() => navigate(-1)}
-            className="flex items-center gap-2 text-white/70 hover:text-white transition-colors mb-4 active:scale-[0.97]"
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-              <path d="M15 18l-6-6 6-6" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-            <span className="text-sm font-medium">Orqaga</span>
-          </button>
+          <BackButton className="mb-4" lang={lang} />
 
           <div className="flex items-center gap-4 mb-2">
             <div className="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0"
-              style={{ background: 'rgba(255,255,255,0.18)', border: '1.5px solid rgba(255,255,255,0.3)' }}>
+              style={{ background: 'rgba(220,38,38,0.1)', border: '1.5px solid rgba(220,38,38,0.25)' }}>
               <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-                <path d="M18 20V10M12 20V4M6 20v-6" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M18 20V10M12 20V4M6 20v-6" stroke="#dc2626" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </div>
             <div>
-              <h1 className="text-white font-extrabold text-xl sm:text-2xl leading-tight">Multilevel</h1>
-              <p className="text-white/60 text-sm mt-0.5">O'z darajangizni tanlang</p>
+              <h1 className="font-extrabold text-xl sm:text-2xl leading-tight" style={{ color: '#dc2626' }}>{t.title}</h1>
+              <p className="text-sm mt-0.5" style={{ color: subText }}>{t.subtitle2}</p>
             </div>
           </div>
         </div>
 
         {/* Level cards */}
         <div className="flex flex-col gap-2.5 mx-auto w-[92%] sm:w-auto sm:max-w-[520px]">
-          {LEVELS.map((level, idx) => (
+          {LEVEL_STYLES.map((level) => (
             <div
               key={level.code}
               className="rounded-2xl p-4 flex items-center gap-4 cursor-pointer transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.988]"
-              style={{
-                background: level.bg,
-                border: `1.5px solid ${level.border}`,
-                backdropFilter: 'blur(8px)',
-              }}
+              style={{ background: dark ? 'rgba(31,41,55,0.8)' : level.bg, border: `1.5px solid ${dark ? 'rgba(55,65,81,0.6)' : level.border}` }}
             >
-              <div className="w-13 h-13 w-[52px] h-[52px] rounded-xl flex flex-col items-center justify-center flex-shrink-0"
-                style={{ background: `${level.color}22`, border: `1.5px solid ${level.color}44` }}>
+              <div className="w-[52px] h-[52px] rounded-xl flex flex-col items-center justify-center flex-shrink-0"
+                style={{ background: `${level.color}18`, border: `1.5px solid ${level.color}35` }}>
                 <span className="font-extrabold text-[16px] leading-none" style={{ color: level.color }}>{level.code}</span>
               </div>
               <div className="flex-1 min-w-0">
-                <h3 className="text-white font-bold text-[14px] leading-tight">{level.label}</h3>
-                <p className="text-white/55 text-[12px] font-medium mt-0.5">{level.desc}</p>
+                <h3 className="font-bold text-[14px] leading-tight" style={{ color: dark ? '#f9fafb' : level.color }}>{level.label}</h3>
+                <p className="text-[12px] font-medium mt-0.5" style={{ color: subText }}>
+                  {t.levelDescs?.[level.code]}
+                </p>
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: `${level.color}22`, color: level.color }}>
-                  Tez orada
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: `${level.color}18`, color: level.color }}>
+                  {t.comingSoon}
                 </span>
               </div>
             </div>
@@ -83,7 +79,7 @@ export default function MultilevelPage({ lang, setLang, dark, setDark, onLogout 
         </div>
 
         <div className="mt-6">
-          <Footer />
+          <Footer dark={dark} lang={lang} />
         </div>
       </div>
     </div>

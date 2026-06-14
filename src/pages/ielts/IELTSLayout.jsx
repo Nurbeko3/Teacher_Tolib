@@ -1,12 +1,16 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import Navbar from '../../Navbar'
+import en from '../../locales/en'
+import uz from '../../locales/uz'
+import ru from '../../locales/ru'
+
+const langs = { en, uz, ru }
 
 const SECTIONS = [
   {
     id: 'listening',
     path: '/ielts/listening',
     label: 'Listening',
-    color: '#2563eb',
     icon: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
         <path d="M3 18v-6a9 9 0 0118 0v6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -19,7 +23,6 @@ const SECTIONS = [
     id: 'reading',
     path: '/ielts/reading',
     label: 'Reading',
-    color: '#7c3aed',
     icon: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
         <path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -31,7 +34,6 @@ const SECTIONS = [
     id: 'writing',
     path: '/ielts/writing',
     label: 'Writing',
-    color: '#059669',
     icon: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
         <path d="M12 20h9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -43,7 +45,6 @@ const SECTIONS = [
     id: 'speaking',
     path: '/ielts/speaking',
     label: 'Speaking',
-    color: '#dc2626',
     icon: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
         <path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -56,19 +57,20 @@ const SECTIONS = [
 
 export { SECTIONS }
 
-export default function IELTSLayout({ dark, setDark, onLogout }) {
+export default function IELTSLayout({ dark, setDark, onLogout, lang = 'uz', setLang }) {
   const navigate = useNavigate()
+  const t = (langs[lang] || langs.uz).ielts
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-900 via-blue-700 to-blue-500 dark:from-gray-950 dark:via-blue-950 dark:to-gray-900 flex flex-col">
-      <Navbar dark={dark} setDark={setDark} onLogout={onLogout} />
+    <div className="min-h-screen flex flex-col" style={{ background: dark ? '#111827' : 'white' }}>
+      <Navbar dark={dark} setDark={setDark} onLogout={onLogout} lang={lang} setLang={setLang} />
 
       <div className="flex flex-1 pt-16">
         {/* ── Sidebar (desktop) ── */}
         <aside
           className="hidden sm:flex flex-col w-[220px] flex-shrink-0"
           style={{
-            background: 'linear-gradient(160deg, #1e3a8a 0%, #1d4ed8 55%, #2563eb 100%)',
+            background: 'linear-gradient(160deg, #7f1d1d 0%, #b91c1c 55%, #dc2626 100%)',
             borderRight: '1px solid rgba(255,255,255,0.12)',
           }}
         >
@@ -81,7 +83,7 @@ export default function IELTSLayout({ dark, setDark, onLogout }) {
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
                 <path d="M15 18l-6-6 6-6" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"/>
               </svg>
-              Kurslar
+              {t.backToCourses}
             </button>
           </div>
 
@@ -101,7 +103,7 @@ export default function IELTSLayout({ dark, setDark, onLogout }) {
               </div>
               <div>
                 <span className="block text-white font-extrabold text-[17px] leading-tight group-hover:opacity-90">IELTS</span>
-                <span className="block text-white/50 text-[11px]">Bo'limni tanlang</span>
+                <span className="block text-white/50 text-[11px]">{t.subtitle}</span>
               </div>
             </button>
           </div>
@@ -114,9 +116,7 @@ export default function IELTSLayout({ dark, setDark, onLogout }) {
                 to={s.path}
                 className={({ isActive }) =>
                   `flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 focus:outline-none group ${
-                    isActive
-                      ? 'text-white'
-                      : 'text-white/65 hover:text-white'
+                    isActive ? 'text-white' : 'text-white/65 hover:text-white'
                   }`
                 }
                 style={({ isActive }) => ({
@@ -142,7 +142,7 @@ export default function IELTSLayout({ dark, setDark, onLogout }) {
           </nav>
 
           <div className="px-5 pb-5">
-            <p className="text-white/25 text-[10.5px] text-center">Batafsil uchun ustozga murojaat qiling</p>
+            <p className="text-white/25 text-[10.5px] text-center">{t.contact}</p>
           </div>
         </aside>
 
@@ -150,7 +150,7 @@ export default function IELTSLayout({ dark, setDark, onLogout }) {
         <div
           className="sm:hidden fixed top-16 left-0 right-0 z-40 flex items-center px-4 py-2"
           style={{
-            background: 'linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 100%)',
+            background: 'linear-gradient(135deg, #991b1b 0%, #dc2626 100%)',
             borderBottom: '1px solid rgba(255,255,255,0.14)',
           }}
         >
@@ -161,7 +161,7 @@ export default function IELTSLayout({ dark, setDark, onLogout }) {
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
               <path d="M15 18l-6-6 6-6" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"/>
             </svg>
-            Kurslar
+            {t.backToCourses}
           </button>
           <span className="mx-auto font-extrabold text-white text-[15px] tracking-wide">IELTS</span>
           <div className="w-[52px]" />
@@ -171,7 +171,7 @@ export default function IELTSLayout({ dark, setDark, onLogout }) {
         <nav
           className="sm:hidden fixed bottom-0 left-0 right-0 z-40 flex"
           style={{
-            background: 'linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 100%)',
+            background: 'linear-gradient(135deg, #991b1b 0%, #dc2626 100%)',
             borderTop: '1px solid rgba(255,255,255,0.14)',
           }}
         >
@@ -193,7 +193,7 @@ export default function IELTSLayout({ dark, setDark, onLogout }) {
 
         {/* ── Main content ── */}
         <main className="flex-1 overflow-y-auto pb-20 sm:pb-0 pt-10 sm:pt-0">
-          <Outlet />
+          <Outlet context={{ lang, dark }} />
         </main>
       </div>
     </div>

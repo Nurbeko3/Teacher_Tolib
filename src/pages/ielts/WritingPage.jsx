@@ -1,11 +1,17 @@
+import { useOutletContext } from 'react-router-dom'
 import IELTSSectionPage from './IELTSSectionPage'
+import en from '../../locales/en'
+import uz from '../../locales/uz'
+import ru from '../../locales/ru'
+
+const langs = { en, uz, ru }
 
 const ITEMS = [
   {
     id: 'practice',
     path: '/ielts/writing/practice',
     label: 'Practice',
-    desc: 'Yozish mashqlari va topshiriqlar',
+    descKey: 'practice',
     icon: (c) => (
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
         <path d="M12 20h9" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -17,7 +23,7 @@ const ITEMS = [
     id: 'ai-checker',
     path: '/ielts/writing/ai-checker',
     label: 'AI Checker',
-    desc: 'AI yordamida yozishni tekshiring',
+    descKey: 'aiChecker',
     icon: (c) => (
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
         <path d="M12 2L13.5 9.5L21 11L13.5 12.5L12 20L10.5 12.5L3 11L10.5 9.5Z" stroke={c} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
@@ -29,7 +35,7 @@ const ITEMS = [
     id: 'video-lessons',
     path: '/ielts/writing/video-lessons',
     label: 'Video Lessons',
-    desc: "Video darslar orqali o'rganing",
+    descKey: 'videoLessons',
     icon: (c) => (
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
         <circle cx="12" cy="12" r="10" stroke={c} strokeWidth="2"/>
@@ -40,15 +46,24 @@ const ITEMS = [
 ]
 
 export default function WritingPage() {
+  const ctx = useOutletContext() || {}
+  const lang = ctx.lang || 'uz'
+  const t = (langs[lang] || langs.uz).ielts
+
+  const items = ITEMS.map(item => ({
+    ...item,
+    desc: t.sectionDescs?.writing?.[item.descKey] || item.descKey,
+  }))
+
   return (
     <IELTSSectionPage
       title="Writing"
-      subtitle="Yozish ko'nikmasi"
-      accentColor="#059669"
-      panelBg="#f0fdf4"
-      borderColor="#bbf7d0"
-      hoverBg="#dcfce7"
-      items={ITEMS}
+      subtitle={t.sectionSkills?.writing}
+      accentColor="#dc2626"
+      panelBg="#fff1f2"
+      borderColor="#fecaca"
+      hoverBg="#ffe4e6"
+      items={items}
       backPath="/ielts"
     />
   )

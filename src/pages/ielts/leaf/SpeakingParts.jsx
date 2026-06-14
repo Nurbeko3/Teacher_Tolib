@@ -1,4 +1,10 @@
+import { useOutletContext } from 'react-router-dom'
 import IELTSPlaceholderPage from '../IELTSPlaceholderPage'
+import en from '../../../locales/en'
+import uz from '../../../locales/uz'
+import ru from '../../../locales/ru'
+
+const langs = { en, uz, ru }
 
 const icons = {
   1: (
@@ -21,18 +27,23 @@ const icons = {
   ),
 }
 
-const descs = {
-  1: 'Shaxsiy mavzular haqida savol-javob. Oila, ish, sevimli mashg\'ulotlar haqida gapiring.',
-  2: 'Uzun nutq: cue card bo\'yicha 1-2 daqiqa gapiring.',
-  3: 'Abstrakt mavzular bo\'yicha chuqur muhokama va fikr almashish.',
+function useLang() {
+  const ctx = useOutletContext() || {}
+  return ctx.lang || 'uz'
 }
 
 export function SpeakingPart1() {
-  return <IELTSPlaceholderPage title="Part 1" desc={descs[1]} accentColor="#dc2626" backPath="/ielts/speaking/practice" icon={icons[1]} />
+  const lang = useLang()
+  const t = (langs[lang] || langs.uz).ielts
+  return <IELTSPlaceholderPage title="Part 1" desc={t.speaking?.parts?.part1?.desc} accentColor="#dc2626" backPath="/ielts/speaking/practice" icon={icons[1]} />
 }
 export function SpeakingPart2() {
-  return <IELTSPlaceholderPage title="Part 2" desc={descs[2]} accentColor="#dc2626" backPath="/ielts/speaking/practice" icon={icons[2]} />
+  const lang = useLang()
+  const t = (langs[lang] || langs.uz).ielts
+  return <IELTSPlaceholderPage title="Part 2" desc={t.speaking?.parts?.part2?.desc} accentColor="#dc2626" backPath="/ielts/speaking/practice" icon={icons[2]} />
 }
 export function SpeakingPart3() {
-  return <IELTSPlaceholderPage title="Part 3" desc={descs[3]} accentColor="#dc2626" backPath="/ielts/speaking/practice" icon={icons[3]} />
+  const lang = useLang()
+  const t = (langs[lang] || langs.uz).ielts
+  return <IELTSPlaceholderPage title="Part 3" desc={t.speaking?.parts?.part3?.desc} accentColor="#dc2626" backPath="/ielts/speaking/practice" icon={icons[3]} />
 }

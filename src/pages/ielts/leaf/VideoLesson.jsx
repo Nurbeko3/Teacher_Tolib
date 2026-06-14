@@ -1,9 +1,15 @@
+import { useOutletContext } from 'react-router-dom'
 import IELTSPlaceholderPage from '../IELTSPlaceholderPage'
+import en from '../../../locales/en'
+import uz from '../../../locales/uz'
+import ru from '../../../locales/ru'
+
+const langs = { en, uz, ru }
 
 const CONFIGS = {
-  listening: { accentColor: '#2563eb', backPath: '/ielts/listening' },
-  reading:   { accentColor: '#7c3aed', backPath: '/ielts/reading' },
-  writing:   { accentColor: '#059669', backPath: '/ielts/writing' },
+  listening: { accentColor: '#dc2626', backPath: '/ielts/listening' },
+  reading:   { accentColor: '#dc2626', backPath: '/ielts/reading' },
+  writing:   { accentColor: '#dc2626', backPath: '/ielts/writing' },
   speaking:  { accentColor: '#dc2626', backPath: '/ielts/speaking' },
 }
 
@@ -14,15 +20,28 @@ const VideoIcon = (
   </svg>
 )
 
+function useLang() {
+  const ctx = useOutletContext() || {}
+  return ctx.lang || 'uz'
+}
+
 export function ListeningVideoLessons() {
-  return <IELTSPlaceholderPage title="Video Lessons" desc="Listening bo'yicha video darslar orqali o'rganing." {...CONFIGS.listening} icon={VideoIcon} />
+  const lang = useLang()
+  const t = (langs[lang] || langs.uz).ielts
+  return <IELTSPlaceholderPage title="Video Lessons" desc={t.sectionDescs?.listening?.videoLessons} {...CONFIGS.listening} icon={VideoIcon} />
 }
 export function ReadingVideoLessons() {
-  return <IELTSPlaceholderPage title="Video Lessons" desc="Reading bo'yicha video darslar orqali o'rganing." {...CONFIGS.reading} icon={VideoIcon} />
+  const lang = useLang()
+  const t = (langs[lang] || langs.uz).ielts
+  return <IELTSPlaceholderPage title="Video Lessons" desc={t.sectionDescs?.reading?.videoLessons} {...CONFIGS.reading} icon={VideoIcon} />
 }
 export function WritingVideoLessons() {
-  return <IELTSPlaceholderPage title="Video Lessons" desc="Writing bo'yicha video darslar orqali o'rganing." {...CONFIGS.writing} icon={VideoIcon} />
+  const lang = useLang()
+  const t = (langs[lang] || langs.uz).ielts
+  return <IELTSPlaceholderPage title="Video Lessons" desc={t.sectionDescs?.writing?.videoLessons} {...CONFIGS.writing} icon={VideoIcon} />
 }
 export function SpeakingVideoLessons() {
-  return <IELTSPlaceholderPage title="Video Lessons" desc="Speaking bo'yicha video darslar orqali o'rganing." {...CONFIGS.speaking} icon={VideoIcon} />
+  const lang = useLang()
+  const t = (langs[lang] || langs.uz).ielts
+  return <IELTSPlaceholderPage title="Video Lessons" desc={t.sectionDescs?.speaking?.videoLessons} {...CONFIGS.speaking} icon={VideoIcon} />
 }

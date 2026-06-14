@@ -1,6 +1,12 @@
 import { useNavigate } from 'react-router-dom'
 import Navbar from '../../Navbar'
 import Footer from '../../components/Footer'
+import BackButton from '../../components/BackButton'
+import en from '../../locales/en'
+import uz from '../../locales/uz'
+import ru from '../../locales/ru'
+
+const langs = { en, uz, ru }
 
 function EnglishFromZeroIcon() {
   return (
@@ -41,42 +47,33 @@ function MultilevelIcon() {
   )
 }
 
-const COURSES = [
+const COURSE_KEYS = [
   {
     key: 'zero',
     path: '/english-from-zero',
-    gradient: 'linear-gradient(135deg, #16a34a 0%, #4ade80 100%)',
-    shadow: 'rgba(22,163,74,0.4)',
+    gradient: 'linear-gradient(135deg, #b91c1c 0%, #ef4444 100%)',
+    shadow: 'rgba(185,28,28,0.4)',
     badge: 'A1 → B2',
     badgeBg: 'rgba(255,255,255,0.22)',
     icon: <EnglishFromZeroIcon />,
-    title: 'Ingliz tili 0 dan',
-    desc: "Noldan boshlab ingliz tilini o'rganing. Alifbo, so'zlashuv va grammatika.",
-    tag: "Boshlang'ich",
   },
   {
     key: 'ielts',
     path: '/ielts',
-    gradient: 'linear-gradient(135deg, #1d4ed8 0%, #60a5fa 100%)',
-    shadow: 'rgba(29,78,216,0.4)',
+    gradient: 'linear-gradient(135deg, #991b1b 0%, #dc2626 100%)',
+    shadow: 'rgba(153,27,27,0.4)',
     badge: 'Band 6–8',
     badgeBg: 'rgba(255,255,255,0.22)',
     icon: <IELTSIcon />,
-    title: 'IELTS',
-    desc: "Xalqaro IELTS imtihoniga tayyorgarlik. Listening, Reading, Writing, Speaking.",
-    tag: 'Sertifikat',
   },
   {
     key: 'multi',
     path: '/multilevel',
-    gradient: 'linear-gradient(135deg, #7c3aed 0%, #c084fc 100%)',
-    shadow: 'rgba(124,58,237,0.4)',
+    gradient: 'linear-gradient(135deg, #7f1d1d 0%, #b91c1c 100%)',
+    shadow: 'rgba(127,29,29,0.4)',
     badge: 'A1 – C2',
     badgeBg: 'rgba(255,255,255,0.22)',
     icon: <MultilevelIcon />,
-    title: 'Multilevel',
-    desc: "Barcha darajalar uchun. O'z darajangizda davom eting va yuqoriga ko'taring.",
-    tag: 'Barcha darajalar',
   },
 ]
 
@@ -120,11 +117,22 @@ function CourseCard({ course, idx, onClick }) {
   )
 }
 
-export default function CoursesPage({ user, lang, setLang, dark, setDark, onLogout }) {
+export default function CoursesPage({ user, lang = 'uz', setLang, dark, setDark, onLogout }) {
   const navigate = useNavigate()
+  const t = (langs[lang] || langs.uz).courses
+
+  const courses = COURSE_KEYS.map((c) => ({
+    ...c,
+    title: t[c.key]?.title || c.key,
+    desc: t[c.key]?.desc || '',
+    tag: t[c.key]?.badge || '',
+  }))
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-red-800 via-red-600 to-red-500 dark:from-gray-950 dark:via-red-950 dark:to-gray-900 flex flex-col relative overflow-hidden">
+    <div
+      className="min-h-screen flex flex-col relative overflow-hidden"
+      style={{ background: dark ? '#111827' : 'white' }}
+    >
       <Navbar lang={lang} setLang={setLang} dark={dark} setDark={setDark} onLogout={onLogout} />
 
       {/* Aurora */}
@@ -138,22 +146,14 @@ export default function CoursesPage({ user, lang, setLang, dark, setDark, onLogo
       <div className="relative z-10 flex-1 flex flex-col overflow-y-auto">
         {/* Header */}
         <div className="px-5 pt-20 pb-2 mx-auto w-full max-w-[520px]">
-          <button
-            onClick={() => navigate(-1)}
-            className="flex items-center gap-2 text-white/70 hover:text-white transition-colors mb-3 active:scale-[0.97]"
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-              <path d="M15 18l-6-6 6-6" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-            <span className="text-sm font-medium">Orqaga</span>
-          </button>
-          <h2 className="text-white font-extrabold text-xl sm:text-2xl">Kursni tanlang</h2>
-          <p className="text-white/60 text-sm mt-1">O'zingizga mos kursni boshlang</p>
+          <BackButton className="mb-3" lang={lang} />
+          <h2 className="font-extrabold text-xl sm:text-2xl" style={{ color: '#dc2626' }}>{t.title}</h2>
+          <p className="text-sm mt-1" style={{ color: dark ? '#9ca3af' : '#6b7280' }}>{t.subtitle}</p>
         </div>
 
         {/* Cards */}
-        <div className="flex flex-col gap-3 mt-2 mx-auto w-[92%] sm:w-auto sm:max-w-[520px]">
-          {COURSES.map((course, idx) => (
+        <div className="flex flex-col gap-3 mt-2 mx-auto w-[96%] sm:w-auto sm:max-w-[560px]">
+          {courses.map((course, idx) => (
             <CourseCard
               key={course.key}
               course={course}
@@ -164,7 +164,7 @@ export default function CoursesPage({ user, lang, setLang, dark, setDark, onLogo
         </div>
 
         <div className="mt-6">
-          <Footer />
+          <Footer dark={dark} lang={lang} />
         </div>
       </div>
     </div>

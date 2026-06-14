@@ -1,5 +1,10 @@
 import { useState, useEffect } from 'react'
 import { Routes, Route, useNavigate, useLocation } from 'react-router-dom'
+import en from './locales/en'
+import uz from './locales/uz'
+import ru from './locales/ru'
+
+const _langs = { en, uz, ru }
 import AuthPage from './AuthPage'
 import HomePage from './HomePage'
 import CoursesPage from './pages/courses/CoursesPage'
@@ -36,22 +41,22 @@ import IELTSPlaceholderPage from './pages/ielts/IELTSPlaceholderPage'
 
 /* ── Router-aware wrappers for grammar/vocab pages ── */
 
-function GrammarLevelsRoute({ navProps }) {
+function GrammarLevelsRoute({ pageProps }) {
   const navigate = useNavigate()
   return (
     <GrammarLevelsPage
-      {...navProps}
+      {...pageProps}
       onBack={() => navigate(-1)}
       onNavigate={() => {}}
     />
   )
 }
 
-function TopicGrammarRoute({ navProps }) {
+function TopicGrammarRoute({ pageProps }) {
   const navigate = useNavigate()
   return (
     <TopicGrammarPage
-      {...navProps}
+      {...pageProps}
       onBack={() => navigate(-1)}
       onNavigate={(id, params) => {
         if (id === 'unit-test') navigate('/english-from-zero/unit-test', { state: params })
@@ -60,12 +65,12 @@ function TopicGrammarRoute({ navProps }) {
   )
 }
 
-function UnitTestRoute({ navProps }) {
+function UnitTestRoute({ pageProps }) {
   const navigate = useNavigate()
   const { state } = useLocation()
   return (
     <UnitTestPage
-      {...navProps}
+      {...pageProps}
       level={state?.level}
       unit={state?.unit}
       onBack={() => navigate(-1)}
@@ -73,11 +78,11 @@ function UnitTestRoute({ navProps }) {
   )
 }
 
-function VocabTestRoute({ navProps }) {
+function VocabTestRoute({ pageProps }) {
   const navigate = useNavigate()
   return (
     <VocabTestPage
-      {...navProps}
+      {...pageProps}
       onBack={() => navigate(-1)}
       onNavigate={(id, params) => {
         if (id === 'vocab-topic') navigate('/english-from-zero/vocab-topic', { state: params })
@@ -86,12 +91,12 @@ function VocabTestRoute({ navProps }) {
   )
 }
 
-function VocabTopicRoute({ navProps }) {
+function VocabTopicRoute({ pageProps }) {
   const navigate = useNavigate()
   const { state } = useLocation()
   return (
     <VocabTopicPage
-      {...navProps}
+      {...pageProps}
       topic={state?.topic}
       label={state?.label}
       emoji={state?.emoji}
@@ -100,12 +105,14 @@ function VocabTopicRoute({ navProps }) {
   )
 }
 
-function LevelTestPlaceholder({ navProps }) {
+function LevelTestPlaceholder({ pageProps }) {
+  const tLevel = (_langs[pageProps.lang] || _langs.uz).englishFromZero.sections.level
   return (
     <IELTSPlaceholderPage
-      title="Daraja testi"
-      desc="O'z ingliz tili darajangizni aniqlang. Natijaga qarab mos kursga yo'naltirilasiz."
+      title={tLevel.title}
+      desc={tLevel.desc}
       accentColor="#16a34a"
+      lang={pageProps.lang}
       icon={
         <svg width="36" height="36" viewBox="0 0 24 24" fill="none">
           <circle cx="12" cy="12" r="10" stroke="white" strokeWidth="2"/>
@@ -175,9 +182,9 @@ function AppRoutes() {
       />
 
       {/* ── Standalone nav pages ── */}
-      <Route path="/about-teacher" element={<AboutTeacherPage dark={dark} />} />
-      <Route path="/results"       element={<ResultsPage dark={dark} />} />
-      <Route path="/donate"        element={<DonatePage dark={dark} />} />
+      <Route path="/about-teacher" element={<AboutTeacherPage dark={dark} lang={lang} />} />
+      <Route path="/results"       element={<ResultsPage dark={dark} lang={lang} />} />
+      <Route path="/donate"        element={<DonatePage dark={dark} lang={lang} />} />
 
       {/* ── Course selection ── */}
       <Route path="/courses"
@@ -186,18 +193,18 @@ function AppRoutes() {
 
       {/* ── English from Zero ── */}
       <Route path="/english-from-zero" element={<EnglishFromZeroPage {...pageProps} />} />
-      <Route path="/english-from-zero/grammar-levels" element={<GrammarLevelsRoute navProps={navProps} />} />
-      <Route path="/english-from-zero/topic-grammar" element={<TopicGrammarRoute navProps={navProps} />} />
-      <Route path="/english-from-zero/unit-test" element={<UnitTestRoute navProps={navProps} />} />
-      <Route path="/english-from-zero/vocab-test" element={<VocabTestRoute navProps={navProps} />} />
-      <Route path="/english-from-zero/vocab-topic" element={<VocabTopicRoute navProps={navProps} />} />
-      <Route path="/english-from-zero/level-test" element={<LevelTestPlaceholder navProps={navProps} />} />
+      <Route path="/english-from-zero/grammar-levels" element={<GrammarLevelsRoute pageProps={pageProps} />} />
+      <Route path="/english-from-zero/topic-grammar" element={<TopicGrammarRoute pageProps={pageProps} />} />
+      <Route path="/english-from-zero/unit-test" element={<UnitTestRoute pageProps={pageProps} />} />
+      <Route path="/english-from-zero/vocab-test" element={<VocabTestRoute pageProps={pageProps} />} />
+      <Route path="/english-from-zero/vocab-topic" element={<VocabTopicRoute pageProps={pageProps} />} />
+      <Route path="/english-from-zero/level-test" element={<LevelTestPlaceholder pageProps={pageProps} />} />
 
       {/* ── Multilevel ── */}
       <Route path="/multilevel" element={<MultilevelPage {...pageProps} />} />
 
       {/* ── IELTS ── */}
-      <Route path="/ielts" element={<IELTSLayout {...navProps} />}>
+      <Route path="/ielts" element={<IELTSLayout {...pageProps} />}>
         <Route index element={<IELTSHome />} />
 
         <Route path="listening" element={<ListeningPage />} />

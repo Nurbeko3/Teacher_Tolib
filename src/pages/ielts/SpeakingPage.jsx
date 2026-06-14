@@ -1,35 +1,10 @@
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useOutletContext } from 'react-router-dom'
+import BackButton from '../../components/BackButton'
+import en from '../../locales/en'
+import uz from '../../locales/uz'
+import ru from '../../locales/ru'
 
-const ITEMS = [
-  {
-    id: 'practice',
-    path: '/ielts/speaking/practice',
-    label: 'Practice',
-    desc: 'Part 1, Part 2, Part 3 bo\'yicha mashq',
-    hasArrow: false,
-    isCta: true,
-    icon: (c) => (
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-        <path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-        <path d="M19 10v2a7 7 0 01-14 0v-2" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-        <path d="M12 19v4M8 23h8" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-      </svg>
-    ),
-  },
-  {
-    id: 'video-lessons',
-    path: '/ielts/speaking/video-lessons',
-    label: 'Video Lessons',
-    desc: "Video darslar orqali o'rganing",
-    isCta: false,
-    icon: (c) => (
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-        <circle cx="12" cy="12" r="10" stroke={c} strokeWidth="2"/>
-        <polygon points="10,8 16,12 10,16" fill={c}/>
-      </svg>
-    ),
-  },
-]
+const langs = { en, uz, ru }
 
 const accentColor = '#dc2626'
 const panelBg = '#fff1f2'
@@ -38,19 +13,43 @@ const hoverBg = '#ffe4e6'
 
 export default function SpeakingPage() {
   const navigate = useNavigate()
+  const ctx = useOutletContext() || {}
+  const lang = ctx.lang || 'uz'
+  const t = (langs[lang] || langs.uz).ielts.speaking
+
+  const ITEMS = [
+    {
+      id: 'practice',
+      path: '/ielts/speaking/practice',
+      label: 'Practice',
+      desc: t.practiceDesc,
+      isCta: true,
+      icon: (c) => (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+          <path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          <path d="M19 10v2a7 7 0 01-14 0v-2" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          <path d="M12 19v4M8 23h8" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      ),
+    },
+    {
+      id: 'video-lessons',
+      path: '/ielts/speaking/video-lessons',
+      label: 'Video Lessons',
+      desc: t.videoDesc,
+      isCta: false,
+      icon: (c) => (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="12" r="10" stroke={c} strokeWidth="2"/>
+          <polygon points="10,8 16,12 10,16" fill={c}/>
+        </svg>
+      ),
+    },
+  ]
 
   return (
     <div className="px-4 pt-6 pb-6 max-w-xl mx-auto">
-      <button
-        onClick={() => navigate('/ielts')}
-        className="flex items-center gap-2 mb-5 focus:outline-none active:scale-[0.97] transition-transform"
-        style={{ color: 'rgba(255,255,255,0.7)' }}
-      >
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-          <path d="M15 18l-6-6 6-6" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
-        </svg>
-        <span className="text-sm font-medium">Orqaga</span>
-      </button>
+      <BackButton onClick={() => navigate('/ielts')} className="mb-5" lang={lang} />
 
       <div className="flex items-center gap-3 mb-6">
         <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
@@ -62,8 +61,8 @@ export default function SpeakingPage() {
           </svg>
         </div>
         <div>
-          <h1 className="text-white font-extrabold text-xl leading-tight">Speaking</h1>
-          <p className="text-sm font-semibold mt-0.5" style={{ color: `${accentColor}cc` }}>Gapirish ko'nikmasi</p>
+          <h1 className="text-gray-900 font-extrabold text-xl leading-tight">Speaking</h1>
+          <p className="text-sm font-semibold mt-0.5" style={{ color: `${accentColor}cc` }}>{t.skillLabel}</p>
         </div>
       </div>
 

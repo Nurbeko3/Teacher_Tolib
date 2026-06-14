@@ -1,11 +1,21 @@
+import { useOutletContext } from 'react-router-dom'
 import IELTSPlaceholderPage from '../IELTSPlaceholderPage'
+import en from '../../../locales/en'
+import uz from '../../../locales/uz'
+import ru from '../../../locales/ru'
+
+const langs = { en, uz, ru }
 
 export default function ReadingPassages() {
+  const ctx = useOutletContext() || {}
+  const lang = ctx.lang || 'uz'
+  const t = (langs[lang] || langs.uz).ielts
+
   return (
     <IELTSPlaceholderPage
       title="Passages"
-      desc="IELTS uslubidagi o'qish matnlari va savollar bilan mashq qiling."
-      accentColor="#7c3aed"
+      desc={t.sectionDescs?.reading?.passages}
+      accentColor="#dc2626"
       backPath="/ielts/reading"
       icon={
         <svg width="36" height="36" viewBox="0 0 24 24" fill="none">

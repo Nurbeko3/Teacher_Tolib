@@ -1,11 +1,21 @@
+import { useOutletContext } from 'react-router-dom'
 import IELTSPlaceholderPage from '../IELTSPlaceholderPage'
+import en from '../../../locales/en'
+import uz from '../../../locales/uz'
+import ru from '../../../locales/ru'
+
+const langs = { en, uz, ru }
 
 export default function WritingPractice() {
+  const ctx = useOutletContext() || {}
+  const lang = ctx.lang || 'uz'
+  const t = (langs[lang] || langs.uz).ielts
+
   return (
     <IELTSPlaceholderPage
       title="Practice"
-      desc="Yozish mashqlari va topshiriqlar: Task 1 va Task 2 bo'yicha yozing."
-      accentColor="#059669"
+      desc={t.sectionDescs?.writing?.practice}
+      accentColor="#dc2626"
       backPath="/ielts/writing"
       icon={
         <svg width="36" height="36" viewBox="0 0 24 24" fill="none">
