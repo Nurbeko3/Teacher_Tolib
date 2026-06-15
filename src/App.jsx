@@ -41,6 +41,7 @@ import { SpeakingPart1, SpeakingPart2, SpeakingPart3 } from './pages/ielts/leaf/
 import IELTSPlaceholderPage from './pages/ielts/IELTSPlaceholderPage'
 
 // Admin
+import { db as adminDb } from './admin/adminData'
 import AdminLayout from './admin/AdminLayout'
 import AdminCourses from './admin/pages/AdminCourses'
 import AdminCourseDetail from './admin/pages/AdminCourseDetail'
@@ -50,6 +51,18 @@ import AdminResults from './admin/pages/AdminResults'
 import AdminUsers from './admin/pages/AdminUsers'
 import AdminSocials from './admin/pages/AdminSocials'
 import AdminLessonDetail from './admin/pages/AdminLessonDetail'
+import AdminTopicGrammarDetail from './admin/pages/AdminTopicGrammarDetail'
+import AdminVocabTestDetail from './admin/pages/AdminVocabTestDetail'
+
+/* ── Admin lesson router: picks the right detail page by lesson title ── */
+function AdminLessonRouter() {
+  const { pathname } = useLocation()
+  const lessonId = pathname.split('/').pop()
+  const lesson = adminDb.getLessons().find(l => l.id === lessonId)
+  if (lesson?.title === 'Topic Grammar Test') return <AdminTopicGrammarDetail />
+  if (lesson?.title === 'Vocabulary Test') return <AdminVocabTestDetail />
+  return <AdminLessonDetail />
+}
 
 /* ── Router-aware wrappers for grammar/vocab pages ── */
 
@@ -214,7 +227,7 @@ function AppRoutes() {
         <Route index element={<Navigate to="/admin/courses" replace />} />
         <Route path="courses" element={<AdminCourses />} />
         <Route path="courses/:courseId" element={<AdminCourseDetail />} />
-        <Route path="courses/:courseId/:lessonId" element={<AdminLessonDetail />} />
+        <Route path="courses/:courseId/:lessonId" element={<AdminLessonRouter />} />
         <Route path="profile" element={<AdminProfile />} />
         <Route path="donate"  element={<AdminDonate />} />
         <Route path="results" element={<AdminResults />} />
