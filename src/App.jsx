@@ -54,6 +54,9 @@ import AdminLessonDetail from './admin/pages/AdminLessonDetail'
 import AdminTopicGrammarDetail from './admin/pages/AdminTopicGrammarDetail'
 import AdminVocabTestDetail from './admin/pages/AdminVocabTestDetail'
 
+const ADMIN_PHONE = '998991231111'
+const isAdminUser = (u) => u?.role === 'SUPER_ADMIN' && u?.phone?.replace(/\D/g, '') === ADMIN_PHONE
+
 /* ── Admin lesson router: picks the right detail page by lesson title ── */
 function AdminLessonRouter() {
   const { pathname } = useLocation()
@@ -189,7 +192,7 @@ function AppRoutes() {
       <AuthPage
         onSuccess={(u) => {
           setUser(u)
-          if (u.role !== 'SUPER_ADMIN') {
+          if (!isAdminUser(u)) {
             try {
               const list = JSON.parse(localStorage.getItem('et_all_users') || '[]')
               const idx  = list.findIndex(x => x.phone === u.phone)
@@ -199,7 +202,7 @@ function AppRoutes() {
               localStorage.setItem('et_all_users', JSON.stringify(list))
             } catch {}
           }
-          if (u.role === 'SUPER_ADMIN') navigate('/admin', { replace: true })
+          if (isAdminUser(u)) navigate('/admin', { replace: true })
           else navigate('/', { replace: true })
         }}
         lang={lang}
@@ -219,7 +222,7 @@ function AppRoutes() {
       <Route
         path="/admin"
         element={
-          user.role === 'SUPER_ADMIN'
+          isAdminUser(user)
             ? <AdminLayout onLogout={handleLogout} />
             : <Navigate to="/" replace />
         }

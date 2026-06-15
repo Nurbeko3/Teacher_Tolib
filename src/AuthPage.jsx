@@ -6,6 +6,8 @@ import Navbar from './Navbar'
 
 const langs = { en, uz, ru }
 
+const ADMIN_PHONE = '998991231111'
+
 // ── localStorage mock ──
 const getUsers  = () => JSON.parse(localStorage.getItem('et_users') || '{}')
 const findUser  = (phone) => getUsers()[phone] || null
@@ -102,8 +104,8 @@ export default function AuthPage({ onSuccess, lang, setLang, dark, setDark }) {
     const digits = loginPhone.replace(/\D/g, '')
     if (digits.length < 12) { setLoginError(t.invalidPhone); return }
 
-    // Super admin check
-    if (digits === '998991231111') {
+    // Super admin check — only exact phone number
+    if (digits === ADMIN_PHONE) {
       setLoginError('')
       setLoading(true)
       setTimeout(() => {

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
+import { ConfirmModal } from './AdminUI'
 
 const NAV = [
   {
@@ -71,7 +72,7 @@ const NAV = [
   },
 ]
 
-function SidebarNav({ onClose, onLogout }) {
+function SidebarNav({ onClose, onLogoutClick }) {
   return (
     <div className="flex flex-col h-full bg-slate-900">
       {/* Brand */}
@@ -114,7 +115,7 @@ function SidebarNav({ onClose, onLogout }) {
       {/* Footer: logout */}
       <div className="px-3 pb-4 pt-2 border-t border-slate-700/50 flex-shrink-0">
         <button
-          onClick={onLogout}
+          onClick={onLogoutClick}
           className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-red-400 transition-all duration-150"
         >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="flex-shrink-0">
@@ -130,15 +131,44 @@ function SidebarNav({ onClose, onLogout }) {
 
 export default function AdminLayout({ onLogout }) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [showLogoutModal, setShowLogoutModal] = useState(false)
+  const [loggingOut, setLoggingOut] = useState(false)
   const navigate = useNavigate()
 
-  const handleLogout = () => {
-    onLogout()
-    navigate('/', { replace: true })
+  const handleLogoutConfirm = () => {
+    setShowLogoutModal(false)
+    setLoggingOut(true)
+    setTimeout(() => {
+      onLogout()
+      navigate('/', { replace: true })
+    }, 1200)
   }
 
   return (
     <div className="h-screen flex overflow-hidden bg-gray-50">
+
+      {/* Logout confirm modal */}
+      {showLogoutModal && (
+        <ConfirmModal
+          title="Chiqishni tasdiqlang"
+          message="Admin paneldan chiqmoqchimisiz? Barcha saqlangan ma'lumotlar saqlanib qoladi."
+          onConfirm={handleLogoutConfirm}
+          onClose={() => setShowLogoutModal(false)}
+        />
+      )}
+
+      {/* Loading overlay */}
+      {loggingOut && (
+        <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-slate-900/90 backdrop-blur-sm">
+          <div className="w-14 h-14 rounded-2xl bg-red-600 flex items-center justify-center mb-4 shadow-lg shadow-red-900/50">
+            <svg className="animate-spin" width="28" height="28" viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="12" r="10" stroke="rgba(255,255,255,0.25)" strokeWidth="3"/>
+              <path d="M12 2a10 10 0 0110 10" stroke="white" strokeWidth="3" strokeLinecap="round"/>
+            </svg>
+          </div>
+          <p className="text-white font-semibold text-sm">Chiqilmoqda...</p>
+        </div>
+      )}
 
       {/* Mobile overlay */}
       {sidebarOpen && (
@@ -150,7 +180,7 @@ export default function AdminLayout({ onLogout }) {
 
       {/* Desktop Sidebar — fixed height, independent scroll */}
       <aside className="hidden lg:flex lg:flex-col lg:w-60 lg:flex-shrink-0 h-full overflow-y-auto">
-        <SidebarNav onClose={() => {}} onLogout={handleLogout} />
+        <SidebarNav onClose={() => {}} onLogoutClick={() => setShowLogoutModal(true)} />
       </aside>
 
       {/* Mobile Sidebar — overlay drawer */}
@@ -158,7 +188,7 @@ export default function AdminLayout({ onLogout }) {
         className={`fixed inset-y-0 left-0 z-30 w-60 flex flex-col transform transition-transform duration-300 ease-in-out lg:hidden
           ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}
       >
-        <SidebarNav onClose={() => setSidebarOpen(false)} onLogout={handleLogout} />
+        <SidebarNav onClose={() => setSidebarOpen(false)} onLogoutClick={() => { setSidebarOpen(false); setShowLogoutModal(true) }} />
       </aside>
 
       {/* Main area — independently scrollable */}
