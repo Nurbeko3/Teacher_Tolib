@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom'
+import { Routes, Route, Navigate, Outlet, useNavigate, useLocation } from 'react-router-dom'
 import en from './locales/en'
 import uz from './locales/uz'
 import ru from './locales/ru'
@@ -8,6 +8,7 @@ const _langs = { en, uz, ru }
 
 import AuthPage from './AuthPage'
 import HomePage from './HomePage'
+import LandingPage from './pages/landing/LandingPage'
 import CoursesPage from './pages/courses/CoursesPage'
 import EnglishFromZeroPage from './pages/english-from-zero/EnglishFromZeroPage'
 import MultilevelPage from './pages/multilevel/MultilevelPage'
@@ -187,30 +188,20 @@ function AppRoutes() {
     navigate('/')
   }
 
-  if (!user) {
-    return (
-      <AuthPage
-        onSuccess={(u) => {
-          setUser(u)
-          if (!isAdminUser(u)) {
-            try {
-              const list = JSON.parse(localStorage.getItem('et_all_users') || '[]')
-              const idx  = list.findIndex(x => x.phone === u.phone)
-              const entry = { ...u, lastLogin: new Date().toLocaleDateString('uz-UZ') }
-              if (idx >= 0) list[idx] = entry
-              else list.unshift(entry)
-              localStorage.setItem('et_all_users', JSON.stringify(list))
-            } catch {}
-          }
-          if (isAdminUser(u)) navigate('/admin', { replace: true })
-          else navigate('/', { replace: true })
-        }}
-        lang={lang}
-        setLang={setLang}
-        dark={dark}
-        setDark={setDark}
-      />
-    )
+  const handleAuthSuccess = (u) => {
+    setUser(u)
+    if (!isAdminUser(u)) {
+      try {
+        const list = JSON.parse(localStorage.getItem('et_all_users') || '[]')
+        const idx  = list.findIndex(x => x.phone === u.phone)
+        const entry = { ...u, lastLogin: new Date().toLocaleDateString('uz-UZ') }
+        if (idx >= 0) list[idx] = entry
+        else list.unshift(entry)
+        localStorage.setItem('et_all_users', JSON.stringify(list))
+      } catch {}
+    }
+    if (isAdminUser(u)) navigate('/admin', { replace: true })
+    else navigate('/', { replace: true })
   }
 
   const navProps  = { dark, setDark, onLogout: handleLogout }
@@ -218,82 +209,98 @@ function AppRoutes() {
 
   return (
     <Routes>
-      {/* ── Admin (SUPER_ADMIN only) ── */}
+      {/* ── Public landing / auth ── */}
       <Route
-        path="/admin"
+        path="/"
         element={
-          isAdminUser(user)
-            ? <AdminLayout onLogout={handleLogout} />
-            : <Navigate to="/" replace />
+          user
+            ? <HomePage user={user} {...pageProps} />
+            : <LandingPage lang={lang} setLang={setLang} />
         }
-      >
-        <Route index element={<Navigate to="/admin/courses" replace />} />
-        <Route path="courses" element={<AdminCourses />} />
-        <Route path="courses/:courseId" element={<AdminCourseDetail />} />
-        <Route path="courses/:courseId/:lessonId" element={<AdminLessonRouter />} />
-        <Route path="profile" element={<AdminProfile />} />
-        <Route path="donate"  element={<AdminDonate />} />
-        <Route path="results" element={<AdminResults />} />
-        <Route path="users"   element={<AdminUsers />} />
-        <Route path="socials" element={<AdminSocials />} />
-      </Route>
-
-      {/* ── Hero ── */}
-      <Route path="/"
-        element={<HomePage user={user} {...pageProps} />}
+      />
+      <Route
+        path="/auth"
+        element={
+          user
+            ? <Navigate to={isAdminUser(user) ? '/admin' : '/'} replace />
+            : <AuthPage onSuccess={handleAuthSuccess} lang={lang} setLang={setLang} dark={dark} setDark={setDark} />
+        }
       />
 
-      {/* ── Standalone nav pages ── */}
-      <Route path="/about-teacher" element={<AboutTeacherPage dark={dark} lang={lang} />} />
-      <Route path="/results"       element={<ResultsPage dark={dark} lang={lang} />} />
-      <Route path="/donate"        element={<DonatePage dark={dark} lang={lang} />} />
+      {/* ── Everything below requires login ── */}
+      <Route element={user ? <Outlet /> : <Navigate to="/auth" replace />}>
+        {/* ── Admin (SUPER_ADMIN only) ── */}
+        <Route
+          path="/admin"
+          element={
+            isAdminUser(user)
+              ? <AdminLayout onLogout={handleLogout} />
+              : <Navigate to="/" replace />
+          }
+        >
+          <Route index element={<Navigate to="/admin/courses" replace />} />
+          <Route path="courses" element={<AdminCourses />} />
+          <Route path="courses/:courseId" element={<AdminCourseDetail />} />
+          <Route path="courses/:courseId/:lessonId" element={<AdminLessonRouter />} />
+          <Route path="profile" element={<AdminProfile />} />
+          <Route path="donate"  element={<AdminDonate />} />
+          <Route path="results" element={<AdminResults />} />
+          <Route path="users"   element={<AdminUsers />} />
+          <Route path="socials" element={<AdminSocials />} />
+        </Route>
 
-      {/* ── Course selection ── */}
-      <Route path="/courses"
-        element={<CoursesPage user={user} {...pageProps} />}
-      />
+        {/* ── Standalone nav pages ── */}
+        <Route path="/about-teacher" element={<AboutTeacherPage dark={dark} lang={lang} />} />
+        <Route path="/results"       element={<ResultsPage dark={dark} lang={lang} />} />
+        <Route path="/donate"        element={<DonatePage dark={dark} lang={lang} />} />
 
-      {/* ── English from Zero ── */}
-      <Route path="/english-from-zero" element={<EnglishFromZeroPage {...pageProps} />} />
-      <Route path="/english-from-zero/grammar-levels" element={<GrammarLevelsRoute pageProps={pageProps} />} />
-      <Route path="/english-from-zero/topic-grammar" element={<TopicGrammarRoute pageProps={pageProps} />} />
-      <Route path="/english-from-zero/unit-test" element={<UnitTestRoute pageProps={pageProps} />} />
-      <Route path="/english-from-zero/vocab-test" element={<VocabTestRoute pageProps={pageProps} />} />
-      <Route path="/english-from-zero/vocab-topic" element={<VocabTopicRoute pageProps={pageProps} />} />
-      <Route path="/english-from-zero/level-test" element={<LevelTestPlaceholder pageProps={pageProps} />} />
+        {/* ── Course selection ── */}
+        <Route path="/courses"
+          element={<CoursesPage user={user} {...pageProps} />}
+        />
 
-      {/* ── Multilevel ── */}
-      <Route path="/multilevel" element={<MultilevelPage {...pageProps} />} />
+        {/* ── English from Zero ── */}
+        <Route path="/english-from-zero" element={<EnglishFromZeroPage {...pageProps} />} />
+        <Route path="/english-from-zero/grammar-levels" element={<GrammarLevelsRoute pageProps={pageProps} />} />
+        <Route path="/english-from-zero/topic-grammar" element={<TopicGrammarRoute pageProps={pageProps} />} />
+        <Route path="/english-from-zero/unit-test" element={<UnitTestRoute pageProps={pageProps} />} />
+        <Route path="/english-from-zero/vocab-test" element={<VocabTestRoute pageProps={pageProps} />} />
+        <Route path="/english-from-zero/vocab-topic" element={<VocabTopicRoute pageProps={pageProps} />} />
+        <Route path="/english-from-zero/level-test" element={<LevelTestPlaceholder pageProps={pageProps} />} />
 
-      {/* ── IELTS ── */}
-      <Route path="/ielts" element={<IELTSLayout {...pageProps} />}>
-        <Route index element={<IELTSHome />} />
+        {/* ── Multilevel ── */}
+        <Route path="/multilevel" element={<MultilevelPage {...pageProps} />} />
 
-        <Route path="listening" element={<ListeningPage />} />
-        <Route path="listening/practice-tests" element={<ListeningPracticeTests />} />
-        <Route path="listening/podcasts" element={<ListeningPodcasts />} />
-        <Route path="listening/video-lessons" element={<ListeningVideoLessons />} />
+        {/* ── IELTS ── */}
+        <Route path="/ielts" element={<IELTSLayout {...pageProps} />}>
+          <Route index element={<IELTSHome />} />
 
-        <Route path="reading" element={<ReadingPage />} />
-        <Route path="reading/passages" element={<ReadingPassages />} />
-        <Route path="reading/articles" element={<ReadingArticles />} />
-        <Route path="reading/video-lessons" element={<ReadingVideoLessons />} />
+          <Route path="listening" element={<ListeningPage />} />
+          <Route path="listening/practice-tests" element={<ListeningPracticeTests />} />
+          <Route path="listening/podcasts" element={<ListeningPodcasts />} />
+          <Route path="listening/video-lessons" element={<ListeningVideoLessons />} />
 
-        <Route path="writing" element={<WritingPage />} />
-        <Route path="writing/practice" element={<WritingPractice />} />
-        <Route path="writing/ai-checker" element={<WritingAIChecker />} />
-        <Route path="writing/video-lessons" element={<WritingVideoLessons />} />
+          <Route path="reading" element={<ReadingPage />} />
+          <Route path="reading/passages" element={<ReadingPassages />} />
+          <Route path="reading/articles" element={<ReadingArticles />} />
+          <Route path="reading/video-lessons" element={<ReadingVideoLessons />} />
 
-        <Route path="speaking" element={<SpeakingPage />} />
-        <Route path="speaking/practice" element={<SpeakingPracticePage />} />
-        <Route path="speaking/practice/part-1" element={<SpeakingPart1 />} />
-        <Route path="speaking/practice/part-2" element={<SpeakingPart2 />} />
-        <Route path="speaking/practice/part-3" element={<SpeakingPart3 />} />
-        <Route path="speaking/video-lessons" element={<SpeakingVideoLessons />} />
+          <Route path="writing" element={<WritingPage />} />
+          <Route path="writing/practice" element={<WritingPractice />} />
+          <Route path="writing/ai-checker" element={<WritingAIChecker />} />
+          <Route path="writing/video-lessons" element={<WritingVideoLessons />} />
+
+          <Route path="speaking" element={<SpeakingPage />} />
+          <Route path="speaking/practice" element={<SpeakingPracticePage />} />
+          <Route path="speaking/practice/part-1" element={<SpeakingPart1 />} />
+          <Route path="speaking/practice/part-2" element={<SpeakingPart2 />} />
+          <Route path="speaking/practice/part-3" element={<SpeakingPart3 />} />
+          <Route path="speaking/video-lessons" element={<SpeakingVideoLessons />} />
+        </Route>
       </Route>
 
-      {/* ── Catch-all → home ── */}
-      <Route path="*" element={<HomePage user={user} {...pageProps} />} />
+      {/* ── Catch-all: dashboard if logged in, landing otherwise ── */}
+      <Route path="*" element={user ? <HomePage user={user} {...pageProps} /> : <Navigate to="/" replace />} />
     </Routes>
   )
 }
