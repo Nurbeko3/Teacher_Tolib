@@ -107,8 +107,20 @@ export default function AuthPage({ onSuccess, lang, setLang, dark, setDark }) {
 
   const sendOtpTo = (phone, onError, flow = otpFlow) => {
     return api.sendOtp(phone, flow)
-      .then(() => { setResendCooldown(60); return true })
-      .catch((err) => { onError(err.message); return false })
+      .then((result) => {
+        setResendCooldown(result.retryAfter ?? 60)
+        return true
+      })
+      .catch((err) => {
+        const message = String(err.message || '')
+        const cooldown = message.match(/(\d+)\s*soniya/)
+        if (cooldown) {
+          setResendCooldown(Number(cooldown[1]))
+          return true
+        }
+        onError(message)
+        return false
+      })
   }
 
   const beginTelegramLink = (user, flow, onError) => {
@@ -152,9 +164,9 @@ export default function AuthPage({ onSuccess, lang, setLang, dark, setDark }) {
 
     setLoading(true)
     api.sendOtp(loginPhone, 'login')
-          .then(() => {
+          .then((result) => {
             setLoading(false)
-            setResendCooldown(60)
+            setResendCooldown(result.retryAfter ?? 60)
             setPendingUser({ phone: loginPhone })
             setOtpFlow('login')
             setOtp(['', '', '', '', '', ''])
@@ -185,9 +197,9 @@ export default function AuthPage({ onSuccess, lang, setLang, dark, setDark }) {
         const status = await api.getTelegramLinkStatus(telegramLink.token)
         if (cancelled) return
         if (status.connected) {
-          setTelegramLink((current) => ({ ...current, status: 'CONNECTED' }))
           const sent = await sendOtpTo(pendingUser.phone, setOtpError, otpFlow)
           if (!cancelled && sent) {
+            setTelegramLink((current) => ({ ...current, status: 'CONNECTED' }))
             setOtp(['', '', '', '', '', ''])
             setOtpDone(false)
             goTo('otp')
