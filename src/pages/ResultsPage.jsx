@@ -7,40 +7,6 @@ import ru from '../locales/ru'
 
 const langs = { en, uz, ru }
 
-/* ── Fallback static data ── */
-const STUDENTS = [
-  {
-    name: "Ezoza Khamrakulova",
-    overall: 7.0,
-    listening: 7.5, reading: 7.0, writing: 6.5, speaking: 6.5,
-    comment: "Ezoza completed our standard IELTS course and achieved an overall band of 7.0. She performed exceptionally well in the Listening section.",
-  },
-  {
-    name: "Mehrinoz Davronova",
-    overall: 7.0,
-    listening: 8.5, reading: 6.5, writing: 6.5, speaking: 6.0,
-    comment: "Mehrinoz achieved an outstanding 8.5 in the Listening section of the IELTS exam. Overall band: 7.0.",
-  },
-  {
-    name: "Ruxshona G'afurova",
-    overall: 7.0,
-    listening: 8.0, reading: 7.5, writing: 7.0, speaking: 6.0,
-    comment: "Ruxshona completed the course and achieved an overall IELTS band of 7.0, with strong results in Listening and Reading.",
-  },
-  {
-    name: "Zuhra Holiqova",
-    overall: 7.5,
-    listening: 7.0, reading: 8.5, writing: 6.5, speaking: 7.5,
-    comment: "Zuhra studied in our standard IELTS group and scored 7.5 overall. She stood out with an 8.5 in Reading.",
-  },
-  {
-    name: "Durdona Abduganiyeva",
-    overall: 8.0,
-    listening: 8.5, reading: 8.0, writing: 7.5, speaking: 7.0,
-    comment: "Durdona completed the IELTS course and achieved an overall band of 8.0 — a very high result across all sections.",
-  },
-]
-
 /* ── Normalize score to number ── */
 const num = (v) => parseFloat(v) || 0
 
@@ -187,11 +153,11 @@ export default function ResultsPage({ dark = false, lang = 'uz' }) {
   const cardBg = dark ? '#1f2937' : 'white'
   const cardBorder = dark ? 'rgba(55,65,81,0.6)' : '#fecaca'
 
-  const [students, setStudents] = useState(STUDENTS)
+  const [students, setStudents] = useState([])
 
   useEffect(() => {
     api.getResults()
-      .then(data => { if (Array.isArray(data) && data.length > 0) setStudents(data) })
+      .then(data => { if (Array.isArray(data)) setStudents(data) })
       .catch(() => {})
   }, [])
 

@@ -7,17 +7,6 @@ import { api } from '../../api'
 
 const langs = { en, uz, ru }
 
-const DEMO_RESULTS = [
-  { id: 'demo-ezoza',    name: 'Ezoza Khamrakulova',   overall: 7.0, L: 7.5, R: 7.0, W: 6.5, S: 6.5, module: 'Academic', date: 'Jul 2026', img: null },
-  { id: 'demo-mehrinoz', name: 'Mehrinoz Davronova',   overall: 7.0, L: 8.5, R: 6.5, W: 6.5, S: 6.0, module: 'Academic', date: 'Jun 2026', img: null },
-  { id: 'demo-ruxshona', name: "Ruxshona G'afurova",   overall: 7.0, L: 8.0, R: 7.5, W: 7.0, S: 6.0, module: 'Academic', date: 'Jun 2026', img: null },
-  { id: 'demo-zuhra',    name: 'Zuhra Holiqova',        overall: 7.5, L: 7.0, R: 8.5, W: 6.5, S: 7.5, module: 'Academic', date: 'May 2026', img: null },
-  { id: 'demo-durdona',  name: 'Durdona Abduganiyeva', overall: 8.0, L: 8.5, R: 8.0, W: 7.5, S: 7.0, module: 'Academic', date: 'May 2026', img: null },
-  { id: 'demo-jasur',    name: 'Jasur T.',              overall: 7.5, L: 8.0, R: 7.5, W: 7.0, S: 7.5, module: 'Academic', date: 'Apr 2026', img: null },
-  { id: 'demo-nilufar',  name: 'Nilufar X.',            overall: 7.0, L: 7.5, R: 7.0, W: 6.5, S: 7.0, module: 'General',  date: 'Mar 2026', img: null },
-  { id: 'demo-alisher',  name: 'Alisher N.',            overall: 8.5, L: 9.0, R: 8.5, W: 8.0, S: 8.5, module: 'Academic', date: 'Feb 2026', img: null },
-]
-
 function mapResult(r) {
   return {
     id:     r.id,
@@ -31,15 +20,6 @@ function mapResult(r) {
     date:   r.date   || '',
     img:    r.image  || null,
   }
-}
-
-function mergeWithDemoResults(apiResults) {
-  const realResults = Array.isArray(apiResults) ? apiResults.map(mapResult) : []
-  const realNames = new Set(realResults.map(result => result.name.trim().toLowerCase()))
-  return [
-    ...realResults,
-    ...DEMO_RESULTS.filter(result => !realNames.has(result.name.trim().toLowerCase())),
-  ]
 }
 
 /* band ≥ 8 → gold accent, ≥ 7 → red, else gray */
@@ -359,12 +339,12 @@ function Carousel({ results }) {
 /* ── Section ── */
 export default function IeltsResultsSection({ lang = 'en' }) {
   const t = (langs[lang] || langs.en).landing.ieltsResults
-  const [results, setResults] = useState(DEMO_RESULTS)
+  const [results, setResults] = useState([])
 
   useEffect(() => {
     api.getResults()
       .then(data => {
-        setResults(mergeWithDemoResults(data))
+        setResults(Array.isArray(data) ? data.map(mapResult) : [])
       })
       .catch(() => {})
   }, [])
