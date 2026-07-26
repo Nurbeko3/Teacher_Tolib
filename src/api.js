@@ -1,4 +1,15 @@
-const BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001/api'
+const LOCAL_API_URL = 'http://localhost:3001/api'
+const PRODUCTION_API_URL = 'https://teacher-tolib-backend.onrender.com/api'
+const configuredUrl = import.meta.env.VITE_API_URL?.replace(/\/+$/, '')
+
+// `.env` developmentda localhost qiymatini saqlashi mumkin. Production build
+// localhost bilan tasodifan deploy bo'lmasligi uchun bunday qiymat Render URL'ga
+// avtomatik almashtiriladi.
+const BASE = import.meta.env.DEV
+  ? configuredUrl || LOCAL_API_URL
+  : configuredUrl && !/^https?:\/\/(localhost|127\.0\.0\.1)(:|\/|$)/i.test(configuredUrl)
+    ? configuredUrl
+    : PRODUCTION_API_URL
 
 async function req(method, path, body) {
   const res = await fetch(`${BASE}${path}`, {
@@ -109,9 +120,12 @@ export const api = {
   updateSocial:  (id, data) => req('PUT',    `/socials/${id}`, data),
   deleteSocial:  (id)       => req('DELETE', `/socials/${id}`),
 
-  // OTP (Eskiz SMS phone verification)
+  // OTP (Telegram phone verification)
   sendOtp:   (phone)       => req('POST', '/otp/send', { phone }),
   verifyOtp: (phone, code) => req('POST', '/otp/verify', { phone, code }),
+
+  // Admin login (temporary static password, used until Telegram OTP is linked for the admin phone)
+  adminLogin: (phone, password) => req('POST', '/admin-auth/login', { phone, password }),
 
   // Video lessons (YouTube tutorials)
   getVideoLessons:           ()         => req('GET',    '/video-lessons'),
