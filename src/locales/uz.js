@@ -10,6 +10,9 @@ export default {
     levelPlaceholder: "Darajani tanlang",
     phone: "Telefon raqam",
     phonePlaceholder: "+998 XX XXX XX XX",
+    password: "Admin paroli",
+    passwordPlaceholder: "Parolni kiriting",
+    passwordRequired: "Parolni kiriting",
     confirm: "Tasdiqlash",
     login: "Kirish",
     register: "Ro'yxatdan o'tish",
@@ -63,6 +66,7 @@ export default {
   },
   nav: {
     about: "Ustoz haqida",
+    lessons: "Darsliklar",
     courses: "Kurslarimiz",
     results: "Natijalar",
     donate: "Donat",

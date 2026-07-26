@@ -75,6 +75,8 @@ export default function AuthPage({ onSuccess, lang, setLang, dark, setDark }) {
 
   const [loginPhone, setLoginPhone] = useState('+998')
   const [loginError, setLoginError] = useState('')
+  const [adminPassword, setAdminPassword] = useState('')
+  const [adminPasswordError, setAdminPasswordError] = useState('')
 
   const [reg, setReg]           = useState({ firstName: '', lastName: '', level: '', phone: '+998' })
   const [regErrors, setRegErrors] = useState({})
@@ -85,6 +87,7 @@ export default function AuthPage({ onSuccess, lang, setLang, dark, setDark }) {
   const [verifying, setVerifying] = useState(false)
   const [resendCooldown, setResendCooldown] = useState(0)
   const [pendingUser, setPendingUser] = useState(null)
+  const [telegramLink, setTelegramLink] = useState(null)
 
   const otpRefs = useRef([])
   const t = langs[lang].login
@@ -100,32 +103,80 @@ export default function AuthPage({ onSuccess, lang, setLang, dark, setDark }) {
     if (clearErr) clearErr()
   }
 
+  const isAdminPhone = loginPhone.replace(/\D/g, '') === ADMIN_PHONE
+
+  const sendOtpTo = (phone, onError) => {
+    return api.sendOtp(phone)
+      .then(() => { setResendCooldown(60); return true })
+      .catch((err) => { onError(err.message); return false })
+  }
+
+  const beginTelegramLink = (user, flow, onError) => {
+    return api.createTelegramLink(user.phone)
+      .then((link) => {
+        setPendingUser(user)
+        setOtpFlow(flow)
+        setTelegramLink({ ...link, status: 'PENDING' })
+        setLoading(false)
+        goTo('telegram-link')
+        window.open(link.botUrl, '_blank', 'noopener,noreferrer')
+        return true
+      })
+      .catch((err) => {
+        setLoading(false)
+        onError(err.message)
+        return false
+      })
+  }
+
   const handleLoginSubmit = () => {
     const digits = loginPhone.replace(/\D/g, '')
     if (digits.length < 12) { setLoginError(t.invalidPhone); return }
-
     setLoginError('')
+
+    if (digits === ADMIN_PHONE) {
+      if (!adminPassword) { setAdminPasswordError(t.passwordRequired); return }
+      setAdminPasswordError('')
+      setLoading(true)
+      api.adminLogin(loginPhone, adminPassword)
+        .then(() => {
+          setLoading(false)
+          onSuccess({ phone: loginPhone, role: 'SUPER_ADMIN', firstName: 'Admin', lastName: '' })
+        })
+        .catch((err) => {
+          setLoading(false)
+          setAdminPasswordError(err.message || "Parol noto'g'ri.")
+        })
+      return
+    }
+
     setLoading(true)
     api.getUsers()
       .then((users) => {
-        const user = digits === ADMIN_PHONE
-          ? { phone: loginPhone, role: 'SUPER_ADMIN', firstName: 'Admin', lastName: '' }
-          : users.find((u) => u.phone === loginPhone)
+        const user = users.find((u) => u.phone === loginPhone)
         if (!user || user.isActive === false) {
           setLoading(false)
           setLoginError(t.notRegistered || 'Phone not registered.')
           return
         }
-        return sendOtpTo(loginPhone, setLoginError).then((ok) => {
-          setLoading(false)
-          if (!ok) return
-          setPendingUser(user)
-          setOtpFlow('login')
-          setOtp(['', '', '', '', '', ''])
-          setOtpDone(false)
-          setOtpError('')
-          goTo('otp')
-        })
+        return api.sendOtp(loginPhone)
+          .then(() => {
+            setLoading(false)
+            setResendCooldown(60)
+            setPendingUser(user)
+            setOtpFlow('login')
+            setOtp(['', '', '', '', '', ''])
+            setOtpDone(false)
+            setOtpError('')
+            goTo('otp')
+          })
+          .catch((err) => {
+            if (String(err.message).includes('ulanmagan')) {
+              return beginTelegramLink(user, 'login', setLoginError)
+            }
+            setLoading(false)
+            setLoginError(err.message)
+          })
       })
       .catch(() => {
         setLoading(false)
@@ -139,11 +190,35 @@ export default function AuthPage({ onSuccess, lang, setLang, dark, setDark }) {
     return () => clearTimeout(timer)
   }, [resendCooldown])
 
-  const sendOtpTo = (phone, onError) => {
-    return api.sendOtp(phone)
-      .then(() => { setResendCooldown(60); return true })
-      .catch((err) => { onError(err.message); return false })
-  }
+  useEffect(() => {
+    if (view !== 'telegram-link' || !telegramLink?.token || telegramLink.status !== 'PENDING') return
+    let cancelled = false
+    const checkStatus = async () => {
+      try {
+        const status = await api.getTelegramLinkStatus(telegramLink.token)
+        if (cancelled) return
+        if (status.connected) {
+          setTelegramLink((current) => ({ ...current, status: 'CONNECTED' }))
+          const sent = await sendOtpTo(pendingUser.phone, setOtpError)
+          if (!cancelled && sent) {
+            setOtp(['', '', '', '', '', ''])
+            setOtpDone(false)
+            goTo('otp')
+          }
+        } else if (status.status === 'EXPIRED') {
+          setTelegramLink((current) => ({ ...current, status: 'EXPIRED' }))
+        }
+      } catch (err) {
+        if (!cancelled) setOtpError(err.message)
+      }
+    }
+    checkStatus()
+    const timer = setInterval(checkStatus, 2500)
+    return () => {
+      cancelled = true
+      clearInterval(timer)
+    }
+  }, [view, telegramLink?.token, telegramLink?.status, pendingUser])
 
   const handleRegSubmit = () => {
     const errs = {}
@@ -168,16 +243,11 @@ export default function AuthPage({ onSuccess, lang, setLang, dark, setDark }) {
           role: 'USER', isActive: true, isPaid: false, premium: false,
           createdAt: new Date().toLocaleDateString('uz-UZ'), lastLogin: '—',
         }
-        return sendOtpTo(reg.phone, (msg) => setRegErrors((e) => ({ ...e, phone: msg }))).then((ok) => {
-          setLoading(false)
-          if (!ok) return
-          setPendingUser(userData)
-          setOtpFlow('register')
-          setOtp(['', '', '', '', '', ''])
-          setOtpDone(false)
-          setOtpError('')
-          goTo('otp')
-        })
+        return beginTelegramLink(
+          userData,
+          'register',
+          (msg) => setRegErrors((e) => ({ ...e, phone: msg })),
+        )
       })
       .catch(() => setLoading(false))
   }
@@ -272,6 +342,20 @@ export default function AuthPage({ onSuccess, lang, setLang, dark, setDark }) {
                   />
                 </Field>
 
+                {isAdminPhone && (
+                  <div className="mt-4">
+                    <Field label={t.password} error={adminPasswordError}>
+                      <input
+                        type="password" value={adminPassword} placeholder={t.passwordPlaceholder}
+                        onChange={(e) => { setAdminPassword(e.target.value); setAdminPasswordError('') }}
+                        onKeyDown={(e) => { if (e.key === 'Enter') handleLoginSubmit() }}
+                        className={inputClass(!!adminPasswordError)}
+                        autoFocus
+                      />
+                    </Field>
+                  </div>
+                )}
+
                 <button
                   onClick={handleLoginSubmit} disabled={loading}
                   className="mt-6 w-full py-3.5 bg-gradient-to-r from-red-700 to-red-500 text-white font-bold rounded-xl text-base shadow-lg shadow-red-200 hover:from-red-800 hover:to-red-600 active:scale-[0.98] transition-all duration-200 disabled:opacity-80 flex items-center justify-center gap-2"
@@ -362,6 +446,68 @@ export default function AuthPage({ onSuccess, lang, setLang, dark, setDark }) {
                     <><svg className="spin" width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="rgba(255,255,255,0.3)" strokeWidth="3"/><path d="M12 2a10 10 0 0110 10" stroke="white" strokeWidth="3" strokeLinecap="round"/></svg><span>{t.register}...</span></>
                   ) : t.register}
                 </button>
+              </div>
+            )}
+
+            {/* ══ TELEGRAM LINK ══ */}
+            {view === 'telegram-link' && (
+              <div className={exiting ? 'animate-slideOut' : 'animate-slideIn'}>
+                <button
+                  onClick={() => goTo(otpFlow === 'login' ? 'login' : 'register', () => {
+                    setTelegramLink(null)
+                    setOtpError('')
+                  })}
+                  className="flex items-center gap-1.5 text-gray-400 dark:text-gray-500 hover:text-red-500 transition-colors mb-5 group"
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                    <path d="M19 12H5M5 12l7 7M5 12l7-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  <span className="text-sm font-medium">{pendingUser?.phone}</span>
+                </button>
+
+                <div className="text-center">
+                  <div className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-3xl bg-sky-50 text-4xl dark:bg-sky-950/50">
+                    {telegramLink?.status === 'EXPIRED' ? '⌛' : '✈️'}
+                  </div>
+                  <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100">
+                    {telegramLink?.status === 'EXPIRED' ? 'Havola muddati tugadi' : t.telegram.title}
+                  </h2>
+                  <p className="mx-auto mt-2 max-w-sm text-sm leading-6 text-gray-500 dark:text-gray-400">
+                    {telegramLink?.status === 'EXPIRED'
+                      ? 'Xavfsizlik uchun yangi ulanish havolasini yarating.'
+                      : 'Telegram ochilgach Start tugmasini bosing va shu telefon raqamini Contact tugmasi orqali yuboring. Sahifa ulanishni avtomatik aniqlaydi.'}
+                  </p>
+
+                  {otpError && <p className="mt-3 text-xs font-medium text-red-500">{otpError}</p>}
+
+                  <a
+                    href={telegramLink?.botUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-sky-500 py-3.5 font-bold text-white shadow-lg shadow-sky-100 transition hover:bg-sky-600 dark:shadow-none"
+                  >
+                    Telegram botni ochish
+                  </a>
+                  {telegramLink?.status === 'PENDING' && (
+                    <div className="mt-4 flex items-center justify-center gap-2 text-xs text-gray-400">
+                      <span className="spin inline-block h-4 w-4 rounded-full border-2 border-sky-200 border-t-sky-500" />
+                      Botda tasdiqlashingiz kutilmoqda...
+                    </div>
+                  )}
+                  {telegramLink?.status === 'EXPIRED' && (
+                    <button
+                      onClick={() => {
+                        setLoading(true)
+                        setOtpError('')
+                        beginTelegramLink(pendingUser, otpFlow, setOtpError)
+                      }}
+                      disabled={loading}
+                      className="mt-3 w-full rounded-xl border-2 border-sky-100 py-3 text-sm font-bold text-sky-600 transition hover:bg-sky-50 disabled:opacity-60 dark:border-sky-900 dark:hover:bg-sky-950"
+                    >
+                      Yangi havola yaratish
+                    </button>
+                  )}
+                </div>
               </div>
             )}
 

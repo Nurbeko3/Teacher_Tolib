@@ -10,6 +10,9 @@ export default {
     levelPlaceholder: "Select your level",
     phone: "Phone Number",
     phonePlaceholder: "+998 XX XXX XX XX",
+    password: "Admin password",
+    passwordPlaceholder: "Enter password",
+    passwordRequired: "Enter the password",
     confirm: "Confirm",
     login: "Login",
     register: "Sign Up",
@@ -63,6 +66,7 @@ export default {
   },
   nav: {
     about: "About Teacher",
+    lessons: "Lessons",
     courses: "Courses",
     results: "Results",
     donate: "Donate",

@@ -123,6 +123,8 @@ export const api = {
   // OTP (Telegram phone verification)
   sendOtp:   (phone)       => req('POST', '/otp/send', { phone }),
   verifyOtp: (phone, code) => req('POST', '/otp/verify', { phone, code }),
+  createTelegramLink: (phone) => req('POST', '/otp/link', { phone }),
+  getTelegramLinkStatus: (token) => req('GET', `/otp/link/${token}`),
 
   // Admin login (temporary static password, used until Telegram OTP is linked for the admin phone)
   adminLogin: (phone, password) => req('POST', '/admin-auth/login', { phone, password }),
