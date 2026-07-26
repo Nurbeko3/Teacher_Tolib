@@ -18,6 +18,6 @@ export function getYouTubeThumbnail(id) {
   return `https://img.youtube.com/vi/${id}/hqdefault.jpg`
 }
 
-export function getYouTubeEmbedUrl(id) {
-  return `https://www.youtube.com/embed/${id}?autoplay=1&rel=0`
+export function getYouTubeEmbedUrl(id, autoplay = true) {
+  return `https://www.youtube-nocookie.com/embed/${id}?autoplay=${autoplay ? 1 : 0}&rel=0&modestbranding=1`
 }

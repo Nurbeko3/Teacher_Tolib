@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Navbar from '../../Navbar'
 import Footer from '../../components/Footer'
@@ -5,6 +6,7 @@ import BackButton from '../../components/BackButton'
 import en from '../../locales/en'
 import uz from '../../locales/uz'
 import ru from '../../locales/ru'
+import { api } from '../../api'
 
 const langs = { en, uz, ru }
 
@@ -117,16 +119,35 @@ function CourseCard({ course, idx, onClick }) {
   )
 }
 
-export default function CoursesPage({ user, lang = 'uz', setLang, dark, setDark, onLogout }) {
+export default function CoursesPage({ lang = 'uz', setLang, dark, setDark, onLogout }) {
   const navigate = useNavigate()
   const t = (langs[lang] || langs.uz).courses
+  const [storedCourses, setStoredCourses] = useState([])
 
-  const courses = COURSE_KEYS.map((c) => ({
-    ...c,
-    title: t[c.key]?.title || c.key,
-    desc: t[c.key]?.desc || '',
-    tag: t[c.key]?.badge || '',
-  }))
+  useEffect(() => {
+    let active = true
+    api.getCourses()
+      .then(data => { if (active) setStoredCourses(data) })
+      .catch(() => {})
+    return () => { active = false }
+  }, [])
+
+  const courses = (storedCourses.length ? storedCourses : COURSE_KEYS).map((course, index) => {
+    const config = COURSE_KEYS.find(item => item.key === (course.id || course.key)) || COURSE_KEYS[index % COURSE_KEYS.length]
+    const locale = t[course.id || course.key]
+    return {
+      ...config,
+      ...course,
+      key: course.id || course.key,
+      title: course.title || locale?.title || config.key,
+      desc: course.desc || locale?.desc || '',
+      tag: course.badge || locale?.badge || '',
+      badge: course.level || config.badge,
+      shadow: config.shadow,
+      icon: config.icon,
+      badgeBg: config.badgeBg,
+    }
+  })
 
   return (
     <div
@@ -158,7 +179,7 @@ export default function CoursesPage({ user, lang = 'uz', setLang, dark, setDark,
               key={course.key}
               course={course}
               idx={idx}
-              onClick={() => navigate(course.path)}
+              onClick={() => navigate(`/courses/${course.key}`)}
             />
           ))}
         </div>

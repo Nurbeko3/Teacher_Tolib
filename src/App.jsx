@@ -10,6 +10,7 @@ import AuthPage from './AuthPage'
 import HomePage from './HomePage'
 import LandingPage from './pages/landing/LandingPage'
 import CoursesPage from './pages/courses/CoursesPage'
+import CourseDetailPage from './pages/courses/CourseDetailPage'
 import EnglishFromZeroPage from './pages/english-from-zero/EnglishFromZeroPage'
 import MultilevelPage from './pages/multilevel/MultilevelPage'
 import AboutTeacherPage from './pages/AboutTeacherPage'
@@ -265,6 +266,7 @@ function AppRoutes() {
         <Route path="/courses"
           element={<CoursesPage user={user} {...pageProps} />}
         />
+        <Route path="/courses/:courseId" element={<CourseDetailPage {...pageProps} />} />
 
         {/* ── English from Zero ── */}
         <Route path="/english-from-zero" element={<EnglishFromZeroPage {...pageProps} />} />

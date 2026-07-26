@@ -2,9 +2,10 @@ import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { api, genId } from '../adminData'
 import {
-  PageHeader, Field, Modal, ConfirmModal,
+  Field, Modal, ConfirmModal,
   btnPrimary, btnGhost, btnSm, btnSmDanger, inputCls, textareaCls, Empty, ImageUploader,
 } from '../AdminUI'
+import { extractYouTubeId, getYouTubeThumbnail } from '../../utils/youtube'
 
 /* ── Lesson form modal ── */
 function LessonModal({ lesson, courseId, nextOrder, onSave, onClose }) {
@@ -12,9 +13,11 @@ function LessonModal({ lesson, courseId, nextOrder, onSave, onClose }) {
   const [form, setForm] = useState(
     lesson
       ? { ...lesson }
-      : { id: genId(), courseId, title: '', description: '', image: null, order: nextOrder }
+      : { id: genId(), courseId, title: '', description: '', youtubeUrl: '', image: null, order: nextOrder }
   )
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }))
+  const youtubeId = extractYouTubeId(form.youtubeUrl)
+  const invalidYoutubeUrl = form.youtubeUrl.trim() && !youtubeId
 
   return (
     <Modal title={isNew ? 'Add Lesson' : 'Edit Lesson'} onClose={onClose} wide>
@@ -35,13 +38,48 @@ function LessonModal({ lesson, courseId, nextOrder, onSave, onClose }) {
           <textarea value={form.description} onChange={e => set('description', e.target.value)}
             rows={3} className={textareaCls} placeholder="What will students learn in this lesson?" />
         </Field>
+
+        <Field label="YouTube Video URL" hint="youtube.com, youtu.be yoki Shorts link">
+          <div className="relative">
+            <input
+              value={form.youtubeUrl || ''}
+              onChange={e => set('youtubeUrl', e.target.value.trim())}
+              className={`${inputCls} ${invalidYoutubeUrl ? 'border-red-400 focus:border-red-500' : ''}`}
+              placeholder="https://www.youtube.com/watch?v=..."
+              type="url"
+            />
+          </div>
+          {invalidYoutubeUrl && (
+            <p className="text-red-500 text-[11px] mt-1.5">To‘g‘ri YouTube link kiriting.</p>
+          )}
+        </Field>
+
+        {youtubeId && (
+          <div className="overflow-hidden rounded-2xl border border-gray-200 bg-gray-950">
+            <div className="aspect-video relative">
+              <img
+                src={getYouTubeThumbnail(youtubeId)}
+                alt="YouTube preview"
+                className="w-full h-full object-cover opacity-80"
+              />
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="w-12 h-12 rounded-full bg-red-600 text-white flex items-center justify-center shadow-xl">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M8 5v14l11-7z"/>
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="flex gap-2 mt-5">
         <button onClick={onClose} className={btnGhost}>Cancel</button>
         <button
-          onClick={() => { if (form.title.trim()) onSave(form) }}
+          onClick={() => { if (form.title.trim() && !invalidYoutubeUrl) onSave(form) }}
           className={btnPrimary}
+          disabled={!form.title.trim() || invalidYoutubeUrl}
         >
           {isNew ? 'Add Lesson' : 'Save Changes'}
         </button>
@@ -112,6 +150,12 @@ function LessonRow({ lesson, index, total, onEdit, onDelete, onMove, onOpen }) {
           </div>
           {lesson.description && (
             <p className="text-gray-400 text-[12px] mt-1 leading-relaxed line-clamp-2">{lesson.description}</p>
+          )}
+          {lesson.youtubeUrl && (
+            <span className="inline-flex items-center gap-1 mt-2 px-2 py-0.5 rounded-full bg-red-50 text-red-600 text-[10px] font-bold">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+              Video biriktirilgan
+            </span>
           )}
         </div>
 
