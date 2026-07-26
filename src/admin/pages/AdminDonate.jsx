@@ -1,13 +1,14 @@
-import { useState, useCallback } from 'react'
-import { db } from '../adminData'
+import { useState, useEffect } from 'react'
+import { api } from '../adminData'
 import { PageHeader, Field, inputCls, textareaCls, btnPrimary, ConfirmModal } from '../AdminUI'
 
 const CARD_TYPES = ['Uzcard', 'Humo', 'Visa', 'Mastercard']
-const DONATIONS_KEY = 'et_donations'
 
-function formatCardNumber(raw) {
-  const digits = raw.replace(/\D/g, '').slice(0, 16)
-  return digits.replace(/(.{4})/g, '$1 ').trim()
+const DEFAULT_DONATE = {
+  cardNumber: '5614 6818 1203 4217',
+  cardHolder: 'TEACHER TOLIB',
+  cardType: 'Uzcard',
+  message: 'Your support helps create new lessons and materials for students.',
 }
 
 const SAMPLE_DONATIONS = [
@@ -21,11 +22,9 @@ const SAMPLE_DONATIONS = [
   },
 ]
 
-const getDonations = () => {
-  try {
-    const list = JSON.parse(localStorage.getItem(DONATIONS_KEY)) || []
-    return list.length > 0 ? list : SAMPLE_DONATIONS
-  } catch { return SAMPLE_DONATIONS }
+function formatCardNumber(raw) {
+  const digits = raw.replace(/\D/g, '').slice(0, 16)
+  return digits.replace(/(.{4})/g, '$1 ').trim()
 }
 
 /* ── Live card visual ── */
@@ -86,7 +85,7 @@ function DonorAvatar({ name }) {
 }
 
 /* ── Single donation row ── */
-function DonationRow({ d, index, onDelete }) {
+function DonationRow({ d, onDelete }) {
   return (
     <div className={`flex items-start gap-3 px-5 py-3.5 transition-colors group ${d.isDemo ? 'bg-gray-50/60' : 'hover:bg-gray-50'}`}>
       <DonorAvatar name={d.name} />
@@ -115,7 +114,7 @@ function DonationRow({ d, index, onDelete }) {
       </div>
       {!d.isDemo && (
         <button
-          onClick={() => onDelete(index)}
+          onClick={() => onDelete(d.id)}
           className="opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0 p-1.5 rounded-lg hover:bg-red-50 text-gray-300 hover:text-red-500 mt-0.5"
           title="Delete"
         >
@@ -129,17 +128,28 @@ function DonationRow({ d, index, onDelete }) {
 }
 
 export default function AdminDonate() {
-  const [form,      setForm]      = useState(db.getDonate)
+  const [form,      setForm]      = useState(DEFAULT_DONATE)
+  const [loading,   setLoading]   = useState(true)
   const [saved,     setSaved]     = useState(false)
   const [copied,    setCopied]    = useState(false)
-  const [donations, setDonations] = useState(getDonations)
-  const [delIdx,    setDelIdx]    = useState(null)
+  const [donations, setDonations] = useState(SAMPLE_DONATIONS)
+  const [delId,     setDelId]     = useState(null)
+
+  const refreshDonations = () =>
+    api.getDonations().then(data => setDonations(data.length > 0 ? data : SAMPLE_DONATIONS))
+
+  useEffect(() => {
+    api.getDonate()
+      .then(data => setForm({ ...DEFAULT_DONATE, ...data }))
+      .finally(() => setLoading(false))
+    refreshDonations()
+  }, [])
 
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }))
   const handleCardInput = (e) => set('cardNumber', formatCardNumber(e.target.value))
 
   const handleSave = () => {
-    db.saveDonate(form)
+    api.saveDonate(form)
     setSaved(true)
     setTimeout(() => setSaved(false), 2500)
   }
@@ -150,14 +160,13 @@ export default function AdminDonate() {
     setTimeout(() => setCopied(false), 2000)
   }
 
-  const refresh = useCallback(() => setDonations(getDonations()), [])
-
-  const handleDeleteDonation = () => {
-    const updated = donations.filter((_, i) => i !== delIdx)
-    try { localStorage.setItem(DONATIONS_KEY, JSON.stringify(updated)) } catch {}
-    setDonations(updated)
-    setDelIdx(null)
+  const handleDeleteDonation = async () => {
+    await api.deleteDonation(delId)
+    await refreshDonations()
+    setDelId(null)
   }
+
+  if (loading) return <div className="p-8 text-gray-400">Loading...</div>
 
   return (
     <div>
@@ -266,7 +275,7 @@ export default function AdminDonate() {
             </p>
           </div>
           <button
-            onClick={refresh}
+            onClick={refreshDonations}
             className="text-xs text-red-600 hover:text-red-700 font-medium px-2.5 py-1.5 rounded-lg hover:bg-red-50 transition-colors flex items-center gap-1.5"
           >
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
@@ -277,18 +286,18 @@ export default function AdminDonate() {
         </div>
 
         <div className="divide-y divide-gray-50">
-          {donations.map((d, i) => (
-            <DonationRow key={d.id ?? i} d={d} index={i} onDelete={setDelIdx} />
+          {donations.map((d) => (
+            <DonationRow key={d.id} d={d} onDelete={setDelId} />
           ))}
         </div>
       </div>
 
-      {delIdx !== null && (
+      {delId !== null && (
         <ConfirmModal
           title="Delete Donation"
-          message={`Remove donation from "${donations[delIdx]?.name}"? This cannot be undone.`}
+          message={`Remove donation from "${donations.find(d => d.id === delId)?.name}"? This cannot be undone.`}
           onConfirm={handleDeleteDonation}
-          onClose={() => setDelIdx(null)}
+          onClose={() => setDelId(null)}
         />
       )}
     </div>

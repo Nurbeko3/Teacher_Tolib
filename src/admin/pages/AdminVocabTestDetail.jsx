@@ -1,11 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { db } from '../adminData'
-import {
-  getVocabTopics, saveVocabTopics, deleteVocabTopic,
-  getVocabQuestions, saveVocabQuestion, deleteVocabQuestion, countVocabQuestions,
-  genVocabId,
-} from '../vocabData'
+import { api, genId as genVocabId } from '../adminData'
 import {
   Field, Modal, ConfirmModal,
   btnPrimary, btnGhost, btnSm, btnSmDanger, inputCls, textareaCls, Empty,
@@ -131,26 +126,39 @@ function QuestionModal({ question, topicId, onSave, onClose }) {
 /* ══════════════════════════════════════
    QUESTIONS LIST MODAL (for a topic)
 ══════════════════════════════════════ */
-function QuestionsListModal({ topic, onClose }) {
-  const [questions, setQuestions] = useState(() => getVocabQuestions(topic.id))
+function QuestionsListModal({ topic, onClose, onChange }) {
+  const [questions, setQuestions] = useState([])
+  const [loading, setLoading] = useState(true)
   const [qModal, setQModal] = useState(null)
   const [delId,  setDelId]  = useState(null)
 
-  const refresh = () => setQuestions(getVocabQuestions(topic.id))
+  const refresh = () => api.getVocabQuestionsByTopic(topic.id).then(setQuestions)
 
-  const handleSave = (q) => {
-    q.order = questions.findIndex(x => x.id === q.id) >= 0
-      ? questions.findIndex(x => x.id === q.id)
-      : questions.length
-    saveVocabQuestion(q)
-    refresh()
+  useEffect(() => { refresh().finally(() => setLoading(false)) }, [topic.id])
+
+  const handleSave = async (q) => {
+    const exists = questions.some(x => x.id === q.id)
+    q.order = exists ? questions.findIndex(x => x.id === q.id) : questions.length
+    if (exists) await api.updateVocabQuestion(q.id, q)
+    else await api.addVocabQuestion(q)
+    await refresh()
+    onChange?.()
     setQModal(null)
   }
 
-  const handleDelete = () => {
-    deleteVocabQuestion(delId)
-    refresh()
+  const handleDelete = async () => {
+    await api.deleteVocabQuestion(delId)
+    await refresh()
+    onChange?.()
     setDelId(null)
+  }
+
+  if (loading) {
+    return (
+      <Modal title={`Questions — ${topic.emoji} ${topic.label}`} onClose={onClose}>
+        <div className="py-10 text-center text-gray-400 text-[13px]">Loading...</div>
+      </Modal>
+    )
   }
 
   return (
@@ -328,8 +336,7 @@ function TopicModal({ topic, lessonId, nextOrder, onSave, onClose }) {
 /* ══════════════════════════════════════
    TOPIC ROW
 ══════════════════════════════════════ */
-function TopicRow({ topic, index, total, onEdit, onDelete, onQuestions, onMove }) {
-  const qCount = countVocabQuestions(topic.id)
+function TopicRow({ topic, qCount, index, total, onEdit, onDelete, onQuestions, onMove }) {
   return (
     <div className="flex items-center gap-3 px-4 py-3 rounded-2xl bg-white border border-gray-200 hover:border-red-100 hover:bg-red-50/20 transition-colors group shadow-sm">
       {/* Emoji */}
@@ -408,13 +415,35 @@ export default function AdminVocabTestDetail() {
   const { courseId, lessonId } = useParams()
   const navigate = useNavigate()
 
-  const course = db.getCourses().find(c => c.id === courseId)
-  const lesson = db.getLessons().find(l => l.id === lessonId)
-
-  const [topics,      setTopics]      = useState(() => getVocabTopics(lessonId))
+  const [course,      setCourse]      = useState(null)
+  const [lesson,      setLesson]      = useState(null)
+  const [loading,     setLoading]     = useState(true)
+  const [topics,      setTopics]      = useState([])
+  const [questions,   setQuestions]   = useState([])
   const [topicModal,  setTopicModal]  = useState(null)
   const [qModal,      setQModal]      = useState(null)
   const [delId,       setDelId]       = useState(null)
+
+  const refreshTopics = () => api.getVocabTopicsByLesson(lessonId).then(setTopics)
+  const refreshQuestions = () => api.getVocabQuestions().then(setQuestions)
+
+  useEffect(() => {
+    Promise.all([
+      api.getCourses(),
+      api.getLessons(),
+      api.getVocabTopicsByLesson(lessonId),
+      api.getVocabQuestions(),
+    ])
+      .then(([courses, lessons, topicsData, questionsData]) => {
+        setCourse(courses.find(c => c.id === courseId) || null)
+        setLesson(lessons.find(l => l.id === lessonId) || null)
+        setTopics(topicsData)
+        setQuestions(questionsData)
+      })
+      .finally(() => setLoading(false))
+  }, [courseId, lessonId])
+
+  if (loading) return <div className="p-8 text-gray-400">Loading...</div>
 
   if (!course || !lesson) {
     return (
@@ -425,33 +454,33 @@ export default function AdminVocabTestDetail() {
     )
   }
 
-  const persistTopics = (updated) => {
-    updated.forEach((t, i) => { t.order = i })
-    saveVocabTopics(lessonId, updated)
-    setTopics(updated)
-  }
+  const questionCounts = questions.reduce((acc, q) => {
+    acc[q.topicId] = (acc[q.topicId] || 0) + 1
+    return acc
+  }, {})
 
-  const handleSaveTopic = (form) => {
+  const handleSaveTopic = async (form) => {
     const exists = topics.some(t => t.id === form.id)
-    const updated = exists
-      ? topics.map(t => t.id === form.id ? form : t)
-      : [...topics, { ...form, order: topics.length }]
-    persistTopics(updated)
+    if (exists) await api.updateVocabTopic(form.id, form)
+    else await api.addVocabTopic({ ...form, order: topics.length })
+    await refreshTopics()
     setTopicModal(null)
   }
 
-  const handleDeleteTopic = () => {
-    deleteVocabTopic(delId)
-    setTopics(topics.filter(t => t.id !== delId))
+  const handleDeleteTopic = async () => {
+    await api.deleteVocabTopic(delId)
+    await Promise.all([refreshTopics(), refreshQuestions()])
     setDelId(null)
   }
 
-  const handleMove = (id, dir) => {
+  const handleMove = async (id, dir) => {
     const arr = [...topics]
     const idx = arr.findIndex(t => t.id === id)
     if (dir === 'up' && idx > 0) [arr[idx - 1], arr[idx]] = [arr[idx], arr[idx - 1]]
     else if (dir === 'down' && idx < arr.length - 1) [arr[idx], arr[idx + 1]] = [arr[idx + 1], arr[idx]]
-    persistTopics(arr)
+    arr.forEach((t, i) => { t.order = i })
+    await Promise.all(arr.map(t => api.updateVocabTopic(t.id, t)))
+    setTopics(arr)
   }
 
   return (
@@ -516,6 +545,7 @@ export default function AdminVocabTestDetail() {
             <TopicRow
               key={topic.id}
               topic={topic}
+              qCount={questionCounts[topic.id] || 0}
               index={i}
               total={topics.length}
               onEdit={t => setTopicModal({ type: 'edit', data: t })}
@@ -541,6 +571,7 @@ export default function AdminVocabTestDetail() {
         <QuestionsListModal
           topic={qModal}
           onClose={() => setQModal(null)}
+          onChange={refreshQuestions}
         />
       )}
 

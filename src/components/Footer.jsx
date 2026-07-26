@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react'
+import { api } from '../api'
 import en from '../locales/en'
 import uz from '../locales/uz'
 import ru from '../locales/ru'
-import { PLATFORMS, getSocials } from '../socials'
+import { PLATFORMS, DEFAULT_SOCIALS } from '../socials'
 
 const langs = { en, uz, ru }
 
@@ -25,10 +26,11 @@ function SocialIcon({ platform, size = 19, color = '#dc2626' }) {
 export default function Footer({ animate = true, dark = false, lang = 'uz' }) {
   const t = (langs[lang] || langs.uz).footer
 
-  const [socials, setSocials] = useState(getSocials)
+  const [socials, setSocials] = useState(DEFAULT_SOCIALS)
 
   useEffect(() => {
-    const refresh = () => setSocials(getSocials())
+    const refresh = () => api.getSocials().then(data => { if (data.length > 0) setSocials(data) }).catch(() => {})
+    refresh()
     window.addEventListener('focus', refresh)
     return () => window.removeEventListener('focus', refresh)
   }, [])

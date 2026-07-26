@@ -13,6 +13,21 @@ function ContactForm({ f }) {
 
   const set = (k) => (e) => setForm((p) => ({ ...p, [k]: e.target.value }))
 
+  const handlePhone = (e) => {
+    const digits = e.target.value.replace(/\D/g, '').slice(0, 12)
+    let formatted = ''
+    if (digits.length === 0) {
+      formatted = ''
+    } else {
+      formatted = '+' + digits.slice(0, 3)
+      if (digits.length > 3)  formatted += ' ' + digits.slice(3, 5)
+      if (digits.length > 5)  formatted += ' ' + digits.slice(5, 8)
+      if (digits.length > 8)  formatted += ' ' + digits.slice(8, 10)
+      if (digits.length > 10) formatted += ' ' + digits.slice(10, 12)
+    }
+    setForm((p) => ({ ...p, phone: formatted }))
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     if (!form.name.trim() || !form.phone.trim() || !form.message.trim()) return
@@ -76,11 +91,12 @@ function ContactForm({ f }) {
           </label>
           <input
             type="tel"
-            placeholder={f.phonePlaceholder}
+            placeholder="+998 90 123 11 11"
             value={form.phone}
-            onChange={set('phone')}
+            onChange={handlePhone}
             onFocus={onFocus}
             onBlur={onBlur}
+            maxLength={17}
             style={inputStyle}
           />
         </div>

@@ -1,3 +1,5 @@
+import { useEffect, useState } from 'react'
+import { api } from '../../api'
 import { Reveal } from './shared'
 import en from '../../locales/en'
 import uz from '../../locales/uz'
@@ -33,13 +35,13 @@ function TestimonialCard({ item, colorIdx }) {
       style={{ width: 308 }}
     >
       <div
-        className="rounded-3xl p-6 flex flex-col h-full"
+        className="testimonial-card relative rounded-3xl p-6 flex flex-col h-full overflow-hidden"
         style={{
           background: 'white',
           border: '1.5px solid #fecaca',
           boxShadow: '0 4px 18px rgba(220,38,38,0.08)',
-          transition: 'box-shadow 0.25s ease, transform 0.25s ease',
-          minHeight: 200,
+          transition: 'box-shadow 0.25s ease, transform 0.25s ease, border-color 0.25s ease',
+          minHeight: 208,
         }}
         onMouseEnter={(e) => {
           e.currentTarget.style.boxShadow   = '0 12px 36px rgba(220,38,38,0.18)'
@@ -52,22 +54,31 @@ function TestimonialCard({ item, colorIdx }) {
           e.currentTarget.style.borderColor = '#fecaca'
         }}
       >
-        <Stars count={item.rating} />
-        <p className="mt-4 text-[13.5px] text-gray-600 leading-relaxed flex-1">
+        {/* Decorative quote mark */}
+        <svg width="40" height="32" viewBox="0 0 40 32" fill="none" className="absolute top-4 right-5 opacity-[0.06]">
+          <path d="M0 20.267C0 9.067 7.467 1.867 17.6 0l2.4 4.267c-6.4 1.6-10.133 5.867-10.667 11.2 4.8.533 8 4.267 8 9.067 0 5.333-4 8.8-9.067 8.8C3.2 33.333 0 27.733 0 20.267zm21.867 0C21.867 9.067 29.333 1.867 39.467 0l2.4 4.267c-6.4 1.6-10.133 5.867-10.667 11.2 4.8.533 8 4.267 8 9.067 0 5.333-4 8.8-9.067 8.8-5.066 0-8.266-5.6-8.266-13.067z" fill="#dc2626"/>
+        </svg>
+
+        <Stars count={item.rating || 5} />
+        <p className="relative mt-4 text-[13.5px] text-gray-600 leading-relaxed flex-1">
           &ldquo;{item.quote}&rdquo;
         </p>
         <div
           className="flex items-center gap-3 mt-5 pt-4"
           style={{ borderTop: '1px solid #fee2e2' }}
         >
-          <div
-            className="w-11 h-11 rounded-2xl flex items-center justify-center flex-shrink-0"
-            style={{ background: AVATAR_COLORS[colorIdx % AVATAR_COLORS.length] }}
-          >
-            <span className="text-white font-bold text-[14px]">
-              {item.name.split(' ').map((w) => w[0]).join('').slice(0, 2)}
-            </span>
-          </div>
+          {item.image ? (
+            <img src={item.image} alt={item.name} className="w-11 h-11 rounded-2xl object-cover flex-shrink-0" />
+          ) : (
+            <div
+              className="w-11 h-11 rounded-2xl flex items-center justify-center flex-shrink-0"
+              style={{ background: AVATAR_COLORS[colorIdx % AVATAR_COLORS.length] }}
+            >
+              <span className="text-white font-bold text-[14px]">
+                {item.name.split(' ').map((w) => w[0]).join('').slice(0, 2)}
+              </span>
+            </div>
+          )}
           <div className="min-w-0">
             <p className="font-bold text-[13.5px] text-gray-900 truncate">{item.name}</p>
             <p className="text-[11.5px] text-gray-400 truncate">{item.role}</p>
@@ -81,8 +92,16 @@ function TestimonialCard({ item, colorIdx }) {
 export default function TestimonialsSection({ lang }) {
   const t = (langs[lang] || langs.en).landing.testimonials
 
+  const [items, setItems] = useState(t.items)
+
+  useEffect(() => {
+    api.getTestimonials()
+      .then(data => { if (Array.isArray(data) && data.length > 0) setItems(data) })
+      .catch(() => {})
+  }, [])
+
   /* 4 copies → translateX(-50%) seamlessly loops 2 full sets */
-  const quadrupled = [...t.items, ...t.items, ...t.items, ...t.items]
+  const quadrupled = [...items, ...items, ...items, ...items]
 
   return (
     <section
@@ -132,7 +151,7 @@ export default function TestimonialsSection({ lang }) {
         >
           <div className="marquee-track">
             {quadrupled.map((item, i) => (
-              <TestimonialCard key={i} item={item} colorIdx={i % t.items.length} />
+              <TestimonialCard key={i} item={item} colorIdx={i % items.length} />
             ))}
           </div>
         </div>

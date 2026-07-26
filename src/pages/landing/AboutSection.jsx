@@ -1,9 +1,10 @@
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Reveal, StaggerGroup, StaggerItem } from './shared'
+import teacher2ImgDefault from '../../assets/teacher2.jpeg'
+import { api } from '../../api'
 
-/* ── teacher photo/video source (swap these when assets are ready) ── */
-const TEACHER_PHOTO = null   // set to '/teacher-photo.jpg' when available
-const TEACHER_VIDEO = null   // set to 'https://youtube.com/embed/...' when available
+const TEACHER_VIDEO = null
 
 const ACHIEVEMENTS = [
   {
@@ -61,6 +62,13 @@ const PARTICLES = [
 ]
 
 function MediaCard() {
+  const [TEACHER_PHOTO, setTeacherPhoto] = useState(teacher2ImgDefault)
+
+  useEffect(() => {
+    api.getProfile()
+      .then(profile => { if (profile?.aboutImage) setTeacherPhoto(profile.aboutImage) })
+      .catch(() => {})
+  }, [])
   return (
     <div className="relative w-full" style={{ maxWidth: 460 }}>
       {/* Background glow */}

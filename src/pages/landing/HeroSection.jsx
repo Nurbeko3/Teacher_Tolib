@@ -1,12 +1,22 @@
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import en from '../../locales/en'
 import uz from '../../locales/uz'
 import ru from '../../locales/ru'
+import teacherImgDefault from '../../assets/teacher.jpeg'
+import { api } from '../../api'
 
 const langs = { en, uz, ru }
 
 export default function HeroSection({ onLogin, lang = 'en' }) {
   const t = (langs[lang] || langs.en).landing.hero
+  const [heroImg, setHeroImg] = useState(teacherImgDefault)
+
+  useEffect(() => {
+    api.getProfile()
+      .then(profile => { if (profile?.heroImage) setHeroImg(profile.heroImage) })
+      .catch(() => {})
+  }, [])
 
   const STATS = [
     { v: t.stat1v, l: t.stat1l },
@@ -67,29 +77,6 @@ export default function HeroSection({ onLogin, lang = 'en' }) {
 
           {/* ───────── Left: copy ───────── */}
           <div className="flex-1 text-center lg:text-left max-w-2xl">
-
-            {/* Pill badge */}
-            <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full mb-7"
-              style={{
-                background: 'rgba(255,0,0,0.1)',
-                border: '1px solid rgba(255,0,0,0.28)',
-                boxShadow: '0 0 22px rgba(255,0,0,0.14)',
-              }}
-            >
-              <motion.span
-                animate={{ opacity: [1, 0.35, 1] }}
-                transition={{ duration: 1.6, repeat: Infinity }}
-                className="w-2 h-2 rounded-full flex-shrink-0"
-                style={{ background: '#FF0000', boxShadow: '0 0 8px #FF0000' }}
-              />
-              <span className="text-[11.5px] font-bold uppercase tracking-widest" style={{ color: '#FF0000' }}>
-                {t.badge}
-              </span>
-            </motion.div>
 
             {/* Main heading */}
             <motion.h1
@@ -227,37 +214,13 @@ export default function HeroSection({ onLogin, lang = 'en' }) {
                   }}
                 >
                   <div
-                    className="w-60 h-60 sm:w-72 sm:h-72 lg:w-80 lg:h-80 rounded-full flex items-center justify-center overflow-hidden"
-                    style={{ background: 'linear-gradient(160deg, #1a0000 0%, #2d0202 50%, #180000 100%)' }}
+                    className="w-72 h-72 sm:w-80 sm:h-80 lg:w-96 lg:h-96 rounded-full overflow-hidden"
                   >
-                    <div className="flex flex-col items-center gap-4">
-                      <div
-                        className="w-24 h-24 rounded-full flex items-center justify-center"
-                        style={{
-                          background: 'linear-gradient(135deg, #b91c1c 0%, #FF0000 100%)',
-                          boxShadow: '0 0 32px rgba(255,0,0,0.7)',
-                        }}
-                      >
-                        <span className="text-5xl font-black text-white select-none">T</span>
-                      </div>
-                      <span
-                        className="font-extrabold text-[15px] tracking-wide"
-                        style={{ color: 'rgba(255,255,255,0.85)' }}
-                      >
-                        Teacher Tolib
-                      </span>
-                      <div className="flex items-center gap-2">
-                        <motion.span
-                          animate={{ opacity: [1, 0.4, 1] }}
-                          transition={{ duration: 1.8, repeat: Infinity }}
-                          className="w-2 h-2 rounded-full flex-shrink-0"
-                          style={{ background: '#4ade80', boxShadow: '0 0 8px #4ade80' }}
-                        />
-                        <span className="text-[11.5px] font-semibold" style={{ color: '#4ade80' }}>
-                          {t.available}
-                        </span>
-                      </div>
-                    </div>
+                    <img
+                      src={heroImg}
+                      alt="Teacher Tolib"
+                      className="w-full h-full object-cover object-top"
+                    />
                   </div>
                 </div>
 

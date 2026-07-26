@@ -1,4 +1,5 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
+import { api } from './api'
 import en from './locales/en'
 import uz from './locales/uz'
 import ru from './locales/ru'
@@ -7,14 +8,10 @@ import Navbar from './Navbar'
 const langs = { en, uz, ru }
 
 const ADMIN_PHONE = '998991231111'
+const TELEGRAM_BOT_USERNAME = (import.meta.env.VITE_TELEGRAM_BOT_USERNAME || '').replace(/^@/, '')
+const TELEGRAM_BOT_URL = TELEGRAM_BOT_USERNAME ? `https://t.me/${TELEGRAM_BOT_USERNAME}` : null
 
-// ── localStorage mock ──
-const getUsers  = () => JSON.parse(localStorage.getItem('et_users') || '{}')
-const findUser  = (phone) => getUsers()[phone] || null
-const saveUser  = (phone, data) => {
-  const all = getUsers(); all[phone] = data
-  localStorage.setItem('et_users', JSON.stringify(all))
-}
+const genId = () => `u_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`
 
 // ── Phone formatter ──
 const formatPhone = (raw) => {
@@ -84,6 +81,9 @@ export default function AuthPage({ onSuccess, lang, setLang, dark, setDark }) {
 
   const [otp, setOtp]           = useState(['', '', '', '', '', ''])
   const [otpDone, setOtpDone]   = useState(false)
+  const [otpError, setOtpError] = useState('')
+  const [verifying, setVerifying] = useState(false)
+  const [resendCooldown, setResendCooldown] = useState(0)
   const [pendingUser, setPendingUser] = useState(null)
 
   const otpRefs = useRef([])
@@ -104,21 +104,45 @@ export default function AuthPage({ onSuccess, lang, setLang, dark, setDark }) {
     const digits = loginPhone.replace(/\D/g, '')
     if (digits.length < 12) { setLoginError(t.invalidPhone); return }
 
-    // Super admin check — only exact phone number
-    if (digits === ADMIN_PHONE) {
-      setLoginError('')
-      setLoading(true)
-      setTimeout(() => {
-        onSuccess({ phone: loginPhone, role: 'SUPER_ADMIN', firstName: 'Admin', lastName: '' })
-      }, 1000)
-      return
-    }
-
-    const user = findUser(loginPhone)
-    if (!user) { setLoginError(t.notRegistered || 'Phone not registered.'); return }
     setLoginError('')
     setLoading(true)
-    setTimeout(() => { onSuccess({ ...user, role: 'USER' }) }, 1500)
+    api.getUsers()
+      .then((users) => {
+        const user = digits === ADMIN_PHONE
+          ? { phone: loginPhone, role: 'SUPER_ADMIN', firstName: 'Admin', lastName: '' }
+          : users.find((u) => u.phone === loginPhone)
+        if (!user || user.isActive === false) {
+          setLoading(false)
+          setLoginError(t.notRegistered || 'Phone not registered.')
+          return
+        }
+        return sendOtpTo(loginPhone, setLoginError).then((ok) => {
+          setLoading(false)
+          if (!ok) return
+          setPendingUser(user)
+          setOtpFlow('login')
+          setOtp(['', '', '', '', '', ''])
+          setOtpDone(false)
+          setOtpError('')
+          goTo('otp')
+        })
+      })
+      .catch(() => {
+        setLoading(false)
+        setLoginError(t.notRegistered || 'Phone not registered.')
+      })
+  }
+
+  useEffect(() => {
+    if (resendCooldown <= 0) return
+    const timer = setTimeout(() => setResendCooldown((s) => s - 1), 1000)
+    return () => clearTimeout(timer)
+  }, [resendCooldown])
+
+  const sendOtpTo = (phone, onError) => {
+    return api.sendOtp(phone)
+      .then(() => { setResendCooldown(60); return true })
+      .catch((err) => { onError(err.message); return false })
   }
 
   const handleRegSubmit = () => {
@@ -129,50 +153,83 @@ export default function AuthPage({ onSuccess, lang, setLang, dark, setDark }) {
     const digits = reg.phone.replace(/\D/g, '')
     if (digits.length < 12)   errs.phone     = t.invalidPhone
     if (Object.keys(errs).length > 0) { setRegErrors(errs); return }
+
     setLoading(true)
-    setTimeout(() => {
-      setLoading(false)
-      const userData = { firstName: reg.firstName, lastName: reg.lastName, level: reg.level, phone: reg.phone }
-      saveUser(reg.phone, userData)
-      setPendingUser(userData)
-      setOtpFlow('register')
-      setOtp(['', '', '', '', '', ''])
-      setOtpDone(false)
-      goTo('otp')
-    }, 1200)
+    api.getUsers()
+      .then((users) => {
+        if (users.some((u) => u.phone === reg.phone)) {
+          setLoading(false)
+          setRegErrors({ phone: 'Phone already registered.' })
+          return
+        }
+        const userData = {
+          id: genId(),
+          firstName: reg.firstName, lastName: reg.lastName, level: reg.level, phone: reg.phone,
+          role: 'USER', isActive: true, isPaid: false, premium: false,
+          createdAt: new Date().toLocaleDateString('uz-UZ'), lastLogin: '—',
+        }
+        return sendOtpTo(reg.phone, (msg) => setRegErrors((e) => ({ ...e, phone: msg }))).then((ok) => {
+          setLoading(false)
+          if (!ok) return
+          setPendingUser(userData)
+          setOtpFlow('register')
+          setOtp(['', '', '', '', '', ''])
+          setOtpDone(false)
+          setOtpError('')
+          goTo('otp')
+        })
+      })
+      .catch(() => setLoading(false))
+  }
+
+  const verifyCode = (fullCode) => {
+    setVerifying(true)
+    setOtpError('')
+    api.verifyOtp(pendingUser.phone, fullCode)
+      .then(async () => {
+        if (otpFlow === 'register') {
+          const created = await api.addUser(pendingUser)
+          return { role: 'USER', ...created }
+        }
+        const updated = { ...pendingUser, lastLogin: new Date().toLocaleDateString('uz-UZ') }
+        if (updated.id) await api.updateUser(updated.id, updated).catch(() => {})
+        return updated
+      })
+      .then((authenticatedUser) => {
+        setVerifying(false)
+        setOtpDone(true)
+        setTimeout(() => onSuccess(authenticatedUser), 500)
+      })
+      .catch((err) => {
+        setVerifying(false)
+        setOtpError(err.message || "Kod noto'g'ri.")
+        setOtp(['','','','','',''])
+        otpRefs.current[0]?.focus()
+      })
   }
 
   const handleOtpInput = (i, val) => {
-    if (!/^\d?$/.test(val)) return
+    if (!/^\d?$/.test(val) || verifying) return
     const next = [...otp]; next[i] = val; setOtp(next)
     if (val && i < 5) otpRefs.current[i + 1]?.focus()
-    if (next.every((d) => d !== '')) {
-      setOtpDone(true)
-      setTimeout(() => goTo('login', () => {
-        setOtp(['','','','','',''])
-        setOtpDone(false)
-        setLoginPhone(pendingUser?.phone || '+998')
-        setLoginError('')
-      }), 600)
-    }
+    if (next.every((d) => d !== '')) verifyCode(next.join(''))
   }
   const handleOtpKey = (i, e) => {
     if (e.key === 'Backspace' && !otp[i] && i > 0) otpRefs.current[i - 1]?.focus()
   }
   const handleOtpPaste = (e) => {
     e.preventDefault()
+    if (verifying) return
     const p = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6)
     const next = [...otp]; p.split('').forEach((d, i) => { next[i] = d }); setOtp(next)
     otpRefs.current[Math.min(p.length, 5)]?.focus()
-    if (p.length === 6) {
-      setOtpDone(true)
-      setTimeout(() => goTo('login', () => {
-        setOtp(['','','','','',''])
-        setOtpDone(false)
-        setLoginPhone(pendingUser?.phone || '+998')
-        setLoginError('')
-      }), 600)
-    }
+    if (p.length === 6) verifyCode(p)
+  }
+  const handleResend = () => {
+    if (resendCooldown > 0 || !pendingUser) return
+    setOtp(['','','','','',''])
+    setOtpError('')
+    sendOtpTo(pendingUser.phone, setOtpError)
   }
 
   const inputClass = (hasErr) =>
@@ -245,6 +302,21 @@ export default function AuthPage({ onSuccess, lang, setLang, dark, setDark }) {
                   <span className="text-sm font-medium">{t.login}</span>
                 </button>
 
+                <div className="mb-5 rounded-2xl border border-sky-200 bg-sky-50 p-4 dark:border-sky-900 dark:bg-sky-950/40">
+                  <p className="text-sm font-semibold text-sky-800 dark:text-sky-200">{t.telegram.title}</p>
+                  <p className="mt-1 text-xs leading-5 text-sky-700 dark:text-sky-300">{t.telegram.desc}</p>
+                  {TELEGRAM_BOT_URL && (
+                    <a
+                      href={TELEGRAM_BOT_URL}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="mt-3 inline-flex items-center gap-2 rounded-xl bg-sky-500 px-4 py-2 text-xs font-bold text-white transition hover:bg-sky-600"
+                    >
+                      {t.telegram.openBot}
+                    </a>
+                  )}
+                </div>
+
                 <div className="space-y-4">
                   <Field label={t.firstName} error={regErrors.firstName}>
                     <input type="text" placeholder={t.firstNamePlaceholder} value={reg.firstName}
@@ -297,7 +369,7 @@ export default function AuthPage({ onSuccess, lang, setLang, dark, setDark }) {
             {view === 'otp' && (
               <div className={exiting ? 'animate-slideOut' : 'animate-slideIn'}>
                 <button
-                  onClick={() => goTo(otpFlow === 'login' ? 'login' : 'register', () => { setOtp(['','','','','','']); setOtpDone(false) })}
+                  onClick={() => goTo(otpFlow === 'login' ? 'login' : 'register', () => { setOtp(['','','','','','']); setOtpDone(false); setOtpError('') })}
                   className="flex items-center gap-1.5 text-gray-400 dark:text-gray-500 hover:text-red-500 transition-colors mb-5 group"
                 >
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="group-hover:-translate-x-0.5 transition-transform">
@@ -309,7 +381,8 @@ export default function AuthPage({ onSuccess, lang, setLang, dark, setDark }) {
                 <div className="text-center mb-7">
                   <div className="w-16 h-16 bg-red-50 dark:bg-red-900/30 rounded-2xl flex items-center justify-center mx-auto mb-4 border-2 border-red-100 dark:border-red-800">
                     <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-                      <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.95 12 19.79 19.79 0 01.88 3.38 2 2 0 012.88 1h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L7.09 8.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z" stroke="#dc2626" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      <path d="M21.5 3.5L3.2 10.6c-1.25.5-1.24 1.2-.23 1.51l4.7 1.47 1.8 5.55c.22.62.11.87.76.87.5 0 .72-.23 1-.5l2.28-2.21 4.74 3.5c.87.48 1.5.23 1.72-.81L23.1 5.3c.32-1.3-.5-1.89-1.6-1.8z" stroke="#dc2626" strokeWidth="1.8" strokeLinejoin="round"/>
+                      <path d="M7.67 13.58L19 6.43M9.47 19.13l.18-4.18L19 6.43" stroke="#dc2626" strokeWidth="1.5" strokeLinecap="round"/>
                     </svg>
                   </div>
                   <h2 className="text-lg font-bold text-gray-800 dark:text-gray-100">{t.otp.title}</h2>
@@ -317,15 +390,17 @@ export default function AuthPage({ onSuccess, lang, setLang, dark, setDark }) {
                   <p className="text-red-600 font-semibold text-sm mt-0.5">{pendingUser?.phone}</p>
                 </div>
 
-                <div className="flex gap-1.5 sm:gap-2.5 justify-center mb-7">
+                <div className="flex gap-1.5 sm:gap-2.5 justify-center mb-3">
                   {otp.map((digit, i) => (
                     <input key={i} ref={(el) => (otpRefs.current[i] = el)}
                       type="text" inputMode="numeric" maxLength={1} value={digit}
+                      disabled={verifying}
                       onChange={(e) => handleOtpInput(i, e.target.value)}
                       onKeyDown={(e) => handleOtpKey(i, e)}
                       onPaste={i === 0 ? handleOtpPaste : undefined}
-                      className={`w-9 sm:w-11 h-10 sm:h-[52px] text-center text-lg sm:text-xl font-bold rounded-xl border-2 outline-none transition-all duration-200 dark:bg-gray-800 ${
+                      className={`w-9 sm:w-11 h-10 sm:h-[52px] text-center text-lg sm:text-xl font-bold rounded-xl border-2 outline-none transition-all duration-200 dark:bg-gray-800 disabled:opacity-60 ${
                         otpDone ? 'border-green-400 bg-green-50 text-green-600 dark:bg-green-900/30'
+                        : otpError ? 'border-red-500 bg-red-50 text-red-600 dark:bg-red-900/30'
                         : digit  ? 'border-red-400 bg-red-50 text-red-600 animate-otpPop dark:bg-red-900/30'
                                  : 'border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-gray-100 focus:border-red-400'
                       }`}
@@ -333,11 +408,22 @@ export default function AuthPage({ onSuccess, lang, setLang, dark, setDark }) {
                   ))}
                 </div>
 
+                {otpError && (
+                  <p className="text-center text-red-500 text-xs font-medium mb-4">{otpError}</p>
+                )}
+                {verifying && (
+                  <p className="text-center text-gray-400 dark:text-gray-500 text-xs mb-4">Tekshirilmoqda...</p>
+                )}
+
                 <p className="text-center text-gray-400 dark:text-gray-500 text-sm">
                   {t.otp.resend}{' '}
-                  <button onClick={() => setOtp(['','','','','',''])} className="text-red-500 font-semibold hover:underline">
-                    {t.otp.resendBtn}
-                  </button>
+                  {resendCooldown > 0 ? (
+                    <span className="text-gray-400 dark:text-gray-500 font-semibold">{resendCooldown}s</span>
+                  ) : (
+                    <button onClick={handleResend} className="text-red-500 font-semibold hover:underline">
+                      {t.otp.resendBtn}
+                    </button>
+                  )}
                 </p>
               </div>
             )}

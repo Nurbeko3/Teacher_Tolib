@@ -1,3 +1,5 @@
+import { useEffect, useState } from 'react'
+import { api } from '../api'
 import Navbar from '../Navbar'
 import Footer from '../components/Footer'
 import BackButton from '../components/BackButton'
@@ -6,6 +8,8 @@ import uz from '../locales/uz'
 import ru from '../locales/ru'
 
 const langs = { en, uz, ru }
+
+const GRAMMAR_LESSON_ID = 'l_zero_1' // "Grammar A1 to C2"
 
 const LEVEL_CODES = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2']
 const LEVEL_NAMES = { A1: 'Beginner', A2: 'Elementary', B1: 'Intermediate', B2: 'Upper Intermediate', C1: 'Advanced', C2: 'Proficient' }
@@ -48,8 +52,18 @@ function LevelCard({ style, name, desc, idx }) {
   )
 }
 
+const FALLBACK_LEVELS = LEVEL_CODES.map((code) => ({ badge: code, title: LEVEL_NAMES[code] }))
+
 export default function GrammarLevelsPage({ dark, setDark, onBack, onLogout, lang = 'uz', setLang }) {
   const t = (langs[lang] || langs.uz)
+
+  const [levels, setLevels] = useState(FALLBACK_LEVELS)
+
+  useEffect(() => {
+    api.getSubitemsByLesson(GRAMMAR_LESSON_ID)
+      .then(data => { if (Array.isArray(data) && data.length > 0) setLevels(data) })
+      .catch(() => {})
+  }, [])
 
   return (
     <div className="min-h-screen flex flex-col relative overflow-hidden" style={{ background: dark ? '#111827' : 'white' }}>
@@ -88,12 +102,12 @@ export default function GrammarLevelsPage({ dark, setDark, onBack, onLogout, lan
         </div>
 
         <div className="flex flex-col gap-3 px-5 mt-3 max-w-2xl mx-auto w-full">
-          {LEVEL_CODES.map((code, idx) => (
+          {levels.map((level, idx) => (
             <LevelCard
-              key={code}
-              style={LEVEL_STYLES[idx]}
-              name={LEVEL_NAMES[code]}
-              desc={t.grammar.levelDescs[code]}
+              key={level.id ?? level.badge}
+              style={{ ...LEVEL_STYLES[idx % LEVEL_STYLES.length], code: level.badge }}
+              name={level.title}
+              desc={level.description || t.grammar.levelDescs[level.badge] || ''}
               idx={idx}
             />
           ))}

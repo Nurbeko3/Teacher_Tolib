@@ -1,12 +1,6 @@
-import { useState, useCallback } from 'react'
+import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { db } from '../adminData'
-import {
-  getLevels, saveLevels, deleteLevel,
-  getUnits, saveUnits, deleteUnit, countUnits,
-  getQuestions, saveQuestion, deleteQuestion, countQuestions,
-  genId,
-} from '../grammarData'
+import { api, genId } from '../adminData'
 import {
   PageHeader, Field, Modal, ConfirmModal,
   btnPrimary, btnGhost, btnSm, btnSmDanger, inputCls, textareaCls, Empty,
@@ -143,26 +137,39 @@ function QuestionModal({ question, unitId, onSave, onClose }) {
 /* ══════════════════════════════════════
    QUESTIONS LIST MODAL (for a unit)
 ══════════════════════════════════════ */
-function QuestionsListModal({ unit, onClose }) {
-  const [questions, setQuestions] = useState(() => getQuestions(unit.id))
+function QuestionsListModal({ unit, onClose, onChange }) {
+  const [questions, setQuestions] = useState([])
+  const [loading, setLoading] = useState(true)
   const [qModal, setQModal] = useState(null)
   const [delId,  setDelId]  = useState(null)
 
-  const refresh = () => setQuestions(getQuestions(unit.id))
+  const refresh = () => api.getGrammarQuestionsByUnit(unit.id).then(setQuestions)
 
-  const handleSave = (q) => {
-    q.order = questions.findIndex(x => x.id === q.id) >= 0
-      ? questions.findIndex(x => x.id === q.id)
-      : questions.length
-    saveQuestion(q)
-    refresh()
+  useEffect(() => { refresh().finally(() => setLoading(false)) }, [unit.id])
+
+  const handleSave = async (q) => {
+    const exists = questions.some(x => x.id === q.id)
+    q.order = exists ? questions.findIndex(x => x.id === q.id) : questions.length
+    if (exists) await api.updateGrammarQuestion(q.id, q)
+    else await api.addGrammarQuestion(q)
+    await refresh()
+    onChange?.()
     setQModal(null)
   }
 
-  const handleDelete = () => {
-    deleteQuestion(delId)
-    refresh()
+  const handleDelete = async () => {
+    await api.deleteGrammarQuestion(delId)
+    await refresh()
+    onChange?.()
     setDelId(null)
+  }
+
+  if (loading) {
+    return (
+      <Modal title={`Questions — ${unit.title}`} onClose={onClose}>
+        <div className="py-10 text-center text-gray-400 text-[13px]">Loading...</div>
+      </Modal>
+    )
   }
 
   return (
@@ -259,8 +266,7 @@ function QuestionsListModal({ unit, onClose }) {
 /* ══════════════════════════════════════
    UNIT ROW
 ══════════════════════════════════════ */
-function UnitRow({ unit, onEdit, onDelete, onQuestions }) {
-  const qCount = countQuestions(unit.id)
+function UnitRow({ unit, qCount, onEdit, onDelete, onQuestions }) {
   return (
     <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-white border border-gray-100 hover:border-red-100 hover:bg-red-50/20 transition-colors group">
       {/* Icon */}
@@ -388,32 +394,25 @@ function UnitModal({ unit, level, lessonId, nextOrder, onSave, onClose }) {
 /* ══════════════════════════════════════
    LEVEL ACCORDION
 ══════════════════════════════════════ */
-function LevelAccordion({ level, isOpen, onToggle, onEditLevel, onDeleteLevel }) {
-  const [units, setUnits]         = useState(() => getUnits(level.id))
+function LevelAccordion({ level, units, questionCounts, isOpen, onToggle, onEditLevel, onDeleteLevel, onUnitsChange, onQuestionsChange }) {
   const [unitModal, setUnitModal] = useState(null)
   const [qModal, setQModal]       = useState(null)
   const [delUnit, setDelUnit]     = useState(null)
 
-  const { free, paid } = countUnits(level.id)
+  const free = units.filter(u => !u.isPaid).length
+  const paid = units.filter(u => u.isPaid).length
 
-  const persistUnits = (updated) => {
-    updated.forEach((u, i) => { u.order = i })
-    saveUnits(level.id, updated)
-    setUnits(updated)
-  }
-
-  const handleSaveUnit = (form) => {
+  const handleSaveUnit = async (form) => {
     const exists = units.some(u => u.id === form.id)
-    const updated = exists
-      ? units.map(u => u.id === form.id ? form : u)
-      : [...units, { ...form, order: units.length }]
-    persistUnits(updated)
+    if (exists) await api.updateGrammarUnit(form.id, form)
+    else await api.addGrammarUnit({ ...form, order: units.length })
+    await onUnitsChange()
     setUnitModal(null)
   }
 
-  const handleDeleteUnit = () => {
-    deleteUnit(delUnit)
-    setUnits(units.filter(u => u.id !== delUnit))
+  const handleDeleteUnit = async () => {
+    await api.deleteGrammarUnit(delUnit)
+    await onUnitsChange()
     setDelUnit(null)
   }
 
@@ -471,6 +470,7 @@ function LevelAccordion({ level, isOpen, onToggle, onEditLevel, onDeleteLevel })
               <UnitRow
                 key={unit.id}
                 unit={unit}
+                qCount={questionCounts[unit.id] || 0}
                 onEdit={u => setUnitModal({ type: 'edit', data: u })}
                 onDelete={id => setDelUnit(id)}
                 onQuestions={u => setQModal(u)}
@@ -505,6 +505,7 @@ function LevelAccordion({ level, isOpen, onToggle, onEditLevel, onDeleteLevel })
         <QuestionsListModal
           unit={qModal}
           onClose={() => setQModal(null)}
+          onChange={onQuestionsChange}
         />
       )}
 
@@ -598,13 +599,44 @@ export default function AdminTopicGrammarDetail() {
   const { courseId, lessonId } = useParams()
   const navigate = useNavigate()
 
-  const course  = db.getCourses().find(c => c.id === courseId)
-  const lesson  = db.getLessons().find(l => l.id === lessonId)
-
-  const [levels,     setLevels]     = useState(() => getLevels(lessonId))
-  const [openLevel,  setOpenLevel]  = useState(levels[0]?.id || null)
+  const [course,     setCourse]     = useState(null)
+  const [lesson,     setLesson]     = useState(null)
+  const [loading,    setLoading]    = useState(true)
+  const [levels,     setLevels]     = useState([])
+  const [units,      setUnits]      = useState([])
+  const [questions,  setQuestions]  = useState([])
+  const [openLevel,  setOpenLevel]  = useState(null)
   const [levelModal, setLevelModal] = useState(null)
   const [delLevel,   setDelLevel]   = useState(null)
+
+  const refreshUnits = () => api.getGrammarUnitsByLesson(lessonId).then(setUnits)
+  const refreshQuestions = () => api.getGrammarQuestions().then(setQuestions)
+  const refreshLevels = () =>
+    api.getGrammarLevelsByLesson(lessonId).then((data) => {
+      setLevels(data)
+      setOpenLevel((prev) => prev ?? data[0]?.id ?? null)
+    })
+
+  useEffect(() => {
+    Promise.all([
+      api.getCourses(),
+      api.getLessons(),
+      api.getGrammarLevelsByLesson(lessonId),
+      api.getGrammarUnitsByLesson(lessonId),
+      api.getGrammarQuestions(),
+    ])
+      .then(([courses, lessons, levelsData, unitsData, questionsData]) => {
+        setCourse(courses.find(c => c.id === courseId) || null)
+        setLesson(lessons.find(l => l.id === lessonId) || null)
+        setLevels(levelsData)
+        setUnits(unitsData)
+        setQuestions(questionsData)
+        setOpenLevel(levelsData[0]?.id || null)
+      })
+      .finally(() => setLoading(false))
+  }, [courseId, lessonId])
+
+  if (loading) return <div className="p-8 text-gray-400">Loading...</div>
 
   if (!course || !lesson) {
     return (
@@ -615,24 +647,22 @@ export default function AdminTopicGrammarDetail() {
     )
   }
 
-  const persistLevels = (updated) => {
-    updated.forEach((l, i) => { l.order = i })
-    saveLevels(lessonId, updated)
-    setLevels(updated)
-  }
+  const questionCounts = questions.reduce((acc, q) => {
+    acc[q.unitId] = (acc[q.unitId] || 0) + 1
+    return acc
+  }, {})
 
-  const handleSaveLevel = (form) => {
+  const handleSaveLevel = async (form) => {
     const exists = levels.some(l => l.id === form.id)
-    const updated = exists
-      ? levels.map(l => l.id === form.id ? form : l)
-      : [...levels, { ...form, order: levels.length }]
-    persistLevels(updated)
+    if (exists) await api.updateGrammarLevel(form.id, form)
+    else await api.addGrammarLevel({ ...form, order: levels.length })
+    await refreshLevels()
     setLevelModal(null)
   }
 
-  const handleDeleteLevel = () => {
-    deleteLevel(delLevel)
-    setLevels(levels.filter(l => l.id !== delLevel))
+  const handleDeleteLevel = async () => {
+    await api.deleteGrammarLevel(delLevel)
+    await Promise.all([refreshLevels(), refreshUnits(), refreshQuestions()])
     setDelLevel(null)
   }
 
@@ -698,10 +728,14 @@ export default function AdminTopicGrammarDetail() {
             <LevelAccordion
               key={level.id}
               level={level}
+              units={units.filter(u => u.levelId === level.id)}
+              questionCounts={questionCounts}
               isOpen={openLevel === level.id}
               onToggle={() => setOpenLevel(openLevel === level.id ? null : level.id)}
               onEditLevel={l => setLevelModal({ type: 'edit', data: l })}
               onDeleteLevel={id => setDelLevel(id)}
+              onUnitsChange={refreshUnits}
+              onQuestionsChange={refreshQuestions}
             />
           ))}
         </div>

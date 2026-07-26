@@ -1,13 +1,7 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { PageHeader, Field, Modal, ConfirmModal, btnPrimary, btnGhost, btnSm, btnSmDanger, inputCls, Empty } from '../AdminUI'
-import { PLATFORMS, PLATFORM_LIST, getSocials } from '../../socials'
-import { genId } from '../adminData'
-
-const SOCIALS_KEY = 'et_admin_socials'
-
-const saveSocials = (list) => {
-  try { localStorage.setItem(SOCIALS_KEY, JSON.stringify(list)) } catch {}
-}
+import { PLATFORMS, PLATFORM_LIST } from '../../socials'
+import { api, genId } from '../adminData'
 
 const EMPTY_FORM = { id: '', platform: 'telegram', label: '', url: '' }
 
@@ -161,22 +155,30 @@ function SocialCard({ s, onEdit, onDelete }) {
 }
 
 export default function AdminSocials() {
-  const [socials, setSocials] = useState(getSocials)
+  const [socials, setSocials] = useState([])
+  const [loading, setLoading] = useState(true)
   const [modal,   setModal]   = useState(null)
   const [delId,   setDelId]   = useState(null)
 
-  const persist = (updated) => { saveSocials(updated); setSocials(updated) }
+  const refresh = () => api.getSocials().then(setSocials)
 
-  const handleSave = (form) => {
+  useEffect(() => { refresh().finally(() => setLoading(false)) }, [])
+
+  const handleSave = async (form) => {
     const exists = socials.some(s => s.id === form.id)
-    persist(exists ? socials.map(s => s.id === form.id ? form : s) : [...socials, form])
+    if (exists) await api.updateSocial(form.id, form)
+    else await api.addSocial(form)
+    await refresh()
     setModal(null)
   }
 
-  const handleDelete = () => {
-    persist(socials.filter(s => s.id !== delId))
+  const handleDelete = async () => {
+    await api.deleteSocial(delId)
+    await refresh()
     setDelId(null)
   }
+
+  if (loading) return <div className="p-8 text-gray-400">Loading...</div>
 
   return (
     <div>

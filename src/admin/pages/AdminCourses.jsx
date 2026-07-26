@@ -1,6 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { db, genId } from '../adminData'
+import { api, genId } from '../adminData'
 import {
   PageHeader, Field, Modal, ConfirmModal,
   btnPrimary, btnGhost, btnSm, btnSmDanger, inputCls, textareaCls, Empty,
@@ -89,26 +89,39 @@ function CourseModal({ course, onSave, onClose }) {
 
 export default function AdminCourses() {
   const navigate = useNavigate()
-  const [courses, setCourses] = useState(db.getCourses)
-  const [modal,   setModal]   = useState(null)
-  const [delId,   setDelId]   = useState(null)
+  const [courses,  setCourses]  = useState([])
+  const [lessons,  setLessons]  = useState([])
+  const [loading,  setLoading]  = useState(true)
+  const [modal,    setModal]    = useState(null)
+  const [delId,    setDelId]    = useState(null)
 
-  const allLessons = db.getLessons()
-  const lessonCount = (courseId) => allLessons.filter(l => l.courseId === courseId).length
+  useEffect(() => {
+    Promise.all([api.getCourses(), api.getLessons()])
+      .then(([c, l]) => { setCourses(c); setLessons(l) })
+      .finally(() => setLoading(false))
+  }, [])
 
-  const persist = (updated) => { db.saveCourses(updated); setCourses(updated) }
+  const lessonCount = (courseId) => lessons.filter(l => l.courseId === courseId).length
 
-  const handleSave = (form) => {
+  const handleSave = async (form) => {
     const exists = courses.some(c => c.id === form.id)
-    persist(exists ? courses.map(c => c.id === form.id ? form : c) : [...courses, form])
+    if (exists) {
+      await api.updateCourse(form.id, form)
+    } else {
+      await api.addCourse(form)
+    }
+    api.getCourses().then(setCourses)
     setModal(null)
   }
 
-  const handleDelete = () => {
-    persist(courses.filter(c => c.id !== delId))
-    db.deleteLessonsByCourse(delId)
+  const handleDelete = async () => {
+    await api.deleteCourse(delId)
+    await api.deleteLessonsByCourse(delId)
+    api.getCourses().then(setCourses)
     setDelId(null)
   }
+
+  if (loading) return <div className="p-8 text-gray-400">Loading...</div>
 
   return (
     <div>

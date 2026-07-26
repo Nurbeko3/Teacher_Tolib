@@ -1,10 +1,21 @@
 import { useEffect, useRef, useState } from 'react'
+import { api } from '../api'
 import PageLayout from '../components/PageLayout'
 import en from '../locales/en'
 import uz from '../locales/uz'
 import ru from '../locales/ru'
 
 const langs = { en, uz, ru }
+
+const DEFAULT_PROFILE = {
+  name: 'Teacher Tolib',
+  experience: '6',
+  ieltsScore: '8.0',
+  cefrLevel: 'C2',
+  bio: '',
+  telegram: '@teacher_tolib',
+  image: null,
+}
 
 /* ── Count-up hook ── */
 function useCountUp(target, duration = 1400) {
@@ -40,8 +51,8 @@ function useCountUp(target, duration = 1400) {
 }
 
 /* ── Animated stat card ── */
-function StatCard({ icon, value, suffix, label, delay, color, dark }) {
-  const { value: count, ref } = useCountUp(value, 1400)
+function StatCard({ icon, value, suffix, text, label, delay, color, dark }) {
+  const { value: count, ref } = useCountUp(text ? 0 : value, 1400)
   const [hovered, setHovered] = useState(false)
 
   return (
@@ -69,7 +80,7 @@ function StatCard({ icon, value, suffix, label, delay, color, dark }) {
       </div>
       <div className="text-center">
         <span className="block font-black text-[26px] leading-none" style={{ color: hovered ? 'white' : color.accent }}>
-          {count}{suffix}
+          {text ?? <>{count}{suffix}</>}
         </span>
         <span className="block text-[12px] font-semibold mt-1 leading-tight" style={{ color: hovered ? 'rgba(255,255,255,0.8)' : (dark ? '#9ca3af' : '#6b7280') }}>{label}</span>
       </div>
@@ -108,21 +119,32 @@ function FadeIn({ children, delay = 0, className = '' }) {
   )
 }
 
-const ACHIEVEMENTS = [
-  { label: 'IELTS Band 8.0', icon: '🎯' },
-  { label: 'CEFR Certified', icon: '📜' },
-  { label: 'Top Educator', icon: '🏆' },
-  { label: '6 Years Pro', icon: '⭐' },
-]
-
 const SKILL_TAGS = ['IELTS Listening','IELTS Reading','IELTS Writing','IELTS Speaking','Grammar','Vocabulary','Pronunciation','Business English']
 
 export default function AboutTeacherPage({ dark = false, lang = 'uz' }) {
   const t = (langs[lang] || langs.uz).about
 
+  const [profile, setProfile] = useState(DEFAULT_PROFILE)
+
+  useEffect(() => {
+    api.getProfile()
+      .then(data => setProfile({ ...DEFAULT_PROFILE, ...data }))
+      .catch(() => {})
+  }, [])
+
+  const [ieltsInt, ieltsDec] = String(profile.ieltsScore || '8.0').split('.')
+  const experienceYears = parseInt(profile.experience, 10) || 0
+
+  const ACHIEVEMENTS = [
+    { label: `IELTS Band ${profile.ieltsScore}`, icon: '🎯' },
+    { label: `${profile.cefrLevel} Certified`, icon: '📜' },
+    { label: 'Top Educator', icon: '🏆' },
+    { label: `${experienceYears} Years Pro`, icon: '⭐' },
+  ]
+
   const STATS = [
     {
-      value: 8, suffix: '.0', label: 'IELTS Band', delay: 0,
+      value: Number(ieltsInt) || 0, suffix: ieltsDec ? `.${ieltsDec}` : '', label: 'IELTS Band', delay: 0,
       color: { accent: '#dc2626', bg: '#fff1f2', bgHover: '#b91c1c', border: '#fecaca', border2: '#dc2626', iconBg: 'rgba(220,38,38,0.12)', iconBgHover: 'rgba(255,255,255,0.25)', shadow: 'rgba(220,38,38,0.25)' },
       icon: (c) => (
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
@@ -133,7 +155,7 @@ export default function AboutTeacherPage({ dark = false, lang = 'uz' }) {
       ),
     },
     {
-      value: 69, suffix: '', label: 'CEFR Score', delay: 80,
+      text: profile.cefrLevel, label: 'CEFR Level', delay: 80,
       color: { accent: '#991b1b', bg: '#fff1f2', bgHover: '#991b1b', border: '#fecaca', border2: '#991b1b', iconBg: 'rgba(153,27,27,0.1)', iconBgHover: 'rgba(255,255,255,0.25)', shadow: 'rgba(153,27,27,0.25)' },
       icon: (c) => (
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
@@ -142,7 +164,7 @@ export default function AboutTeacherPage({ dark = false, lang = 'uz' }) {
       ),
     },
     {
-      value: 6, suffix: '+', label: t.statsYears, delay: 160,
+      value: experienceYears, suffix: '+', label: t.statsYears, delay: 160,
       color: { accent: '#b91c1c', bg: '#fff1f2', bgHover: '#b91c1c', border: '#fecaca', border2: '#b91c1c', iconBg: 'rgba(185,28,28,0.1)', iconBgHover: 'rgba(255,255,255,0.25)', shadow: 'rgba(185,28,28,0.25)' },
       icon: (c) => (
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
@@ -222,10 +244,14 @@ export default function AboutTeacherPage({ dark = false, lang = 'uz' }) {
             <div className="relative z-10 px-6 pt-8 pb-6 flex flex-col sm:flex-row items-center sm:items-start gap-5">
               <div className="flex-shrink-0 flex flex-col items-center gap-2">
                 <div
-                  className="avatar-pulse w-24 h-24 sm:w-28 sm:h-28 rounded-3xl flex items-center justify-center"
+                  className="avatar-pulse w-24 h-24 sm:w-28 sm:h-28 rounded-3xl flex items-center justify-center overflow-hidden"
                   style={{ background: 'rgba(255,255,255,0.18)', border: '3px solid rgba(255,255,255,0.45)' }}
                 >
-                  <span className="text-4xl sm:text-5xl font-black text-white select-none">T</span>
+                  {profile.image ? (
+                    <img src={profile.image} alt={profile.name} className="w-full h-full object-cover" />
+                  ) : (
+                    <span className="text-4xl sm:text-5xl font-black text-white select-none">{(profile.name || 'T')[0]}</span>
+                  )}
                 </div>
                 <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full"
                   style={{ background: 'rgba(255,255,255,0.18)', border: '1px solid rgba(255,255,255,0.3)' }}>
@@ -236,7 +262,7 @@ export default function AboutTeacherPage({ dark = false, lang = 'uz' }) {
 
               <div className="flex-1 text-center sm:text-left">
                 <p className="text-white/60 text-[11px] font-bold uppercase tracking-[0.18em] mb-1">Professional English Educator</p>
-                <h1 className="text-white font-black text-2xl sm:text-3xl leading-tight mb-1">Teacher Tolib</h1>
+                <h1 className="text-white font-black text-2xl sm:text-3xl leading-tight mb-1">{profile.name}</h1>
                 <p className="text-white/75 text-[13px] font-medium mb-4">{t.subRole}</p>
                 <div className="flex flex-wrap justify-center sm:justify-start gap-2">
                   {ACHIEVEMENTS.map((a, i) => (
@@ -294,7 +320,7 @@ export default function AboutTeacherPage({ dark = false, lang = 'uz' }) {
                 <span className="font-extrabold text-[16px]" style={{ color: '#dc2626' }}>{t.aboutLabel}</span>
               </div>
               <p className="text-[15px] leading-[1.8]" style={{ color: subText }}>
-                {t.bioDetail}
+                {profile.bio || t.bioDetail}
               </p>
             </div>
 
@@ -321,7 +347,7 @@ export default function AboutTeacherPage({ dark = false, lang = 'uz' }) {
                 {t.contactTitle}
               </p>
               <div className="flex gap-2.5">
-                <a href="https://t.me/teacher_tolib" target="_blank" rel="noopener noreferrer"
+                <a href={`https://t.me/${String(profile.telegram || '').replace('@', '')}`} target="_blank" rel="noopener noreferrer"
                   className="flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl font-bold text-[15px] transition-all duration-200 active:scale-[0.97]"
                   style={{ background: 'linear-gradient(135deg, #b91c1c 0%, #dc2626 100%)', color: 'white', boxShadow: '0 4px 14px rgba(220,38,38,0.35)' }}
                   onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 6px 20px rgba(220,38,38,0.5)'; e.currentTarget.style.transform = 'translateY(-1px)' }}

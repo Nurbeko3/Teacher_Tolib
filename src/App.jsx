@@ -42,13 +42,14 @@ import { SpeakingPart1, SpeakingPart2, SpeakingPart3 } from './pages/ielts/leaf/
 import IELTSPlaceholderPage from './pages/ielts/IELTSPlaceholderPage'
 
 // Admin
-import { db as adminDb } from './admin/adminData'
+import { api as adminApi } from './admin/adminData'
 import AdminLayout from './admin/AdminLayout'
 import AdminCourses from './admin/pages/AdminCourses'
 import AdminCourseDetail from './admin/pages/AdminCourseDetail'
 import AdminProfile from './admin/pages/AdminProfile'
 import AdminDonate from './admin/pages/AdminDonate'
 import AdminResults from './admin/pages/AdminResults'
+import AdminTestimonials from './admin/pages/AdminTestimonials'
 import AdminUsers from './admin/pages/AdminUsers'
 import AdminSocials from './admin/pages/AdminSocials'
 import AdminLessonDetail from './admin/pages/AdminLessonDetail'
@@ -62,9 +63,22 @@ const isAdminUser = (u) => u?.role === 'SUPER_ADMIN' && u?.phone?.replace(/\D/g,
 function AdminLessonRouter() {
   const { pathname } = useLocation()
   const lessonId = pathname.split('/').pop()
-  const lesson = adminDb.getLessons().find(l => l.id === lessonId)
-  if (lesson?.title === 'Topic Grammar Test') return <AdminTopicGrammarDetail />
-  if (lesson?.title === 'Vocabulary Test') return <AdminVocabTestDetail />
+  const [lessonTitle, setLessonTitle] = useState(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    adminApi.getLessons()
+      .then(lessons => {
+        const lesson = lessons.find(l => l.id === lessonId)
+        setLessonTitle(lesson?.title || '')
+      })
+      .catch(() => setLessonTitle(''))
+      .finally(() => setLoading(false))
+  }, [lessonId])
+
+  if (loading) return <div className="p-8 text-gray-400">Loading...</div>
+  if (lessonTitle === 'Topic Grammar Test') return <AdminTopicGrammarDetail />
+  if (lessonTitle === 'Vocabulary Test') return <AdminVocabTestDetail />
   return <AdminLessonDetail />
 }
 
@@ -190,16 +204,6 @@ function AppRoutes() {
 
   const handleAuthSuccess = (u) => {
     setUser(u)
-    if (!isAdminUser(u)) {
-      try {
-        const list = JSON.parse(localStorage.getItem('et_all_users') || '[]')
-        const idx  = list.findIndex(x => x.phone === u.phone)
-        const entry = { ...u, lastLogin: new Date().toLocaleDateString('uz-UZ') }
-        if (idx >= 0) list[idx] = entry
-        else list.unshift(entry)
-        localStorage.setItem('et_all_users', JSON.stringify(list))
-      } catch {}
-    }
     if (isAdminUser(u)) navigate('/admin', { replace: true })
     else navigate('/', { replace: true })
   }
@@ -245,6 +249,7 @@ function AppRoutes() {
           <Route path="profile" element={<AdminProfile />} />
           <Route path="donate"  element={<AdminDonate />} />
           <Route path="results" element={<AdminResults />} />
+          <Route path="testimonials" element={<AdminTestimonials />} />
           <Route path="users"   element={<AdminUsers />} />
           <Route path="socials" element={<AdminSocials />} />
         </Route>

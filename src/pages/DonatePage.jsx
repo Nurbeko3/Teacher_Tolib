@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { api } from '../api'
 import PageLayout from '../components/PageLayout'
 import en from '../locales/en'
 import uz from '../locales/uz'
@@ -6,38 +7,11 @@ import ru from '../locales/ru'
 
 const langs = { en, uz, ru }
 
-/* ── localStorage helpers ── */
-const DONATE_CFG_KEY  = 'et_admin_donate'
-const DONATIONS_KEY   = 'et_donations'
-
 const DEFAULT_CFG = {
   cardNumber: '5614 6818 1203 4217',
   cardHolder: 'TEACHER TOLIB',
   cardType:   'Uzcard',
   message:    '',
-}
-
-const getConfig = () => {
-  try {
-    const raw = localStorage.getItem(DONATE_CFG_KEY)
-    return raw ? { ...DEFAULT_CFG, ...JSON.parse(raw) } : DEFAULT_CFG
-  } catch { return DEFAULT_CFG }
-}
-
-const getDonations = () => {
-  try { return JSON.parse(localStorage.getItem(DONATIONS_KEY)) || [] }
-  catch { return [] }
-}
-
-const pushDonation = (entry) => {
-  const list = getDonations()
-  list.unshift({
-    ...entry,
-    id:   Date.now(),
-    date: new Date().toLocaleDateString('uz-UZ'),
-  })
-  try { localStorage.setItem(DONATIONS_KEY, JSON.stringify(list.slice(0, 100))) }
-  catch {}
 }
 
 const formatAmount = (raw) =>
@@ -90,10 +64,10 @@ function DonorRow({ d, dark, cardBg, cardBorder }) {
 }
 
 export default function DonatePage({ dark = false, lang = 'uz' }) {
-  const t   = (langs[lang] || langs.uz).donate
-  const cfg = getConfig()
+  const t = (langs[lang] || langs.uz).donate
 
-  const [donations, setDonations] = useState(getDonations)
+  const [cfg,       setCfg]       = useState(DEFAULT_CFG)
+  const [donations, setDonations] = useState([])
   const [copied,    setCopied]    = useState(false)
   const [name,      setName]      = useState('')
   const [amount,    setAmount]    = useState('')
@@ -102,9 +76,15 @@ export default function DonatePage({ dark = false, lang = 'uz' }) {
   const [sending,   setSending]   = useState(false)
   const [showAll,   setShowAll]   = useState(false)
 
-  /* re-read donations when page becomes visible (e.g. after admin adds one) */
+  const refresh = () => {
+    api.getDonate().then(data => setCfg({ ...DEFAULT_CFG, ...data })).catch(() => {})
+    api.getDonations().then(setDonations).catch(() => {})
+  }
+
+  /* load config + donations from the backend on mount, and again when the
+     tab regains focus (e.g. after the admin updates the card in another tab) */
   useEffect(() => {
-    const refresh = () => setDonations(getDonations())
+    refresh()
     window.addEventListener('focus', refresh)
     return () => window.removeEventListener('focus', refresh)
   }, [])
@@ -131,12 +111,9 @@ export default function DonatePage({ dark = false, lang = 'uz' }) {
     e.preventDefault()
     if (!name.trim() || !amount || !message.trim()) return
     setSending(true)
-    setTimeout(() => {
-      pushDonation({ name: name.trim(), amount, message: message.trim() })
-      setDonations(getDonations())
-      setSending(false)
-      setSent(true)
-    }, 1200)
+    api.addDonation({ name: name.trim(), amount, message: message.trim() })
+      .then(() => api.getDonations().then(setDonations))
+      .finally(() => { setSending(false); setSent(true) })
   }
 
   const visibleDonors = showAll ? donations : donations.slice(0, 5)

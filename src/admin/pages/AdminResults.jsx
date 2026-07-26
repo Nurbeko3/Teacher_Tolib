@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { db, genId } from '../adminData'
+import { useState, useEffect } from 'react'
+import { api, genId } from '../adminData'
 import {
   PageHeader, Field, Modal, ConfirmModal,
   btnPrimary, btnGhost, inputCls, textareaCls, ImageUploader,
@@ -7,9 +7,12 @@ import {
 
 const BANDS = ['', '4.0', '4.5', '5.0', '5.5', '6.0', '6.5', '7.0', '7.5', '8.0', '8.5', '9.0']
 
+const MODULES = ['Academic', 'General Training']
+
 const EMPTY_FORM = {
   id: '', name: '', overall: '', listening: '',
   reading: '', writing: '', speaking: '', comment: '', image: null,
+  module: 'Academic', date: '',
 }
 
 const n = (v) => parseFloat(v) || 0
@@ -161,6 +164,17 @@ function ResultModal({ result, onSave, onClose }) {
           <ScoreSelect value={form.overall} onChange={(v) => set('overall', v)} label="Overall Band *" />
         </div>
 
+        <div className="grid grid-cols-2 gap-3">
+          <Field label="Module">
+            <select value={form.module} onChange={(e) => set('module', e.target.value)} className={inputCls}>
+              {MODULES.map(m => <option key={m} value={m}>{m}</option>)}
+            </select>
+          </Field>
+          <Field label="Date (e.g. Nov 2024)">
+            <input value={form.date} onChange={(e) => set('date', e.target.value)} className={inputCls} placeholder="Nov 2024" />
+          </Field>
+        </div>
+
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           <ScoreSelect value={form.listening} onChange={(v) => set('listening', v)} label="Listening" />
           <ScoreSelect value={form.reading}   onChange={(v) => set('reading',   v)} label="Reading"   />
@@ -190,22 +204,35 @@ function ResultModal({ result, onSave, onClose }) {
 }
 
 export default function AdminResults() {
-  const [results, setResults] = useState(db.getResults)
+  const [results, setResults] = useState([])
+  const [loading, setLoading] = useState(true)
   const [modal,   setModal]   = useState(null)
   const [delId,   setDelId]   = useState(null)
 
-  const persist = (updated) => { db.saveResults(updated); setResults(updated) }
+  useEffect(() => {
+    api.getResults().then(setResults).finally(() => setLoading(false))
+  }, [])
 
-  const handleSave = (form) => {
+  const refreshResults = () => api.getResults().then(setResults)
+
+  const handleSave = async (form) => {
     const exists = results.some((r) => r.id === form.id)
-    persist(exists ? results.map((r) => (r.id === form.id ? form : r)) : [...results, form])
+    if (exists) {
+      await api.updateResult(form.id, form)
+    } else {
+      await api.addResult(form)
+    }
+    await refreshResults()
     setModal(null)
   }
 
-  const handleDelete = () => {
-    persist(results.filter((r) => r.id !== delId))
+  const handleDelete = async () => {
+    await api.deleteResult(delId)
+    await refreshResults()
     setDelId(null)
   }
+
+  if (loading) return <div className="p-8 text-gray-400">Loading...</div>
 
   return (
     <div>

@@ -7,11 +7,10 @@ import ru from '../../locales/ru'
 const langs = { en, uz, ru }
 
 const COURSE_KEYS = [
-  { key: 'zero', gradient: 'linear-gradient(135deg, #b91c1c 0%, #ef4444 100%)', shadow: 'rgba(185,28,28,0.35)' },
+  { key: 'free',  gradient: 'linear-gradient(135deg, #065f46 0%, #10b981 100%)', shadow: 'rgba(16,185,129,0.35)', free: true },
+  { key: 'zero',  gradient: 'linear-gradient(135deg, #b91c1c 0%, #ef4444 100%)', shadow: 'rgba(185,28,28,0.35)' },
   { key: 'ielts', gradient: 'linear-gradient(135deg, #991b1b 0%, #dc2626 100%)', shadow: 'rgba(153,27,27,0.35)' },
-  { key: 'cefr', gradient: 'linear-gradient(135deg, #7f1d1d 0%, #b91c1c 100%)', shadow: 'rgba(127,29,29,0.35)' },
-  { key: 'speaking', gradient: 'linear-gradient(135deg, #be123c 0%, #f43f5e 100%)', shadow: 'rgba(190,18,60,0.35)' },
-  { key: 'grammar', gradient: 'linear-gradient(135deg, #9f1239 0%, #dc2626 100%)', shadow: 'rgba(159,18,57,0.35)' },
+  { key: 'cefr',  gradient: 'linear-gradient(135deg, #7f1d1d 0%, #b91c1c 100%)', shadow: 'rgba(127,29,29,0.35)' },
 ]
 
 function CourseIcon() {
@@ -36,13 +35,21 @@ export default function CoursesSection({ lang }) {
           <p className="mt-3 text-gray-500 text-[15px] leading-relaxed">{t.subtitle}</p>
         </Reveal>
 
-        <StaggerGroup className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        <StaggerGroup className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
           {COURSE_KEYS.map((c) => (
             <StaggerItem key={c.key}>
               <div
-                className="course-card card-shimmer h-full rounded-3xl p-6 flex flex-col gap-4"
+                className="course-card card-shimmer h-full rounded-3xl p-6 flex flex-col gap-4 relative overflow-hidden"
                 style={{ background: c.gradient, boxShadow: `0 14px 34px ${c.shadow}`, minHeight: 220 }}
               >
+                {c.free && (
+                  <span
+                    className="absolute top-4 right-4 text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full"
+                    style={{ background: 'rgba(255,255,255,0.22)', color: 'white', border: '1px solid rgba(255,255,255,0.4)' }}
+                  >
+                    FREE
+                  </span>
+                )}
                 <div className="w-14 h-14 rounded-2xl flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.18)' }}>
                   <CourseIcon />
                 </div>
@@ -51,7 +58,7 @@ export default function CoursesSection({ lang }) {
                   <p className="text-white/85 text-[13.5px] mt-2 leading-relaxed">{t.items[c.key].desc}</p>
                 </div>
                 <button
-                  onClick={() => navigate('/auth')}
+                  onClick={() => navigate(c.free ? '/auth' : '/auth')}
                   className="self-start flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-[13px] text-white transition-all duration-200 active:scale-95"
                   style={{ background: 'rgba(255,255,255,0.18)', border: '1px solid rgba(255,255,255,0.32)' }}
                   onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.3)' }}

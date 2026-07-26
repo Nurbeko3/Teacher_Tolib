@@ -1,6 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { db, genId } from '../adminData'
+import { api, genId } from '../adminData'
 import {
   PageHeader, Field, Modal, ConfirmModal,
   btnPrimary, btnGhost, btnSm, btnSmDanger, inputCls, textareaCls, Empty,
@@ -155,11 +155,26 @@ export default function AdminLessonDetail() {
   const { courseId, lessonId } = useParams()
   const navigate = useNavigate()
 
-  const course  = db.getCourses().find(c => c.id === courseId)
-  const lesson  = db.getLessons().find(l => l.id === lessonId)
-  const [items, setItems] = useState(() => db.getSubitemsByLesson(lessonId))
-  const [modal, setModal] = useState(null)
-  const [delId, setDelId] = useState(null)
+  const [course,  setCourse]  = useState(null)
+  const [lesson,  setLesson]  = useState(null)
+  const [items,   setItems]   = useState([])
+  const [loading, setLoading] = useState(true)
+  const [modal,   setModal]   = useState(null)
+  const [delId,   setDelId]   = useState(null)
+
+  useEffect(() => {
+    Promise.all([
+      api.getCourses(),
+      api.getLessons(),
+      api.getSubitemsByLesson(lessonId),
+    ]).then(([courses, lessons, subitems]) => {
+      setCourse(courses.find(c => c.id === courseId) || null)
+      setLesson(lessons.find(l => l.id === lessonId) || null)
+      setItems(subitems)
+    }).finally(() => setLoading(false))
+  }, [courseId, lessonId])
+
+  if (loading) return <div className="p-8 text-gray-400">Loading...</div>
 
   if (!course || !lesson) {
     return (
@@ -170,36 +185,33 @@ export default function AdminLessonDetail() {
     )
   }
 
-  const persistItems = (updated) => {
-    const all = db.getSubitems().filter(s => s.lessonId !== lessonId)
-    db.saveSubitems([...all, ...updated])
-    setItems(updated)
-  }
+  const refreshItems = () => api.getSubitemsByLesson(lessonId).then(setItems)
 
-  const handleSave = (form) => {
+  const handleSave = async (form) => {
     const exists = items.some(s => s.id === form.id)
-    const updated = exists
-      ? items.map(s => s.id === form.id ? form : s)
-      : [...items, { ...form, order: items.length }]
-    updated.forEach((s, i) => { s.order = i })
-    persistItems(updated)
+    if (exists) {
+      await api.updateSubitem(form.id, form)
+    } else {
+      await api.addSubitem({ ...form, order: items.length })
+    }
+    await refreshItems()
     setModal(null)
   }
 
-  const handleDelete = () => {
-    const updated = items.filter(s => s.id !== delId)
-    updated.forEach((s, i) => { s.order = i })
-    persistItems(updated)
+  const handleDelete = async () => {
+    await api.deleteSubitem(delId)
+    await refreshItems()
     setDelId(null)
   }
 
-  const handleMove = (id, dir) => {
+  const handleMove = async (id, dir) => {
     const arr = [...items]
     const idx = arr.findIndex(s => s.id === id)
     if (dir === 'up' && idx > 0) [arr[idx - 1], arr[idx]] = [arr[idx], arr[idx - 1]]
     else if (dir === 'down' && idx < arr.length - 1) [arr[idx], arr[idx + 1]] = [arr[idx + 1], arr[idx]]
     arr.forEach((s, i) => { s.order = i })
-    persistItems(arr)
+    await Promise.all(arr.map(s => api.updateSubitem(s.id, s)))
+    setItems([...arr])
   }
 
   return (

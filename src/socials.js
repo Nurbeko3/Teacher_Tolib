@@ -33,18 +33,9 @@ export const PLATFORMS = {
 
 export const PLATFORM_LIST = Object.entries(PLATFORMS).map(([id, v]) => ({ id, ...v }))
 
-export const getSocials = () => {
-  try {
-    const raw = localStorage.getItem('et_admin_socials')
-    if (raw) {
-      const arr = JSON.parse(raw)
-      if (Array.isArray(arr) && arr.length > 0) return arr
-    }
-  } catch {}
-  return [
-    { id: 'soc_tg',  platform: 'telegram',  label: 'Telegram',  url: 'https://t.me/teacher_tolib' },
-    { id: 'soc_ig',  platform: 'instagram', label: 'Instagram', url: 'https://instagram.com/teacher_tolib' },
-    { id: 'soc_yt',  platform: 'youtube',   label: 'YouTube',   url: 'https://youtube.com/@teacher_tolib' },
-    { id: 'soc_tt',  platform: 'tiktok',    label: 'TikTok',    url: 'https://tiktok.com/@teacher_tolib' },
-  ]
-}
+export const DEFAULT_SOCIALS = [
+  { id: 'soc_tg',  platform: 'telegram',  label: 'Telegram',  url: 'https://t.me/teacher_tolib' },
+  { id: 'soc_ig',  platform: 'instagram', label: 'Instagram', url: 'https://instagram.com/teacher_tolib' },
+  { id: 'soc_yt',  platform: 'youtube',   label: 'YouTube',   url: 'https://youtube.com/@teacher_tolib' },
+  { id: 'soc_tt',  platform: 'tiktok',    label: 'TikTok',    url: 'https://tiktok.com/@teacher_tolib' },
+]

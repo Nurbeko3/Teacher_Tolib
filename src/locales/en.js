@@ -29,9 +29,14 @@ export default {
       proficiency: "Proficiency (C2)",
     },
     success: "Successfully logged in!",
+    telegram: {
+      title: "Connect the Telegram bot first",
+      desc: "Open the bot, press Start and share your phone number. Your verification code will arrive in that chat.",
+      openBot: "Open Telegram bot",
+    },
     otp: {
       title: "Verification Code",
-      subtitle: "Enter the 6-digit code sent to",
+      subtitle: "Enter the 6-digit code sent to your Telegram bot",
       resend: "Didn't receive the code?",
       resendBtn: "Resend",
     },
@@ -355,9 +360,10 @@ export default {
       subtitle: "Pick the course that matches your goal and current level",
       learnMore: "Learn More",
       items: {
+        free: { title: "Free Courses", desc: "Get started for free — handpicked lessons open to everyone, no registration needed." },
         zero: { title: "English From Zero", desc: "Start from scratch — alphabet, grammar and everyday conversation." },
-        ielts: { title: "IELTS Preparation", desc: "Full IELTS training across all four modules with real exam practice." },
-        cefr: { title: "CEFR Preparation", desc: "Structured path through every CEFR level, from A1 to C2." },
+        ielts: { title: "IELTS", desc: "Full IELTS training across all four modules with real exam practice." },
+        cefr: { title: "Multilevel", desc: "Structured path through every CEFR level, from A1 to C2." },
         speaking: { title: "Speaking Club", desc: "Live speaking practice to build fluency and confidence fast." },
         grammar: { title: "Grammar Course", desc: "Deep grammar mastery with topic tests and instant feedback." },
       },

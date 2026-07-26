@@ -1,3 +1,5 @@
+import { useEffect, useState } from 'react'
+import { api } from '../api'
 import Navbar from '../Navbar'
 import Footer from '../components/Footer'
 import BackButton from '../components/BackButton'
@@ -7,7 +9,18 @@ import ru from '../locales/ru'
 
 const langs = { en, uz, ru }
 
-const TOPICS = [
+const VOCAB_LESSON_ID = 'l_zero_3' // "Vocabulary Test"
+
+const TOPIC_STYLES = [
+  { accent: '#dc2626', bg: 'rgba(220,38,38,0.08)'  },
+  { accent: '#b91c1c', bg: 'rgba(185,28,28,0.08)'  },
+  { accent: '#991b1b', bg: 'rgba(153,27,27,0.08)'  },
+  { accent: '#ef4444', bg: 'rgba(239,68,68,0.08)'  },
+  { accent: '#f87171', bg: 'rgba(248,113,113,0.08)' },
+  { accent: '#fca5a5', bg: 'rgba(252,165,165,0.08)' },
+]
+
+const FALLBACK_TOPICS = [
   { id: 'animals',        emoji: '🐶', label: 'Animals',        accent: '#dc2626', bg: 'rgba(220,38,38,0.08)'  },
   { id: 'school',         emoji: '🏫', label: 'School',         accent: '#b91c1c', bg: 'rgba(185,28,28,0.08)'  },
   { id: 'university',     emoji: '🎓', label: 'University',     accent: '#991b1b', bg: 'rgba(153,27,27,0.08)'  },
@@ -71,6 +84,22 @@ function TopicCard({ topic, idx, onClick }) {
 export default function VocabTestPage({ dark, setDark, onBack, onLogout, onNavigate, lang = 'uz', setLang }) {
   const t = (langs[lang] || langs.uz).vocabTest
 
+  const [topics, setTopics] = useState(FALLBACK_TOPICS)
+
+  useEffect(() => {
+    api.getVocabTopicsByLesson(VOCAB_LESSON_ID)
+      .then(data => {
+        if (Array.isArray(data) && data.length > 0) {
+          setTopics(data.map((topic, idx) => ({
+            ...topic,
+            accent: TOPIC_STYLES[idx % TOPIC_STYLES.length].accent,
+            bg: TOPIC_STYLES[idx % TOPIC_STYLES.length].bg,
+          })))
+        }
+      })
+      .catch(() => {})
+  }, [])
+
   return (
     <div className="min-h-screen flex flex-col relative overflow-hidden" style={{ background: dark ? '#111827' : 'white' }}>
 
@@ -113,7 +142,7 @@ export default function VocabTestPage({ dark, setDark, onBack, onLogout, onNavig
           </p>
 
           <div className="flex flex-col gap-2.5">
-            {TOPICS.map((topic, idx) => (
+            {topics.map((topic, idx) => (
               <TopicCard
                 key={topic.id}
                 topic={topic}

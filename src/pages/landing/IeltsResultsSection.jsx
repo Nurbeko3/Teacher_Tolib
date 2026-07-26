@@ -1,24 +1,36 @@
+import { useState, useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
 import { Reveal } from './shared'
 import en from '../../locales/en'
 import uz from '../../locales/uz'
 import ru from '../../locales/ru'
+import { api } from '../../api'
 
 const langs = { en, uz, ru }
 
-/* ── Dataset — replace images with real screenshots when available ── */
-const RESULTS = [
+const FALLBACK_RESULTS = [
   { id: 1,  name: 'Jasur T.',    overall: 7.5, L: 8.0, R: 7.5, W: 7.0, S: 7.5, module: 'Academic', date: 'Nov 2024', img: null },
   { id: 2,  name: 'Zulfiya K.', overall: 8.0, L: 8.5, R: 8.0, W: 7.5, S: 8.0, module: 'Academic', date: 'Nov 2024', img: null },
   { id: 3,  name: 'Nilufar X.', overall: 7.0, L: 7.5, R: 7.0, W: 6.5, S: 7.0, module: 'General',  date: 'Oct 2024', img: null },
   { id: 4,  name: 'Alisher N.', overall: 8.5, L: 9.0, R: 8.5, W: 8.0, S: 8.5, module: 'Academic', date: 'Oct 2024', img: null },
   { id: 5,  name: 'Bobur A.',   overall: 6.5, L: 7.0, R: 6.5, W: 6.0, S: 6.5, module: 'Academic', date: 'Sep 2024', img: null },
   { id: 6,  name: 'Dilnoza R.', overall: 7.5, L: 8.0, R: 7.5, W: 7.0, S: 7.5, module: 'Academic', date: 'Sep 2024', img: null },
-  { id: 7,  name: 'Sherzod M.', overall: 6.0, L: 6.5, R: 6.0, W: 5.5, S: 6.5, module: 'General',  date: 'Aug 2024', img: null },
-  { id: 8,  name: 'Malika S.',  overall: 7.0, L: 7.5, R: 7.0, W: 6.5, S: 7.0, module: 'General',  date: 'Aug 2024', img: null },
-  { id: 9,  name: 'Davron U.',  overall: 7.5, L: 8.0, R: 7.5, W: 7.0, S: 7.5, module: 'Academic', date: 'Jul 2024', img: null },
-  { id: 10, name: 'Kamola B.',  overall: 6.5, L: 7.0, R: 6.5, W: 6.0, S: 6.5, module: 'General',  date: 'Jul 2024', img: null },
 ]
+
+function mapResult(r) {
+  return {
+    id:     r.id,
+    name:   r.name,
+    overall: parseFloat(r.overall) || 0,
+    L:      parseFloat(r.listening) || 0,
+    R:      parseFloat(r.reading)   || 0,
+    W:      parseFloat(r.writing)   || 0,
+    S:      parseFloat(r.speaking)  || 0,
+    module: r.module || 'Academic',
+    date:   r.date   || '',
+    img:    r.image  || null,
+  }
+}
 
 /* band ≥ 8 → gold accent, ≥ 7 → red, else gray */
 function bandAccent(score) {
@@ -209,20 +221,104 @@ function ResultCard({ result }) {
   )
 }
 
-/* ── Marquee track (duplicated for seamless loop) ── */
-function Marquee({ speed = 38 }) {
-  const doubled = [...RESULTS, ...RESULTS]
+/* ── Carousel: static ≤3, auto-scroll >3, always draggable ── */
+function Carousel({ results }) {
+  const isAuto   = results.length > 3
+  const trackRef = useRef(null)
+  const rafRef   = useRef(null)
+  const drag     = useRef({ active: false, startX: 0, scrollLeft: 0 })
 
+  /* auto-scroll via rAF */
+  useEffect(() => {
+    if (!isAuto) return
+    const el = trackRef.current
+    if (!el) return
+    const tick = () => {
+      if (!drag.current.active) {
+        el.scrollLeft += 0.6
+        if (el.scrollLeft >= el.scrollWidth / 2) el.scrollLeft = 0
+      }
+      rafRef.current = requestAnimationFrame(tick)
+    }
+    rafRef.current = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(rafRef.current)
+  }, [isAuto, results])
+
+  /* mouse drag */
+  const onMouseDown = (e) => {
+    drag.current = { active: true, startX: e.pageX, scrollLeft: trackRef.current.scrollLeft }
+    trackRef.current.style.cursor = 'grabbing'
+  }
+  const onMouseUp = () => {
+    drag.current.active = false
+    if (trackRef.current) trackRef.current.style.cursor = 'grab'
+  }
+  const onMouseMove = (e) => {
+    if (!drag.current.active) return
+    e.preventDefault()
+    const dx = e.pageX - drag.current.startX
+    trackRef.current.scrollLeft = drag.current.scrollLeft - dx
+    /* keep infinite loop aligned */
+    const el = trackRef.current
+    if (isAuto) {
+      if (el.scrollLeft <= 0) el.scrollLeft = el.scrollWidth / 2
+      if (el.scrollLeft >= el.scrollWidth / 2) el.scrollLeft = 0
+    }
+  }
+
+  /* touch drag */
+  const onTouchStart = (e) => {
+    drag.current = { active: true, startX: e.touches[0].pageX, scrollLeft: trackRef.current.scrollLeft }
+  }
+  const onTouchMove = (e) => {
+    if (!drag.current.active) return
+    const dx = drag.current.startX - e.touches[0].pageX
+    trackRef.current.scrollLeft = drag.current.scrollLeft + dx
+    const el = trackRef.current
+    if (isAuto) {
+      if (el.scrollLeft <= 0) el.scrollLeft = el.scrollWidth / 2
+      if (el.scrollLeft >= el.scrollWidth / 2) el.scrollLeft = 0
+    }
+  }
+  const onTouchEnd = () => { drag.current.active = false }
+
+  /* ≤ 3 — static centered grid */
+  if (!isAuto) {
+    return (
+      <div
+        ref={trackRef}
+        className="flex justify-center gap-6 px-6 flex-wrap py-4"
+        style={{ cursor: 'default' }}
+      >
+        {results.map(r => <ResultCard key={r.id} result={r} />)}
+      </div>
+    )
+  }
+
+  /* > 3 — infinite auto-scroll + drag */
+  const doubled = [...results, ...results]
   return (
     <div
-      className="marquee-wrap overflow-hidden"
-      style={{ '--marquee-speed': `${speed}s` }}
+      ref={trackRef}
+      className="results-carousel flex overflow-x-scroll py-4"
+      style={{
+        scrollbarWidth: 'none',
+        msOverflowStyle: 'none',
+        cursor: 'grab',
+        userSelect: 'none',
+        WebkitOverflowScrolling: 'touch',
+      }}
+      onMouseDown={onMouseDown}
+      onMouseUp={onMouseUp}
+      onMouseLeave={onMouseUp}
+      onMouseMove={onMouseMove}
+      onTouchStart={onTouchStart}
+      onTouchMove={onTouchMove}
+      onTouchEnd={onTouchEnd}
     >
-      <div className="marquee-track">
-        {doubled.map((r, i) => (
-          <ResultCard key={`${r.id}-${i}`} result={r} />
-        ))}
-      </div>
+      {doubled.map((r, i) => (
+        <ResultCard key={`${r.id}-${i}`} result={r} />
+      ))}
     </div>
   )
 }
@@ -230,6 +326,15 @@ function Marquee({ speed = 38 }) {
 /* ── Section ── */
 export default function IeltsResultsSection({ lang = 'en' }) {
   const t = (langs[lang] || langs.en).landing.ieltsResults
+  const [results, setResults] = useState(FALLBACK_RESULTS)
+
+  useEffect(() => {
+    api.getResults()
+      .then(data => {
+        if (data && data.length > 0) setResults(data.map(mapResult))
+      })
+      .catch(() => {})
+  }, [])
 
   return (
     <section
@@ -306,9 +411,7 @@ export default function IeltsResultsSection({ lang = 'en' }) {
               style={{ background: 'linear-gradient(270deg, #f8f8f8 0%, transparent 100%)' }}
             />
 
-            <div className="py-4">
-              <Marquee speed={40} />
-            </div>
+            <Carousel results={results} />
           </div>
 
           {/* ── Stats strip ── */}

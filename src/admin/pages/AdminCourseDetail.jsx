@@ -1,7 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { db, genId } from '../adminData'
-// db.getSubitemsByLesson used for subitem count badge
+import { api, genId } from '../adminData'
 import {
   PageHeader, Field, Modal, ConfirmModal,
   btnPrimary, btnGhost, btnSm, btnSmDanger, inputCls, textareaCls, Empty, ImageUploader,
@@ -169,12 +168,23 @@ function LessonRow({ lesson, index, total, onEdit, onDelete, onMove, onOpen }) {
 export default function AdminCourseDetail() {
   const { courseId } = useParams()
   const navigate     = useNavigate()
-  const subitemCount = (lessonId) => db.getSubitemsByLesson(lessonId).length
 
-  const course  = db.getCourses().find(c => c.id === courseId)
-  const [lessons, setLessons] = useState(() => db.getLessonsByCourse(courseId))
+  const [course,  setCourse]  = useState(null)
+  const [lessons, setLessons] = useState([])
+  const [loading, setLoading] = useState(true)
   const [modal,   setModal]   = useState(null)
   const [delId,   setDelId]   = useState(null)
+
+  useEffect(() => {
+    Promise.all([api.getCourses(), api.getLessonsByCourse(courseId)])
+      .then(([courses, lessonList]) => {
+        setCourse(courses.find(c => c.id === courseId) || null)
+        setLessons(lessonList)
+      })
+      .finally(() => setLoading(false))
+  }, [courseId])
+
+  if (loading) return <div className="p-8 text-gray-400">Loading...</div>
 
   if (!course) {
     return (
@@ -187,30 +197,26 @@ export default function AdminCourseDetail() {
     )
   }
 
-  const persistLessons = (updated) => {
-    const all = db.getLessons().filter(l => l.courseId !== courseId)
-    db.saveLessons([...all, ...updated])
-    setLessons(updated)
-  }
+  const refreshLessons = () => api.getLessonsByCourse(courseId).then(setLessons)
 
-  const handleSave = (form) => {
+  const handleSave = async (form) => {
     const exists = lessons.some(l => l.id === form.id)
-    const updated = exists
-      ? lessons.map(l => l.id === form.id ? form : l)
-      : [...lessons, { ...form, order: lessons.length }]
-    updated.forEach((l, i) => { l.order = i })
-    persistLessons(updated)
+    if (exists) {
+      await api.updateLesson(form.id, form)
+    } else {
+      await api.addLesson(form)
+    }
+    await refreshLessons()
     setModal(null)
   }
 
-  const handleDelete = () => {
-    const updated = lessons.filter(l => l.id !== delId)
-    updated.forEach((l, i) => { l.order = i })
-    persistLessons(updated)
+  const handleDelete = async () => {
+    await api.deleteLesson(delId)
+    await refreshLessons()
     setDelId(null)
   }
 
-  const handleMove = (id, dir) => {
+  const handleMove = async (id, dir) => {
     const arr = [...lessons]
     const idx = arr.findIndex(l => l.id === id)
     if (dir === 'up' && idx > 0) {
@@ -219,7 +225,8 @@ export default function AdminCourseDetail() {
       [arr[idx], arr[idx + 1]] = [arr[idx + 1], arr[idx]]
     }
     arr.forEach((l, i) => { l.order = i })
-    persistLessons(arr)
+    await Promise.all(arr.map(l => api.updateLesson(l.id, l)))
+    setLessons([...arr])
   }
 
   return (

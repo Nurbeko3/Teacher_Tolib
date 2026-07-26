@@ -1,21 +1,44 @@
-import { useState } from 'react'
-import { db } from '../adminData'
+import { useState, useEffect } from 'react'
+import { api } from '../adminData'
 import { PageHeader, Field, inputCls, textareaCls, btnPrimary, ImageUploader } from '../AdminUI'
 
 const CEFR = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2']
 const IELTS_BANDS = ['5.0', '5.5', '6.0', '6.5', '7.0', '7.5', '8.0', '8.5', '9.0']
 
+const DEFAULT_PROFILE = {
+  name: 'Teacher Tolib',
+  role: 'English Teacher · IELTS Coach',
+  experience: '6',
+  ieltsScore: '8.0',
+  cefrLevel: 'C2',
+  bio: 'I use an innovative approach to teaching English. I am ready to share all my knowledge, having helped over 1200 students achieve their goals.',
+  phone: '+998 99 123 45 67',
+  telegram: '@teacher_tolib',
+  image: null,
+  heroImage: null,
+  aboutImage: null,
+}
+
 export default function AdminProfile() {
-  const [form, setForm]   = useState(db.getProfile)
-  const [saved, setSaved] = useState(false)
+  const [form,    setForm]    = useState(DEFAULT_PROFILE)
+  const [saved,   setSaved]   = useState(false)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    api.getProfile()
+      .then(data => setForm({ ...DEFAULT_PROFILE, ...data }))
+      .finally(() => setLoading(false))
+  }, [])
 
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }))
 
   const handleSave = () => {
-    db.saveProfile(form)
+    api.saveProfile(form)
     setSaved(true)
     setTimeout(() => setSaved(false), 2000)
   }
+
+  if (loading) return <div className="p-8 text-gray-400">Loading...</div>
 
   return (
     <div>
@@ -95,7 +118,35 @@ export default function AdminProfile() {
         </div>
       </div>
 
-      {/* Row 2: Qualifications + Contact */}
+      {/* Row 2: Site Images */}
+      <div className="bg-white rounded-2xl border border-gray-200 p-5 shadow-sm mb-5">
+        <h2 className="text-sm font-bold text-gray-700 mb-5">Site Images</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <div className="flex flex-col gap-3">
+            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Hero Section Image</p>
+            <p className="text-[11px] text-gray-400 -mt-1">Shown inside the circle on the homepage hero</p>
+            <ImageUploader
+              value={form.heroImage}
+              onChange={(v) => set('heroImage', v)}
+              label="Hero Image"
+              size={90}
+              round
+            />
+          </div>
+          <div className="flex flex-col gap-3">
+            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">About Section Image</p>
+            <p className="text-[11px] text-gray-400 -mt-1">Shown in the card on the About Me section</p>
+            <ImageUploader
+              value={form.aboutImage}
+              onChange={(v) => set('aboutImage', v)}
+              label="About Image"
+              size={90}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Row 3: Qualifications + Contact */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
 
         {/* Qualifications */}

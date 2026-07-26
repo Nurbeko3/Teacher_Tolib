@@ -1,3 +1,5 @@
+import { useEffect, useState } from 'react'
+import { api } from '../api'
 import PageLayout from '../components/PageLayout'
 import en from '../locales/en'
 import uz from '../locales/uz'
@@ -38,15 +40,6 @@ const STUDENTS = [
     comment: "Durdona completed the IELTS course and achieved an overall band of 8.0 — a very high result across all sections.",
   },
 ]
-
-const getAdminResults = () => {
-  try {
-    const raw = localStorage.getItem('et_admin_results')
-    if (!raw) return null
-    const arr = JSON.parse(raw)
-    return Array.isArray(arr) && arr.length > 0 ? arr : null
-  } catch { return null }
-}
 
 /* ── Normalize score to number ── */
 const num = (v) => parseFloat(v) || 0
@@ -194,8 +187,13 @@ export default function ResultsPage({ dark = false, lang = 'uz' }) {
   const cardBg = dark ? '#1f2937' : 'white'
   const cardBorder = dark ? 'rgba(55,65,81,0.6)' : '#fecaca'
 
-  const adminResults = getAdminResults()
-  const students = adminResults ?? STUDENTS
+  const [students, setStudents] = useState(STUDENTS)
+
+  useEffect(() => {
+    api.getResults()
+      .then(data => { if (Array.isArray(data) && data.length > 0) setStudents(data) })
+      .catch(() => {})
+  }, [])
 
   const STATS = [
     { num: '300+', label: t.stats.certificates },

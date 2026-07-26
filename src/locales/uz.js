@@ -29,9 +29,14 @@ export default {
       proficiency: "Proficiency (C2)",
     },
     success: "Muvaffaqiyatli kirdingiz!",
+    telegram: {
+      title: "Avval Telegram botni ulang",
+      desc: "Botni oching, Start bosing va telefon raqamingizni ulashing. Tasdiqlash kodi shu chatga keladi.",
+      openBot: "Telegram botni ochish",
+    },
     otp: {
       title: "Tasdiqlash kodi",
-      subtitle: "6 xonali kod yuborildi",
+      subtitle: "Telegram botga yuborilgan 6 xonali kodni kiriting",
       resend: "Kod kelmadimi?",
       resendBtn: "Qayta yuborish",
     },
@@ -355,9 +360,10 @@ export default {
       subtitle: "Maqsadingiz va hozirgi darajangizga mos kursni tanlang",
       learnMore: "Batafsil",
       items: {
+        free: { title: "Bepul kurslar", desc: "Bepul boshlang — ro'yxatdan o'tmasdan hamma uchun ochiq tanlangan darslar." },
         zero: { title: "Ingliz tili 0 dan", desc: "Noldan boshlang — alifbo, grammatika va kundalik so'zlashuv." },
-        ielts: { title: "IELTS tayyorgarligi", desc: "Barcha to'rt bo'lim bo'yicha to'liq tayyorgarlik va real imtihon mashqlari." },
-        cefr: { title: "CEFR tayyorgarligi", desc: "A1 dan C2 gacha har bir CEFR darajasi bo'yicha tizimli yo'l." },
+        ielts: { title: "IELTS", desc: "Barcha to'rt bo'lim bo'yicha to'liq tayyorgarlik va real imtihon mashqlari." },
+        cefr: { title: "Multilevel", desc: "A1 dan C2 gacha har bir CEFR darajasi bo'yicha tizimli yo'l." },
         speaking: { title: "Speaking Club", desc: "Erkin va ishonchli gapirishni tez rivojlantirish uchun jonli speaking mashqlari." },
         grammar: { title: "Grammatika kursi", desc: "Mavzu testlari va tezkor fikr-mulohaza bilan chuqur grammatika bilimi." },
       },

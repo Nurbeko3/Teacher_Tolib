@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { api } from '../api'
 import Navbar from '../Navbar'
 import Footer from '../components/Footer'
 import BackButton from '../components/BackButton'
@@ -8,17 +9,25 @@ import ru from '../locales/ru'
 
 const langs = { en, uz, ru }
 
-const LEVELS = [
-  { code: 'A1', name: 'Beginner',           accent: '#dc2626', badge: 'rgba(220,38,38,0.12)'  },
-  { code: 'A2', name: 'Elementary',         accent: '#b91c1c', badge: 'rgba(185,28,28,0.12)'  },
-  { code: 'B1', name: 'Intermediate',       accent: '#991b1b', badge: 'rgba(153,27,27,0.12)'  },
-  { code: 'B2', name: 'Upper Intermediate', accent: '#7f1d1d', badge: 'rgba(127,29,29,0.12)'  },
-  { code: 'C1', name: 'Advanced',           accent: '#ef4444', badge: 'rgba(239,68,68,0.12)'  },
-  { code: 'C2', name: 'Proficient',         accent: '#f87171', badge: 'rgba(248,113,113,0.12)' },
+const GRAMMAR_LESSON_ID = 'l_zero_2' // "Topic Grammar Test"
+
+const LEVEL_STYLES = [
+  { accent: '#dc2626', badgeBg: 'rgba(220,38,38,0.12)'  },
+  { accent: '#b91c1c', badgeBg: 'rgba(185,28,28,0.12)'  },
+  { accent: '#991b1b', badgeBg: 'rgba(153,27,27,0.12)'  },
+  { accent: '#7f1d1d', badgeBg: 'rgba(127,29,29,0.12)'  },
+  { accent: '#ef4444', badgeBg: 'rgba(239,68,68,0.12)'  },
+  { accent: '#f87171', badgeBg: 'rgba(248,113,113,0.12)' },
 ]
 
-const UNIT_COUNTS = { A1: 6, A2: 6, B1: 6, B2: 6, C1: 6, C2: 6 }
-const FREE_UNITS  = 3
+const FALLBACK_LEVELS = [
+  { badge: 'A1', title: 'Beginner' }, { badge: 'A2', title: 'Elementary' },
+  { badge: 'B1', title: 'Intermediate' }, { badge: 'B2', title: 'Upper Intermediate' },
+  { badge: 'C1', title: 'Advanced' }, { badge: 'C2', title: 'Proficient' },
+].map((l) => ({
+  ...l,
+  units: Array.from({ length: 6 }, (_, u) => ({ id: `${l.badge}_u${u + 1}`, title: `Unit ${u + 1}`, subtitle: `${l.badge} — ${l.title}`, isPaid: u >= 3 })),
+}))
 
 function PaywallModal({ levelCode, unitNum, onClose, t }) {
   const [closing, setClosing] = useState(false)
@@ -117,8 +126,9 @@ function PaywallModal({ levelCode, unitNum, onClose, t }) {
 }
 
 function LevelAccordion({ level, isOpen, onToggle, onFreeUnitClick, onLockedUnitClick, idx, t }) {
-  const totalUnits = UNIT_COUNTS[level.code]
-  const units      = Array.from({ length: totalUnits }, (_, i) => i + 1)
+  const units = level.units
+  const freeCount = units.filter(u => !u.isPaid).length
+  const paidCount = units.length - freeCount
 
   return (
     <div
@@ -153,13 +163,13 @@ function LevelAccordion({ level, isOpen, onToggle, onFreeUnitClick, onLockedUnit
             <span className="font-extrabold text-[17px] leading-tight" style={{ color: level.accent }}>{level.code}</span>
             <span
               className="text-[11px] font-bold px-2 py-0.5 rounded-full"
-              style={{ background: level.badge, color: level.accent, border: `1px solid ${level.accent}35` }}
+              style={{ background: level.badgeBg, color: level.accent, border: `1px solid ${level.accent}35` }}
             >
               {level.name}
             </span>
           </div>
           <span className="text-gray-400 text-xs font-medium mt-0.5 block">
-            {FREE_UNITS} {t.free} · {totalUnits - FREE_UNITS} {t.paid}
+            {freeCount} {t.free} · {paidCount} {t.paid}
           </span>
         </div>
 
@@ -187,12 +197,12 @@ function LevelAccordion({ level, isOpen, onToggle, onFreeUnitClick, onLockedUnit
           <div className="px-5 pb-4 flex flex-col gap-2.5 pt-1">
             <div style={{ borderTop: '1px solid #fecaca', marginBottom: 4 }} />
 
-            {units.map((num) => {
-              const locked = num > FREE_UNITS
+            {units.map((unit, unitIdx) => {
+              const locked = unit.isPaid
               return locked ? (
                 <button
-                  key={num}
-                  onClick={() => onLockedUnitClick(level.code, num)}
+                  key={unit.id}
+                  onClick={() => onLockedUnitClick(level.code, unit.title, unitIdx + 1)}
                   className="w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl text-left focus:outline-none transition-all duration-200 active:scale-[0.98]"
                   style={{
                     background: '#f9fafb',
@@ -219,9 +229,9 @@ function LevelAccordion({ level, isOpen, onToggle, onFreeUnitClick, onLockedUnit
                   </div>
 
                   <div className="flex-1">
-                    <span className="text-gray-400 font-bold text-sm">Unit {num}</span>
+                    <span className="text-gray-400 font-bold text-sm">{unit.title}</span>
                     <span className="block text-gray-300 text-[11px] font-medium mt-0.5">
-                      {level.code} — {level.name}
+                      {unit.subtitle || `${level.code} — ${level.name}`}
                     </span>
                   </div>
 
@@ -234,8 +244,8 @@ function LevelAccordion({ level, isOpen, onToggle, onFreeUnitClick, onLockedUnit
                 </button>
               ) : (
                 <button
-                  key={num}
-                  onClick={() => onFreeUnitClick(level.code, num)}
+                  key={unit.id}
+                  onClick={() => onFreeUnitClick(level.code, unit.title, unitIdx + 1)}
                   className="w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl text-left transition-all duration-200 hover:scale-[1.01] active:scale-[0.98] focus:outline-none group"
                   style={{ background: '#fff1f2', border: '1.5px solid #fecaca' }}
                   onMouseEnter={(e) => {
@@ -251,7 +261,7 @@ function LevelAccordion({ level, isOpen, onToggle, onFreeUnitClick, onLockedUnit
                 >
                   <div
                     className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
-                    style={{ background: level.badge, border: `1px solid ${level.accent}35` }}
+                    style={{ background: level.badgeBg, border: `1px solid ${level.accent}35` }}
                   >
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
                       <path d="M12 20h9" stroke={level.accent} strokeWidth="2" strokeLinecap="round"/>
@@ -260,9 +270,9 @@ function LevelAccordion({ level, isOpen, onToggle, onFreeUnitClick, onLockedUnit
                   </div>
 
                   <div className="flex-1">
-                    <span className="font-bold text-sm" style={{ color: level.accent }}>Unit {num}</span>
+                    <span className="font-bold text-sm" style={{ color: level.accent }}>{unit.title}</span>
                     <span className="block text-gray-400 text-[11px] font-medium mt-0.5">
-                      {level.code} — {level.name}
+                      {unit.subtitle || `${level.code} — ${level.name}`}
                     </span>
                   </div>
 
@@ -285,9 +295,34 @@ function LevelAccordion({ level, isOpen, onToggle, onFreeUnitClick, onLockedUnit
 export default function TopicGrammarPage({ dark, setDark, onBack, onLogout, onNavigate, lang = 'uz', setLang }) {
   const [openLevel,   setOpenLevel]   = useState(null)
   const [paywallInfo, setPaywallInfo] = useState(null)
+  const [levels,      setLevels]      = useState(FALLBACK_LEVELS)
 
   const t = (langs[lang] || langs.uz).topicGrammar
   const toggle = (code) => setOpenLevel((prev) => (prev === code ? null : code))
+
+  useEffect(() => {
+    Promise.all([
+      api.getGrammarLevelsByLesson(GRAMMAR_LESSON_ID),
+      api.getGrammarUnitsByLesson(GRAMMAR_LESSON_ID),
+    ])
+      .then(([levelsData, unitsData]) => {
+        if (!Array.isArray(levelsData) || levelsData.length === 0) return
+        setLevels(levelsData.map(lv => ({
+          badge: lv.badge,
+          title: lv.title,
+          units: unitsData.filter(u => u.levelId === lv.id).sort((a, b) => a.order - b.order),
+        })))
+      })
+      .catch(() => {})
+  }, [])
+
+  const merged = levels.map((lv, idx) => ({
+    code: lv.badge,
+    name: lv.title,
+    accent: LEVEL_STYLES[idx % LEVEL_STYLES.length].accent,
+    badgeBg: LEVEL_STYLES[idx % LEVEL_STYLES.length].badgeBg,
+    units: lv.units,
+  }))
 
   return (
     <div className="min-h-screen flex flex-col relative overflow-hidden" style={{ background: dark ? '#111827' : 'white' }}>
@@ -323,15 +358,15 @@ export default function TopicGrammarPage({ dark, setDark, onBack, onLogout, onNa
         </div>
 
         <div className="px-5 mx-auto w-full max-w-2xl flex flex-col gap-3 pb-6">
-          {LEVELS.map((level, idx) => (
+          {merged.map((level, idx) => (
             <LevelAccordion
               key={level.code}
               level={level}
               idx={idx}
               isOpen={openLevel === level.code}
               onToggle={() => toggle(level.code)}
-              onFreeUnitClick={(code, num) => onNavigate?.('unit-test', { level: code.toLowerCase(), unit: num })}
-              onLockedUnitClick={(code, num) => setPaywallInfo({ levelCode: code, unitNum: num })}
+              onFreeUnitClick={(code, title, num) => onNavigate?.('unit-test', { level: code.toLowerCase(), unit: num, unitTitle: title })}
+              onLockedUnitClick={(code, _title, num) => setPaywallInfo({ levelCode: code, unitNum: num })}
               t={t}
             />
           ))}
