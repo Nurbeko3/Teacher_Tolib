@@ -7,6 +7,7 @@ import Navbar from './Navbar'
 
 const langs = { en, uz, ru }
 
+const DEFAULT_ADMIN_PHONE = '998991231111'
 const TELEGRAM_BOT_USERNAME = (import.meta.env.VITE_TELEGRAM_BOT_USERNAME || '').replace(/^@/, '')
 const TELEGRAM_BOT_URL = TELEGRAM_BOT_USERNAME ? `https://t.me/${TELEGRAM_BOT_USERNAME}` : null
 
@@ -109,6 +110,8 @@ export default function AuthPage({ onSuccess, lang, setLang, dark, setDark }) {
       setIsAdminPhone(false)
       return
     }
+    // Default admin raqamida parol maydonini tarmoq javobini kutmasdan ko'rsatamiz.
+    if (digits === DEFAULT_ADMIN_PHONE) setIsAdminPhone(true)
     let cancelled = false
     const timer = setTimeout(() => {
       api.checkAdminPhone(loginPhone)
@@ -154,28 +157,43 @@ export default function AuthPage({ onSuccess, lang, setLang, dark, setDark }) {
       })
   }
 
-  const handleLoginSubmit = () => {
+  const handleLoginSubmit = async () => {
     const digits = loginPhone.replace(/\D/g, '')
     if (digits.length < 12) { setLoginError(t.invalidPhone); return }
     setLoginError('')
 
-    if (isAdminPhone) {
-      if (!adminPassword) { setAdminPasswordError(t.passwordRequired); return }
+    setLoading(true)
+    let adminDetected = isAdminPhone || digits === DEFAULT_ADMIN_PHONE
+    try {
+      const result = await api.checkAdminPhone(loginPhone)
+      adminDetected = Boolean(result.isAdmin)
+      setIsAdminPhone(adminDetected)
+    } catch (error) {
+      if (!adminDetected) {
+        setLoading(false)
+        setLoginError(error.message || "Admin telefoni tekshirilmadi. Qayta urinib ko'ring.")
+        return
+      }
+    }
+
+    if (adminDetected) {
+      if (!adminPassword) {
+        setLoading(false)
+        setAdminPasswordError(t.passwordRequired)
+        return
+      }
       setAdminPasswordError('')
-      setLoading(true)
-      api.adminLogin(loginPhone, adminPassword)
-        .then((result) => {
-          setLoading(false)
-          onSuccess(result.user)
-        })
-        .catch((err) => {
-          setLoading(false)
-          setAdminPasswordError(err.message || "Parol noto'g'ri.")
-        })
+      try {
+        const result = await api.adminLogin(loginPhone, adminPassword)
+        setLoading(false)
+        onSuccess(result.user)
+      } catch (error) {
+        setLoading(false)
+        setAdminPasswordError(error.message || "Parol noto'g'ri.")
+      }
       return
     }
 
-    setLoading(true)
     api.sendOtp(loginPhone, 'login')
           .then((result) => {
             setLoading(false)
