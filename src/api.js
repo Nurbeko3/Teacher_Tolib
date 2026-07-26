@@ -1,15 +1,11 @@
-const LOCAL_API_URL = 'http://localhost:3001/api'
 const PRODUCTION_API_URL = 'https://teacher-tolib-backend.onrender.com/api'
 const configuredUrl = import.meta.env.VITE_API_URL?.replace(/\/+$/, '')
 
-// `.env` developmentda localhost qiymatini saqlashi mumkin. Production build
-// localhost bilan tasodifan deploy bo'lmasligi uchun bunday qiymat Render URL'ga
-// avtomatik almashtiriladi.
-const BASE = import.meta.env.DEV
-  ? configuredUrl || LOCAL_API_URL
-  : configuredUrl && !/^https?:\/\/(localhost|127\.0\.0\.1)(:|\/|$)/i.test(configuredUrl)
-    ? configuredUrl
-    : PRODUCTION_API_URL
+// Frontend localhostda ochilganda ham umumiy Render backend va Neon DB bilan
+// ishlaydi. Faqat boshqa HTTPS backend aniq berilsa VITE_API_URL ishlatiladi.
+const BASE = configuredUrl && !/^https?:\/\/(localhost|127\.0\.0\.1)(:|\/|$)/i.test(configuredUrl)
+  ? configuredUrl
+  : PRODUCTION_API_URL
 
 async function req(method, path, body) {
   const res = await fetch(`${BASE}${path}`, {
