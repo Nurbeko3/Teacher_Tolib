@@ -115,8 +115,14 @@ export default function AuthPage({ onSuccess, lang, setLang, dark, setDark }) {
     let cancelled = false
     const timer = setTimeout(() => {
       api.checkAdminPhone(loginPhone)
-        .then((result) => { if (!cancelled) setIsAdminPhone(Boolean(result.isAdmin)) })
-        .catch(() => { if (!cancelled) setIsAdminPhone(false) })
+        .then((result) => {
+          if (!cancelled) {
+            setIsAdminPhone(Boolean(result.isAdmin) || digits === DEFAULT_ADMIN_PHONE)
+          }
+        })
+        .catch(() => {
+          if (!cancelled) setIsAdminPhone(digits === DEFAULT_ADMIN_PHONE)
+        })
     }, 250)
     return () => { cancelled = true; clearTimeout(timer) }
   }, [loginPhone])
