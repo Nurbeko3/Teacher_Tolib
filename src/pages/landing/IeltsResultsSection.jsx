@@ -7,13 +7,15 @@ import { api } from '../../api'
 
 const langs = { en, uz, ru }
 
-const FALLBACK_RESULTS = [
-  { id: 1,  name: 'Jasur T.',    overall: 7.5, L: 8.0, R: 7.5, W: 7.0, S: 7.5, module: 'Academic', date: 'Nov 2024', img: null },
-  { id: 2,  name: 'Zulfiya K.', overall: 8.0, L: 8.5, R: 8.0, W: 7.5, S: 8.0, module: 'Academic', date: 'Nov 2024', img: null },
-  { id: 3,  name: 'Nilufar X.', overall: 7.0, L: 7.5, R: 7.0, W: 6.5, S: 7.0, module: 'General',  date: 'Oct 2024', img: null },
-  { id: 4,  name: 'Alisher N.', overall: 8.5, L: 9.0, R: 8.5, W: 8.0, S: 8.5, module: 'Academic', date: 'Oct 2024', img: null },
-  { id: 5,  name: 'Bobur A.',   overall: 6.5, L: 7.0, R: 6.5, W: 6.0, S: 6.5, module: 'Academic', date: 'Sep 2024', img: null },
-  { id: 6,  name: 'Dilnoza R.', overall: 7.5, L: 8.0, R: 7.5, W: 7.0, S: 7.5, module: 'Academic', date: 'Sep 2024', img: null },
+const DEMO_RESULTS = [
+  { id: 'demo-ezoza',    name: 'Ezoza Khamrakulova',   overall: 7.0, L: 7.5, R: 7.0, W: 6.5, S: 6.5, module: 'Academic', date: 'Jul 2026', img: null },
+  { id: 'demo-mehrinoz', name: 'Mehrinoz Davronova',   overall: 7.0, L: 8.5, R: 6.5, W: 6.5, S: 6.0, module: 'Academic', date: 'Jun 2026', img: null },
+  { id: 'demo-ruxshona', name: "Ruxshona G'afurova",   overall: 7.0, L: 8.0, R: 7.5, W: 7.0, S: 6.0, module: 'Academic', date: 'Jun 2026', img: null },
+  { id: 'demo-zuhra',    name: 'Zuhra Holiqova',        overall: 7.5, L: 7.0, R: 8.5, W: 6.5, S: 7.5, module: 'Academic', date: 'May 2026', img: null },
+  { id: 'demo-durdona',  name: 'Durdona Abduganiyeva', overall: 8.0, L: 8.5, R: 8.0, W: 7.5, S: 7.0, module: 'Academic', date: 'May 2026', img: null },
+  { id: 'demo-jasur',    name: 'Jasur T.',              overall: 7.5, L: 8.0, R: 7.5, W: 7.0, S: 7.5, module: 'Academic', date: 'Apr 2026', img: null },
+  { id: 'demo-nilufar',  name: 'Nilufar X.',            overall: 7.0, L: 7.5, R: 7.0, W: 6.5, S: 7.0, module: 'General',  date: 'Mar 2026', img: null },
+  { id: 'demo-alisher',  name: 'Alisher N.',            overall: 8.5, L: 9.0, R: 8.5, W: 8.0, S: 8.5, module: 'Academic', date: 'Feb 2026', img: null },
 ]
 
 function mapResult(r) {
@@ -29,6 +31,15 @@ function mapResult(r) {
     date:   r.date   || '',
     img:    r.image  || null,
   }
+}
+
+function mergeWithDemoResults(apiResults) {
+  const realResults = Array.isArray(apiResults) ? apiResults.map(mapResult) : []
+  const realNames = new Set(realResults.map(result => result.name.trim().toLowerCase()))
+  return [
+    ...realResults,
+    ...DEMO_RESULTS.filter(result => !realNames.has(result.name.trim().toLowerCase())),
+  ]
 }
 
 /* band ≥ 8 → gold accent, ≥ 7 → red, else gray */
@@ -226,6 +237,7 @@ function Carousel({ results }) {
   const trackRef = useRef(null)
   const rafRef   = useRef(null)
   const drag     = useRef({ active: false, startX: 0, scrollLeft: 0 })
+  const paused   = useRef(false)
 
   /* auto-scroll via rAF */
   useEffect(() => {
@@ -233,7 +245,7 @@ function Carousel({ results }) {
     const el = trackRef.current
     if (!el) return
     const tick = () => {
-      if (!drag.current.active) {
+      if (!drag.current.active && !paused.current) {
         el.scrollLeft += 0.6
         if (el.scrollLeft >= el.scrollWidth / 2) el.scrollLeft = 0
       }
@@ -280,6 +292,9 @@ function Carousel({ results }) {
     }
   }
   const onTouchEnd = () => { drag.current.active = false }
+  const move = (direction) => {
+    trackRef.current?.scrollBy({ left: direction * 310, behavior: 'smooth' })
+  }
 
   /* ≤ 3 — static centered grid */
   if (!isAuto) {
@@ -297,27 +312,46 @@ function Carousel({ results }) {
   /* > 3 — infinite auto-scroll + drag */
   const doubled = [...results, ...results]
   return (
-    <div
-      ref={trackRef}
-      className="results-carousel flex overflow-x-scroll py-4"
-      style={{
-        scrollbarWidth: 'none',
-        msOverflowStyle: 'none',
-        cursor: 'grab',
-        userSelect: 'none',
-        WebkitOverflowScrolling: 'touch',
-      }}
-      onMouseDown={onMouseDown}
-      onMouseUp={onMouseUp}
-      onMouseLeave={onMouseUp}
-      onMouseMove={onMouseMove}
-      onTouchStart={onTouchStart}
-      onTouchMove={onTouchMove}
-      onTouchEnd={onTouchEnd}
-    >
-      {doubled.map((r, i) => (
-        <ResultCard key={`${r.id}-${i}`} result={r} />
-      ))}
+    <div className="relative">
+      <div
+        ref={trackRef}
+        className="results-carousel flex overflow-x-scroll py-4"
+        style={{
+          scrollbarWidth: 'none',
+          msOverflowStyle: 'none',
+          cursor: 'grab',
+          userSelect: 'none',
+          WebkitOverflowScrolling: 'touch',
+        }}
+        onMouseEnter={() => { paused.current = true }}
+        onMouseDown={onMouseDown}
+        onMouseUp={onMouseUp}
+        onMouseLeave={() => { paused.current = false; onMouseUp() }}
+        onMouseMove={onMouseMove}
+        onTouchStart={onTouchStart}
+        onTouchMove={onTouchMove}
+        onTouchEnd={onTouchEnd}
+      >
+        {doubled.map((r, i) => (
+          <ResultCard key={`${r.id}-${i}`} result={r} />
+        ))}
+      </div>
+      <button
+        type="button"
+        onClick={() => move(-1)}
+        aria-label="Previous results"
+        className="absolute left-3 sm:left-8 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-white/95 border border-gray-200 shadow-lg flex items-center justify-center text-gray-700 hover:bg-red-600 hover:text-white hover:border-red-600 transition"
+      >
+        ‹
+      </button>
+      <button
+        type="button"
+        onClick={() => move(1)}
+        aria-label="Next results"
+        className="absolute right-3 sm:right-8 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-white/95 border border-gray-200 shadow-lg flex items-center justify-center text-gray-700 hover:bg-red-600 hover:text-white hover:border-red-600 transition"
+      >
+        ›
+      </button>
     </div>
   )
 }
@@ -325,12 +359,12 @@ function Carousel({ results }) {
 /* ── Section ── */
 export default function IeltsResultsSection({ lang = 'en' }) {
   const t = (langs[lang] || langs.en).landing.ieltsResults
-  const [results, setResults] = useState(FALLBACK_RESULTS)
+  const [results, setResults] = useState(DEMO_RESULTS)
 
   useEffect(() => {
     api.getResults()
       .then(data => {
-        if (data && data.length > 0) setResults(data.map(mapResult))
+        setResults(mergeWithDemoResults(data))
       })
       .catch(() => {})
   }, [])
