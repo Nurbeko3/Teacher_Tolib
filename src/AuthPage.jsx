@@ -105,14 +105,14 @@ export default function AuthPage({ onSuccess, lang, setLang, dark, setDark }) {
 
   const isAdminPhone = loginPhone.replace(/\D/g, '') === ADMIN_PHONE
 
-  const sendOtpTo = (phone, onError) => {
-    return api.sendOtp(phone)
+  const sendOtpTo = (phone, onError, flow = otpFlow) => {
+    return api.sendOtp(phone, flow)
       .then(() => { setResendCooldown(60); return true })
       .catch((err) => { onError(err.message); return false })
   }
 
   const beginTelegramLink = (user, flow, onError) => {
-    return api.createTelegramLink(user.phone)
+    return api.createTelegramLink(user.phone, flow)
       .then((link) => {
         setPendingUser(user)
         setOtpFlow(flow)
@@ -151,19 +151,11 @@ export default function AuthPage({ onSuccess, lang, setLang, dark, setDark }) {
     }
 
     setLoading(true)
-    api.getUsers()
-      .then((users) => {
-        const user = users.find((u) => u.phone === loginPhone)
-        if (!user || user.isActive === false) {
-          setLoading(false)
-          setLoginError(t.notRegistered || 'Phone not registered.')
-          return
-        }
-        return api.sendOtp(loginPhone)
+    api.sendOtp(loginPhone, 'login')
           .then(() => {
             setLoading(false)
             setResendCooldown(60)
-            setPendingUser(user)
+            setPendingUser({ phone: loginPhone })
             setOtpFlow('login')
             setOtp(['', '', '', '', '', ''])
             setOtpDone(false)
@@ -172,16 +164,11 @@ export default function AuthPage({ onSuccess, lang, setLang, dark, setDark }) {
           })
           .catch((err) => {
             if (String(err.message).includes('ulanmagan')) {
-              return beginTelegramLink(user, 'login', setLoginError)
+              return beginTelegramLink({ phone: loginPhone }, 'login', setLoginError)
             }
             setLoading(false)
             setLoginError(err.message)
           })
-      })
-      .catch(() => {
-        setLoading(false)
-        setLoginError(t.notRegistered || 'Phone not registered.')
-      })
   }
 
   useEffect(() => {
@@ -199,7 +186,7 @@ export default function AuthPage({ onSuccess, lang, setLang, dark, setDark }) {
         if (cancelled) return
         if (status.connected) {
           setTelegramLink((current) => ({ ...current, status: 'CONNECTED' }))
-          const sent = await sendOtpTo(pendingUser.phone, setOtpError)
+          const sent = await sendOtpTo(pendingUser.phone, setOtpError, otpFlow)
           if (!cancelled && sent) {
             setOtp(['', '', '', '', '', ''])
             setOtpDone(false)
@@ -218,7 +205,10 @@ export default function AuthPage({ onSuccess, lang, setLang, dark, setDark }) {
       cancelled = true
       clearInterval(timer)
     }
-  }, [view, telegramLink?.token, telegramLink?.status, pendingUser])
+    // sendOtpTo/goTo intentionally use the latest render state; adding them would
+    // recreate the polling interval on every render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [view, telegramLink?.token, telegramLink?.status, pendingUser?.phone, otpFlow])
 
   const handleRegSubmit = () => {
     const errs = {}
@@ -230,42 +220,29 @@ export default function AuthPage({ onSuccess, lang, setLang, dark, setDark }) {
     if (Object.keys(errs).length > 0) { setRegErrors(errs); return }
 
     setLoading(true)
-    api.getUsers()
-      .then((users) => {
-        if (users.some((u) => u.phone === reg.phone)) {
-          setLoading(false)
-          setRegErrors({ phone: 'Phone already registered.' })
-          return
-        }
-        const userData = {
+    const userData = {
           id: genId(),
           firstName: reg.firstName, lastName: reg.lastName, level: reg.level, phone: reg.phone,
           role: 'USER', isActive: true, isPaid: false, premium: false,
           createdAt: new Date().toLocaleDateString('uz-UZ'), lastLogin: '—',
         }
-        return beginTelegramLink(
-          userData,
-          'register',
-          (msg) => setRegErrors((e) => ({ ...e, phone: msg })),
-        )
-      })
-      .catch(() => setLoading(false))
+    beginTelegramLink(
+      userData,
+      'register',
+      (msg) => setRegErrors((e) => ({ ...e, phone: msg })),
+    )
   }
 
   const verifyCode = (fullCode) => {
     setVerifying(true)
     setOtpError('')
-    api.verifyOtp(pendingUser.phone, fullCode)
-      .then(async () => {
-        if (otpFlow === 'register') {
-          const created = await api.addUser(pendingUser)
-          return { role: 'USER', ...created }
-        }
-        const updated = { ...pendingUser, lastLogin: new Date().toLocaleDateString('uz-UZ') }
-        if (updated.id) await api.updateUser(updated.id, updated).catch(() => {})
-        return updated
-      })
-      .then((authenticatedUser) => {
+    api.verifyOtp(
+      pendingUser.phone,
+      fullCode,
+      otpFlow,
+      otpFlow === 'register' ? pendingUser : undefined,
+    )
+      .then(({ user: authenticatedUser }) => {
         setVerifying(false)
         setOtpDone(true)
         setTimeout(() => onSuccess(authenticatedUser), 500)
@@ -299,7 +276,7 @@ export default function AuthPage({ onSuccess, lang, setLang, dark, setDark }) {
     if (resendCooldown > 0 || !pendingUser) return
     setOtp(['','','','','',''])
     setOtpError('')
-    sendOtpTo(pendingUser.phone, setOtpError)
+    sendOtpTo(pendingUser.phone, setOtpError, otpFlow)
   }
 
   const inputClass = (hasErr) =>

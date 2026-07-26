@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef } from 'react'
-import { motion } from 'framer-motion'
 import { Reveal } from './shared'
 import en from '../../locales/en'
 import uz from '../../locales/uz'

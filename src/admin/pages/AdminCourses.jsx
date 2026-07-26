@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { api, genId } from '../adminData'
 import {
   PageHeader, Field, Modal, ConfirmModal,
-  btnPrimary, btnGhost, btnSm, btnSmDanger, inputCls, textareaCls, Empty,
+  btnPrimary, btnGhost, inputCls, textareaCls, Empty,
 } from '../AdminUI'
 
 const GRADIENTS = [

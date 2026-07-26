@@ -19,8 +19,6 @@ export default function LandingPage({ lang, setLang }) {
   const navigate = useNavigate()
   const t = (langs[lang] || langs.en).landing.footerCta
 
-  const scrollToCourses = () => document.getElementById('courses')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-
   return (
     <div className="min-h-screen flex flex-col bg-white">
       <LandingNavbar lang={lang} setLang={setLang} />

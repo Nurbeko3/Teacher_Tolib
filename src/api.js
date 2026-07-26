@@ -121,9 +121,11 @@ export const api = {
   deleteSocial:  (id)       => req('DELETE', `/socials/${id}`),
 
   // OTP (Telegram phone verification)
-  sendOtp:   (phone)       => req('POST', '/otp/send', { phone }),
-  verifyOtp: (phone, code) => req('POST', '/otp/verify', { phone, code }),
-  createTelegramLink: (phone) => req('POST', '/otp/link', { phone }),
+  sendOtp:   (phone, flow = 'login') => req('POST', '/otp/send', { phone, flow }),
+  verifyOtp: (phone, code, flow = 'login', profile) =>
+    req('POST', '/otp/verify', { phone, code, flow, profile }),
+  createTelegramLink: (phone, flow = 'register') =>
+    req('POST', '/otp/link', { phone, flow }),
   getTelegramLinkStatus: (token) => req('GET', `/otp/link/${token}`),
 
   // Admin login (temporary static password, used until Telegram OTP is linked for the admin phone)

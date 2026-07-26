@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect } from 'react'
 import { api } from '../adminData'
 import {
   PageHeader, Field, Modal, ConfirmModal,

@@ -280,7 +280,7 @@ function MediaCard() {
   )
 }
 
-export default function AboutSection({ lang }) {
+export default function AboutSection() {
   return (
     <section
       id="about"

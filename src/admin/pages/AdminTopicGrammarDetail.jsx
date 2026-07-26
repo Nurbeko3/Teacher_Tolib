@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { api, genId } from '../adminData'
 import {
-  PageHeader, Field, Modal, ConfirmModal,
+  Field, Modal, ConfirmModal,
   btnPrimary, btnGhost, btnSm, btnSmDanger, inputCls, textareaCls, Empty,
 } from '../AdminUI'
 
