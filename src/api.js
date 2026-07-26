@@ -112,4 +112,11 @@ export const api = {
   // OTP (Eskiz SMS phone verification)
   sendOtp:   (phone)       => req('POST', '/otp/send', { phone }),
   verifyOtp: (phone, code) => req('POST', '/otp/verify', { phone, code }),
+
+  // Video lessons (YouTube tutorials)
+  getVideoLessons:           ()         => req('GET',    '/video-lessons'),
+  getVideoLessonsByCategory: (category) => req('GET',    `/video-lessons/category/${category}`),
+  addVideoLesson:            (data)     => req('POST',   '/video-lessons', data),
+  updateVideoLesson:         (id, data) => req('PUT',    `/video-lessons/${id}`, data),
+  deleteVideoLesson:         (id)       => req('DELETE', `/video-lessons/${id}`),
 }

@@ -272,6 +272,11 @@ export default {
     contact: "Contact the teacher for more information",
     comingSoon: "Coming soon",
     comingSoonDesc: "This section is currently being prepared",
+    videoLessonsPage: {
+      title: "Video Lessons",
+      loading: "Loading videos...",
+      empty: "No videos here yet — check back soon",
+    },
     sections: {
       listening: { title: "Listening", desc: "Listening and audio materials" },
       reading: { title: "Reading", desc: "Reading and comprehension" },

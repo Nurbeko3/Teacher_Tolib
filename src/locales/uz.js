@@ -272,6 +272,11 @@ export default {
     contact: "Batafsil ma'lumot uchun ustozga murojaat qiling",
     comingSoon: "Tez orada mavjud bo'ladi",
     comingSoonDesc: "Ushbu bo'lim hozirda tayyorlanmoqda",
+    videoLessonsPage: {
+      title: "Video darsliklar",
+      loading: "Videolar yuklanmoqda...",
+      empty: "Bu yerda hozircha video yo'q — tez orada qo'shiladi",
+    },
     sections: {
       listening: { title: "Listening", desc: "Tinglash va audio materiallar" },
       reading: { title: "Reading", desc: "Matn o'qish va tushunish" },

@@ -56,6 +56,17 @@ const NAV = [
     ),
   },
   {
+    id: 'video-lessons',
+    path: '/admin/video-lessons',
+    label: 'Video Lessons',
+    icon: (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+        <rect x="2" y="5" width="15" height="14" rx="2" stroke="currentColor" strokeWidth="2" strokeLinejoin="round"/>
+        <path d="M17 9l5-3v12l-5-3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+      </svg>
+    ),
+  },
+  {
     id: 'users',
     path: '/admin/users',
     label: 'Users',

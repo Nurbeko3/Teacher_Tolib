@@ -272,6 +272,11 @@ export default {
     contact: "Обратитесь к учителю за подробной информацией",
     comingSoon: "Скоро будет доступно",
     comingSoonDesc: "Этот раздел в настоящее время готовится",
+    videoLessonsPage: {
+      title: "Видеоуроки",
+      loading: "Загрузка видео...",
+      empty: "Здесь пока нет видео — загляните позже",
+    },
     sections: {
       listening: { title: "Listening", desc: "Аудирование и аудиоматериалы" },
       reading: { title: "Reading", desc: "Чтение и понимание текста" },

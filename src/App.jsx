@@ -55,6 +55,7 @@ import AdminSocials from './admin/pages/AdminSocials'
 import AdminLessonDetail from './admin/pages/AdminLessonDetail'
 import AdminTopicGrammarDetail from './admin/pages/AdminTopicGrammarDetail'
 import AdminVocabTestDetail from './admin/pages/AdminVocabTestDetail'
+import AdminVideoLessons from './admin/pages/AdminVideoLessons'
 
 const ADMIN_PHONE = '998991231111'
 const isAdminUser = (u) => u?.role === 'SUPER_ADMIN' && u?.phone?.replace(/\D/g, '') === ADMIN_PHONE
@@ -250,6 +251,7 @@ function AppRoutes() {
           <Route path="donate"  element={<AdminDonate />} />
           <Route path="results" element={<AdminResults />} />
           <Route path="testimonials" element={<AdminTestimonials />} />
+          <Route path="video-lessons" element={<AdminVideoLessons />} />
           <Route path="users"   element={<AdminUsers />} />
           <Route path="socials" element={<AdminSocials />} />
         </Route>
