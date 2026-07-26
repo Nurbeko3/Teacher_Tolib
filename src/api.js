@@ -76,6 +76,7 @@ export const api = {
   getUsers:   ()         => req('GET',    '/users'),
   addUser:    (data)     => req('POST',   '/users', data),
   updateUser: (id, data) => req('PUT',    `/users/${id}`, data),
+  updateOwnProfile: (id, data) => req('PUT', `/users/${id}/profile`, data),
   deleteUser: (id)       => req('DELETE', `/users/${id}`),
 
   // Grammar levels (Topic Grammar Test)
@@ -128,8 +129,9 @@ export const api = {
     req('POST', '/otp/link', { phone, flow }),
   getTelegramLinkStatus: (token) => req('GET', `/otp/link/${token}`),
 
-  // Admin login (temporary static password, used until Telegram OTP is linked for the admin phone)
+  checkAdminPhone: (phone) => req('POST', '/admin-auth/check', { phone }),
   adminLogin: (phone, password) => req('POST', '/admin-auth/login', { phone, password }),
+  updateAdminCredentials: (data) => req('PUT', '/admin-auth/credentials', data),
 
   // Video lessons (YouTube tutorials)
   getVideoLessons:           ()         => req('GET',    '/video-lessons'),

@@ -7,7 +7,6 @@ import Navbar from './Navbar'
 
 const langs = { en, uz, ru }
 
-const ADMIN_PHONE = '998991231111'
 const TELEGRAM_BOT_USERNAME = (import.meta.env.VITE_TELEGRAM_BOT_USERNAME || '').replace(/^@/, '')
 const TELEGRAM_BOT_URL = TELEGRAM_BOT_USERNAME ? `https://t.me/${TELEGRAM_BOT_USERNAME}` : null
 
@@ -77,6 +76,7 @@ export default function AuthPage({ onSuccess, lang, setLang, dark, setDark }) {
   const [loginError, setLoginError] = useState('')
   const [adminPassword, setAdminPassword] = useState('')
   const [adminPasswordError, setAdminPasswordError] = useState('')
+  const [isAdminPhone, setIsAdminPhone] = useState(false)
 
   const [reg, setReg]           = useState({ firstName: '', lastName: '', level: '', phone: '+998' })
   const [regErrors, setRegErrors] = useState({})
@@ -103,7 +103,20 @@ export default function AuthPage({ onSuccess, lang, setLang, dark, setDark }) {
     if (clearErr) clearErr()
   }
 
-  const isAdminPhone = loginPhone.replace(/\D/g, '') === ADMIN_PHONE
+  useEffect(() => {
+    const digits = loginPhone.replace(/\D/g, '')
+    if (digits.length !== 12) {
+      setIsAdminPhone(false)
+      return
+    }
+    let cancelled = false
+    const timer = setTimeout(() => {
+      api.checkAdminPhone(loginPhone)
+        .then((result) => { if (!cancelled) setIsAdminPhone(Boolean(result.isAdmin)) })
+        .catch(() => { if (!cancelled) setIsAdminPhone(false) })
+    }, 250)
+    return () => { cancelled = true; clearTimeout(timer) }
+  }, [loginPhone])
 
   const sendOtpTo = (phone, onError, flow = otpFlow) => {
     return api.sendOtp(phone, flow)
@@ -146,14 +159,14 @@ export default function AuthPage({ onSuccess, lang, setLang, dark, setDark }) {
     if (digits.length < 12) { setLoginError(t.invalidPhone); return }
     setLoginError('')
 
-    if (digits === ADMIN_PHONE) {
+    if (isAdminPhone) {
       if (!adminPassword) { setAdminPasswordError(t.passwordRequired); return }
       setAdminPasswordError('')
       setLoading(true)
       api.adminLogin(loginPhone, adminPassword)
-        .then(() => {
+        .then((result) => {
           setLoading(false)
-          onSuccess({ phone: loginPhone, role: 'SUPER_ADMIN', firstName: 'Admin', lastName: '' })
+          onSuccess(result.user)
         })
         .catch((err) => {
           setLoading(false)

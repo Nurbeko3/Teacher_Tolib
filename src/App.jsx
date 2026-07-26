@@ -16,6 +16,7 @@ import MultilevelPage from './pages/multilevel/MultilevelPage'
 import AboutTeacherPage from './pages/AboutTeacherPage'
 import ResultsPage from './pages/ResultsPage'
 import DonatePage from './pages/DonatePage'
+import UserProfilePage from './pages/UserProfilePage'
 
 // Grammar / Vocab pages (standalone full-screen)
 import GrammarLevelsPage from './pages/GrammarLevelsPage'
@@ -57,9 +58,9 @@ import AdminLessonDetail from './admin/pages/AdminLessonDetail'
 import AdminTopicGrammarDetail from './admin/pages/AdminTopicGrammarDetail'
 import AdminVocabTestDetail from './admin/pages/AdminVocabTestDetail'
 import AdminVideoLessons from './admin/pages/AdminVideoLessons'
+import AdminSecurity from './admin/pages/AdminSecurity'
 
-const ADMIN_PHONE = '998991231111'
-const isAdminUser = (u) => u?.role === 'SUPER_ADMIN' && u?.phone?.replace(/\D/g, '') === ADMIN_PHONE
+const isAdminUser = (u) => u?.role === 'SUPER_ADMIN'
 
 /* ── Admin lesson router: picks the right detail page by lesson title ── */
 function AdminLessonRouter() {
@@ -232,6 +233,7 @@ function AppRoutes() {
       {/* ── Everything below requires login ── */}
       <Route element={user ? <Outlet /> : <Navigate to="/auth" replace />}>
         <Route path="/learn" element={<HomePage user={user} {...pageProps} />} />
+        <Route path="/profile" element={<UserProfilePage user={user} onUserUpdate={setUser} {...pageProps} />} />
         {/* ── Admin (SUPER_ADMIN only) ── */}
         <Route
           path="/admin"
@@ -246,6 +248,7 @@ function AppRoutes() {
           <Route path="courses/:courseId" element={<AdminCourseDetail />} />
           <Route path="courses/:courseId/:lessonId" element={<AdminLessonRouter />} />
           <Route path="profile" element={<AdminProfile />} />
+          <Route path="security" element={<AdminSecurity user={user} onAdminUpdate={setUser} />} />
           <Route path="donate"  element={<AdminDonate />} />
           <Route path="results" element={<AdminResults />} />
           <Route path="testimonials" element={<AdminTestimonials />} />
