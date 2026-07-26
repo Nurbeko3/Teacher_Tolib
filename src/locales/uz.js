@@ -315,6 +315,7 @@ export default {
   landing: {
     nav: {
       about: "Ustoz haqida",
+      lessons: "Darsliklar",
       why: "Nega aynan biz",
       courses: "Kurslar",
       results: "Natijalar",

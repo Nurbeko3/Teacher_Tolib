@@ -15,21 +15,21 @@ import ru from '../../locales/ru'
 
 const langs = { en, uz, ru }
 
-export default function LandingPage({ lang, setLang }) {
+export default function LandingPage({ lang, setLang, user, onLogout }) {
   const navigate = useNavigate()
   const t = (langs[lang] || langs.en).landing.footerCta
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
-      <LandingNavbar lang={lang} setLang={setLang} />
+      <LandingNavbar lang={lang} setLang={setLang} user={user} onLogout={onLogout} />
 
       <main className="flex-1">
-        <HeroSection onLogin={() => navigate('/auth')} lang={lang} />
+        <HeroSection onLogin={() => navigate(user ? '/learn' : '/auth')} lang={lang} />
         <AboutSection lang={lang} />
         <IeltsResultsSection lang={lang} />
+        <TestimonialsSection lang={lang} />
         <WhyChooseSection lang={lang} />
         <CoursesSection lang={lang} />
-        <TestimonialsSection lang={lang} />
         <FAQSection lang={lang} />
 
         {/* ── Final CTA banner ── */}
@@ -44,7 +44,7 @@ export default function LandingPage({ lang, setLang }) {
               <h2 className="relative z-10 font-black text-2xl sm:text-3xl text-white leading-tight">{t.title}</h2>
               <p className="relative z-10 mt-3 text-white/80 text-[14.5px] sm:text-[15px] max-w-md mx-auto">{t.subtitle}</p>
               <button
-                onClick={() => navigate('/auth')}
+                onClick={() => navigate(user ? '/learn' : '/auth')}
                 className="relative z-10 mt-7 px-8 py-3.5 rounded-2xl font-bold text-[15px] bg-white text-red-600 transition-all duration-200 active:scale-95 hover:bg-red-50"
               >
                 {t.button}

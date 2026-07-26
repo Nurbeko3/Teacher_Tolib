@@ -218,11 +218,7 @@ function AppRoutes() {
       {/* ── Public landing / auth ── */}
       <Route
         path="/"
-        element={
-          user
-            ? <HomePage user={user} {...pageProps} />
-            : <LandingPage lang={lang} setLang={setLang} />
-        }
+        element={<LandingPage lang={lang} setLang={setLang} user={user} onLogout={handleLogout} />}
       />
       <Route
         path="/auth"
@@ -235,6 +231,7 @@ function AppRoutes() {
 
       {/* ── Everything below requires login ── */}
       <Route element={user ? <Outlet /> : <Navigate to="/auth" replace />}>
+        <Route path="/learn" element={<HomePage user={user} {...pageProps} />} />
         {/* ── Admin (SUPER_ADMIN only) ── */}
         <Route
           path="/admin"
@@ -309,7 +306,7 @@ function AppRoutes() {
       </Route>
 
       {/* ── Catch-all: dashboard if logged in, landing otherwise ── */}
-      <Route path="*" element={user ? <HomePage user={user} {...pageProps} /> : <Navigate to="/" replace />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )
 }

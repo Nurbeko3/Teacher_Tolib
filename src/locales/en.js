@@ -315,6 +315,7 @@ export default {
   landing: {
     nav: {
       about: "About",
+      lessons: "Lessons",
       why: "Why Us",
       courses: "Courses",
       results: "Results",

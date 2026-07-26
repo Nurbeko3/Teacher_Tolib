@@ -315,6 +315,7 @@ export default {
   landing: {
     nav: {
       about: "Об учителе",
+      lessons: "Уроки",
       why: "Почему мы",
       courses: "Курсы",
       results: "Результаты",

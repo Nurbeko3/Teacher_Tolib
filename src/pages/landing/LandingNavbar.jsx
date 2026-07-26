@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
+import { api } from '../../api'
 import en from '../../locales/en'
 import uz from '../../locales/uz'
 import ru from '../../locales/ru'
@@ -15,18 +16,56 @@ const NAV_LINKS = [
   { id: 'faq',     key: 'faq'     },
 ]
 
-const LANG_LABELS = { uz: 'UZ', en: 'EN', ru: 'RU' }
+/* Used only if the backend course list hasn't loaded yet (or is empty). */
+const LESSONS_FALLBACK = [
+  { key: 'zero',  path: '/english-from-zero' },
+  { key: 'ielts', path: '/ielts' },
+  { key: 'multi', path: '/multilevel' },
+]
 
-export default function LandingNavbar({ lang, setLang }) {
+const LANG_LABELS = { uz: 'UZ', en: 'EN', ru: 'RU' }
+const PROFILE_COPY = {
+  uz: { learn: 'O‘rganish', profile: 'Profil', logout: 'Chiqish' },
+  en: { learn: 'Learn', profile: 'Profile', logout: 'Log out' },
+  ru: { learn: 'Обучение', profile: 'Профиль', logout: 'Выйти' },
+}
+
+export default function LandingNavbar({ lang, setLang, user, onLogout }) {
   const navigate = useNavigate()
   const t        = (langs[lang] || langs.en).landing.nav
+  const tCourses = (langs[lang] || langs.en).courses
 
   const [scrolled,  setScrolled]  = useState(false)
   const [menuOpen,  setMenuOpen]  = useState(false)
   const [langOpen,  setLangOpen]  = useState(false)
+  const [lessonsOpen,       setLessonsOpen]       = useState(false)
+  const [lessonsMobileOpen, setLessonsMobileOpen] = useState(false)
+  const [profileOpen, setProfileOpen] = useState(false)
+  const [courses, setCourses] = useState([])
 
-  const menuRef = useRef(null)
-  const langRef = useRef(null)
+  const menuRef    = useRef(null)
+  const langRef    = useRef(null)
+  const lessonsRef = useRef(null)
+  const profileRef = useRef(null)
+  const profileCopy = PROFILE_COPY[lang] || PROFILE_COPY.en
+
+  /* All courses currently on the main /courses page — kept in sync so the
+     Lessons dropdown always mirrors it, including admin-added courses. */
+  useEffect(() => {
+    api.getCourses().then(setCourses).catch(() => {})
+  }, [])
+
+  useEffect(() => {
+    const h = (e) => {
+      if (profileRef.current && !profileRef.current.contains(e.target)) setProfileOpen(false)
+    }
+    document.addEventListener('mousedown', h)
+    return () => document.removeEventListener('mousedown', h)
+  }, [])
+
+  const lessonsItems = courses.length
+    ? courses.map((c) => ({ key: c.id, title: c.title, path: `/courses/${c.id}` }))
+    : LESSONS_FALLBACK.map((c) => ({ key: c.key, title: tCourses[c.key]?.title || c.key, path: c.path }))
 
   /* ── scroll detection ── */
   useEffect(() => {
@@ -53,10 +92,24 @@ export default function LandingNavbar({ lang, setLang }) {
     return () => document.removeEventListener('mousedown', h)
   }, [])
 
+  /* ── outside-click for lessons dropdown ── */
+  useEffect(() => {
+    const h = (e) => {
+      if (lessonsRef.current && !lessonsRef.current.contains(e.target)) setLessonsOpen(false)
+    }
+    document.addEventListener('mousedown', h)
+    return () => document.removeEventListener('mousedown', h)
+  }, [])
+
   /* ── escape key ── */
   useEffect(() => {
     const h = (e) => {
-      if (e.key === 'Escape') { setMenuOpen(false); setLangOpen(false) }
+      if (e.key === 'Escape') {
+        setMenuOpen(false)
+        setLangOpen(false)
+        setLessonsOpen(false)
+        setProfileOpen(false)
+      }
     }
     document.addEventListener('keydown', h)
     return () => document.removeEventListener('keydown', h)
@@ -120,7 +173,96 @@ export default function LandingNavbar({ lang, setLang }) {
 
         {/* ── Desktop center nav ── */}
         <nav className="hidden lg:flex items-center gap-0.5 mx-auto">
-          {NAV_LINKS.map((link) => (
+          {NAV_LINKS.filter((l) => l.id === 'about').map((link) => (
+            <button
+              key={link.id}
+              onClick={() => scrollTo(link.id)}
+              className="px-4 py-2 rounded-xl text-[13px] font-medium transition-all duration-200 focus:outline-none whitespace-nowrap"
+              style={{ color: 'rgba(255,255,255,0.7)' }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.color      = 'white'
+                e.currentTarget.style.background = 'rgba(255,255,255,0.07)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.color      = 'rgba(255,255,255,0.7)'
+                e.currentTarget.style.background = 'transparent'
+              }}
+            >
+              {t[link.key]}
+            </button>
+          ))}
+
+          {/* Lessons dropdown */}
+          <div ref={lessonsRef} className="relative">
+            <button
+              onClick={() => setLessonsOpen((o) => !o)}
+              aria-expanded={lessonsOpen}
+              className="flex items-center gap-1 px-4 py-2 rounded-xl text-[13px] font-medium transition-all duration-200 focus:outline-none whitespace-nowrap"
+              style={{
+                color:      lessonsOpen ? 'white' : 'rgba(255,255,255,0.7)',
+                background: lessonsOpen ? 'rgba(255,255,255,0.07)' : 'transparent',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.color      = 'white'
+                e.currentTarget.style.background = 'rgba(255,255,255,0.07)'
+              }}
+              onMouseLeave={(e) => {
+                if (!lessonsOpen) {
+                  e.currentTarget.style.color      = 'rgba(255,255,255,0.7)'
+                  e.currentTarget.style.background = 'transparent'
+                }
+              }}
+            >
+              {t.lessons}
+              <svg
+                width="11" height="11" viewBox="0 0 24 24" fill="none"
+                style={{ transition: 'transform 0.2s', transform: lessonsOpen ? 'rotate(180deg)' : 'none' }}
+              >
+                <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </button>
+
+            <AnimatePresence>
+              {lessonsOpen && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95, y: -6 }}
+                  animate={{ opacity: 1, scale: 1,    y: 0  }}
+                  exit={{    opacity: 0, scale: 0.95, y: -6 }}
+                  transition={{ duration: 0.16, ease: [0.22, 1, 0.36, 1] }}
+                  className="absolute left-0 w-56 rounded-xl overflow-hidden shadow-2xl"
+                  style={{
+                    top:            'calc(100% + 8px)',
+                    background:     'rgba(15,15,15,0.95)',
+                    backdropFilter: 'blur(20px)',
+                    border:         '1px solid rgba(255,255,255,0.1)',
+                    boxShadow:      '0 16px 40px rgba(0,0,0,0.6)',
+                  }}
+                >
+                  {lessonsItems.map((item) => (
+                    <button
+                      key={item.key}
+                      onClick={() => { setLessonsOpen(false); navigate(item.path) }}
+                      className="w-full flex items-center gap-2.5 px-4 py-2.5 text-left text-[13px] font-medium transition-colors duration-150 focus:outline-none"
+                      style={{ color: 'rgba(255,255,255,0.75)' }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.color      = 'white'
+                        e.currentTarget.style.background = 'rgba(255,255,255,0.06)'
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.color      = 'rgba(255,255,255,0.75)'
+                        e.currentTarget.style.background = 'transparent'
+                      }}
+                    >
+                      <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: '#FF0000' }} />
+                      {item.title}
+                    </button>
+                  ))}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
+          {NAV_LINKS.filter((l) => l.id !== 'about').map((link) => (
             <button
               key={link.id}
               onClick={() => scrollTo(link.id)}
@@ -231,33 +373,73 @@ export default function LandingNavbar({ lang, setLang }) {
             style={{ background: 'rgba(255,255,255,0.12)' }}
           />
 
-          {/* Login / CTA */}
-          <motion.button
-            whileHover={{ scale: 1.04 }}
-            whileTap={{ scale: 0.96 }}
-            onClick={() => navigate('/auth')}
-            className="hidden sm:flex items-center gap-2 px-5 py-2 rounded-xl font-bold text-[13px] text-white transition-all duration-200 focus:outline-none"
-            style={{
-              background: 'rgba(255,255,255,0.1)',
-              border:     '1px solid rgba(255,255,255,0.18)',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'rgba(255,255,255,0.16)'
-              e.currentTarget.style.border     = '1px solid rgba(255,255,255,0.3)'
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'rgba(255,255,255,0.1)'
-              e.currentTarget.style.border     = '1px solid rgba(255,255,255,0.18)'
-            }}
-          >
-            {/* User icon */}
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-              <circle cx="12" cy="8" r="4" stroke="white" strokeWidth="1.8" strokeLinecap="round"/>
-              <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"
-                stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-            {t.login}
-          </motion.button>
+          {user ? (
+            <div ref={profileRef} className="relative hidden sm:block">
+              <motion.button
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
+                onClick={() => setProfileOpen((open) => !open)}
+                aria-expanded={profileOpen}
+                className="flex items-center gap-2 px-2.5 py-1.5 rounded-xl text-white focus:outline-none"
+                style={{
+                  background: profileOpen ? 'rgba(255,255,255,0.16)' : 'rgba(255,255,255,0.1)',
+                  border: '1px solid rgba(255,255,255,0.18)',
+                }}
+              >
+                <span className="w-7 h-7 rounded-lg flex items-center justify-center bg-red-600 font-black text-xs">
+                  {(user.firstName || user.phone || 'U').charAt(0).toUpperCase()}
+                </span>
+                <span className="hidden md:block max-w-24 truncate text-[12.5px] font-bold">
+                  {user.firstName || profileCopy.profile}
+                </span>
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none"
+                  style={{ transform: profileOpen ? 'rotate(180deg)' : 'none', transition: 'transform .2s' }}>
+                  <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"/>
+                </svg>
+              </motion.button>
+
+              <AnimatePresence>
+                {profileOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95, y: -6 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.95, y: -6 }}
+                    className="absolute right-0 mt-2 w-56 overflow-hidden rounded-2xl p-2 shadow-2xl"
+                    style={{ background: 'rgba(15,15,15,.97)', border: '1px solid rgba(255,255,255,.12)' }}
+                  >
+                    <div className="px-3 py-2.5 border-b border-white/10">
+                      <p className="truncate text-sm font-bold text-white">{user.firstName} {user.lastName}</p>
+                      <p className="truncate text-[11px] text-white/45">{user.phone}</p>
+                    </div>
+                    <button onClick={() => { setProfileOpen(false); navigate('/learn') }}
+                      className="mt-1 w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm font-bold text-white hover:bg-white/10">
+                      <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-red-600/20 text-red-400">▶</span>
+                      {profileCopy.learn}
+                    </button>
+                    <button onClick={() => { setProfileOpen(false); onLogout?.() }}
+                      className="w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm font-semibold text-white/65 hover:bg-white/10 hover:text-white">
+                      <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/5">↗</span>
+                      {profileCopy.logout}
+                    </button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          ) : (
+            <motion.button
+              whileHover={{ scale: 1.04 }}
+              whileTap={{ scale: 0.96 }}
+              onClick={() => navigate('/auth')}
+              className="hidden sm:flex items-center gap-2 px-5 py-2 rounded-xl font-bold text-[13px] text-white transition-all duration-200 focus:outline-none"
+              style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.18)' }}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                <circle cx="12" cy="8" r="4" stroke="white" strokeWidth="1.8"/>
+                <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" stroke="white" strokeWidth="1.8" strokeLinecap="round"/>
+              </svg>
+              {t.login}
+            </motion.button>
+          )}
 
           {/* Mobile hamburger */}
           <div ref={menuRef} className="relative lg:hidden">
@@ -314,12 +496,84 @@ export default function LandingNavbar({ lang, setLang }) {
                   }}
                 >
                   <nav className="py-2">
-                    {NAV_LINKS.map((link, idx) => (
+                    {NAV_LINKS.filter((l) => l.id === 'about').map((link, idx) => (
                       <motion.button
                         key={link.id}
                         initial={{ opacity: 0, x: -8 }}
                         animate={{ opacity: 1, x: 0  }}
                         transition={{ delay: idx * 0.04 }}
+                        onClick={() => scrollTo(link.id)}
+                        className="w-full text-left px-5 py-3 text-[13.5px] font-medium transition-colors duration-150 focus:outline-none"
+                        style={{ color: 'rgba(255,255,255,0.75)' }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.color      = 'white'
+                          e.currentTarget.style.background = 'rgba(255,255,255,0.06)'
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.color      = 'rgba(255,255,255,0.75)'
+                          e.currentTarget.style.background = 'transparent'
+                        }}
+                      >
+                        {t[link.key]}
+                      </motion.button>
+                    ))}
+
+                    {/* Lessons accordion */}
+                    <motion.button
+                      initial={{ opacity: 0, x: -8 }}
+                      animate={{ opacity: 1, x: 0  }}
+                      transition={{ delay: 0.04 }}
+                      onClick={() => setLessonsMobileOpen((o) => !o)}
+                      aria-expanded={lessonsMobileOpen}
+                      className="w-full flex items-center justify-between text-left px-5 py-3 text-[13.5px] font-medium transition-colors duration-150 focus:outline-none"
+                      style={{ color: 'rgba(255,255,255,0.75)' }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.color      = 'white'
+                        e.currentTarget.style.background = 'rgba(255,255,255,0.06)'
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.color      = 'rgba(255,255,255,0.75)'
+                        e.currentTarget.style.background = 'transparent'
+                      }}
+                    >
+                      {t.lessons}
+                      <svg
+                        width="11" height="11" viewBox="0 0 24 24" fill="none"
+                        style={{ transition: 'transform 0.2s', transform: lessonsMobileOpen ? 'rotate(180deg)' : 'none' }}
+                      >
+                        <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    </motion.button>
+                    {lessonsMobileOpen && (
+                      <div className="pb-1">
+                        {lessonsItems.map((item) => (
+                          <button
+                            key={item.key}
+                            onClick={() => { setLessonsMobileOpen(false); setMenuOpen(false); navigate(item.path) }}
+                            className="w-full flex items-center gap-2.5 pl-9 pr-5 py-2.5 text-left text-[12.5px] font-medium transition-colors duration-150 focus:outline-none"
+                            style={{ color: 'rgba(255,255,255,0.6)' }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.color      = 'white'
+                              e.currentTarget.style.background = 'rgba(255,255,255,0.06)'
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.color      = 'rgba(255,255,255,0.6)'
+                              e.currentTarget.style.background = 'transparent'
+                            }}
+                          >
+                            <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: '#FF0000' }} />
+                            {item.title}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+
+                    {NAV_LINKS.filter((l) => l.id !== 'about').map((link, idx) => (
+                      <motion.button
+                        key={link.id}
+                        initial={{ opacity: 0, x: -8 }}
+                        animate={{ opacity: 1, x: 0  }}
+                        transition={{ delay: (idx + 1) * 0.04 }}
                         onClick={() => scrollTo(link.id)}
                         className="w-full text-left px-5 py-3 text-[13.5px] font-medium transition-colors duration-150 focus:outline-none"
                         style={{ color: 'rgba(255,255,255,0.75)' }}
@@ -362,15 +616,27 @@ export default function LandingNavbar({ lang, setLang }) {
 
                   <div className="px-4 py-3">
                     <button
-                      onClick={() => { navigate('/auth'); setMenuOpen(false) }}
+                      onClick={() => {
+                        setMenuOpen(false)
+                        if (user) navigate('/learn')
+                        else navigate('/auth')
+                      }}
                       className="w-full py-2.5 rounded-xl font-bold text-[13.5px] text-white transition-all duration-200 active:scale-[0.97]"
                       style={{
                         background: 'rgba(255,255,255,0.1)',
                         border:     '1px solid rgba(255,255,255,0.18)',
                       }}
                     >
-                      {t.login}
+                      {user ? profileCopy.learn : t.login}
                     </button>
+                    {user && (
+                      <button
+                        onClick={() => { setMenuOpen(false); onLogout?.() }}
+                        className="mt-2 w-full py-2 text-xs font-semibold text-white/55 hover:text-white"
+                      >
+                        {profileCopy.logout}
+                      </button>
+                    )}
                   </div>
                 </motion.div>
               )}
